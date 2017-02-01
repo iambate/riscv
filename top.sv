@@ -24,37 +24,35 @@ module top
 );
 
   logic [63:0] pc;
-  logic [8:0] no_of_bytes;
+  logic [8:0] counter;
   always @ (posedge clk)
     if (reset) begin
       pc <= entry;
-      no_of_bytes <= 'd8;
+      counter <= 'd8;
     end else begin
-      if(bus_respcyc)
-      begin
-        if(!bus_resp)
+      if(bus_respcyc) begin
+        if(!bus_resp) begin
           $finish;
-        else begin
+        end else begin
           $display("Hello World!  @ %x", pc);
-          $display("bus_resp %h", bus_resp);
+          $display("bus_resp %h", bus_resp[31:0]);
+          $display("bus_resp %h", bus_resp[63:32]);
           $display("bus_resptag %h", bus_resptag);
           $display("");
           pc <= pc + 8;
-          bus_req <= pc;
+          // Keep the value of pc and bus_req same
+          bus_req <= pc + 8;
           bus_respack <= bus_respcyc;
-          bus_reqcyc <= 0;
-          no_of_bytes <= no_of_bytes +1;
+          counter <= counter +1;
         end
+      end else begin
+         bus_respack <= 0;
       end
 
-      if(no_of_bytes == 'd8)
-      begin
-        bus_respack <= 0;
+      if(counter == 'd8) begin
         bus_reqcyc <= 1;
-        bus_req <= pc;
         bus_reqtag <= `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
-        $display("bus_reqtag %b", bus_reqtag);
-        no_of_bytes <= 0;
+        counter <= 0;
       end else begin
         bus_reqcyc <= 0;
       end
