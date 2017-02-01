@@ -13,13 +13,13 @@ module top
   input  [63:0] entry,
   
   // interface to connect to the bus
-  output bus_reqcyc,
-  output bus_respack,
-  output [BUS_DATA_WIDTH-1:0] bus_req,
-  output [BUS_TAG_WIDTH-1:0] bus_reqtag,
-  input  bus_respcyc,
+  output bus_reqcyc,//set when sending a request
+  output bus_respack,//set after receiving data rom the dram
+  output [BUS_DATA_WIDTH-1:0] bus_req,//pc value
+  output [BUS_TAG_WIDTH-1:0] bus_reqtag,//READ OR MEMORY
+  input  bus_respcyc,//if tx_queue is not empty respcyc is set
   input  bus_reqack,
-  input  [BUS_DATA_WIDTH-1:0] bus_resp,
+  input  [BUS_DATA_WIDTH-1:0] bus_resp,//bus_resp contains data
   input  [BUS_TAG_WIDTH-1:0] bus_resptag
 );
 
