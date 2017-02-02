@@ -190,7 +190,7 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
     map<uint64_t, int>::iterator tag = addr_to_tag.find(address);
     assert(tag != addr_to_tag.end());
     for(int i = 0; i < 64; i += 8) {
-        //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
+        //cerr << "fill data from " << address<< " "<<std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
         tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((address&(~63))+((address+i)&63))])),tag->second));
     }
     addr_to_tag.erase(tag);
