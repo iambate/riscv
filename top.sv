@@ -38,13 +38,14 @@ module top
 		$finish;
 	     end
 	     else if (!bus_resp[63:32]) begin
-		$display("%x\t%h",prev_pc+counter*'d8,bus_resp[31:0]);
+		$display("%x\t%h",prev_pc,bus_resp[31:0]);
 		$finish;
 	     end
 	     else begin
-		$display("%x\t%h",prev_pc+counter*'d8,bus_resp[31:0]);
-		$display("%x\t %h", prev_pc+counter*'d8+'d4,bus_resp[63:32]);
+		$display("%x\t%h",prev_pc,bus_resp[31:0]);
+		$display("%x\t %h", prev_pc+'d4,bus_resp[63:32]);
 		$display("");
+		prev_pc<=prev_pc+'d8;
 		bus_respack <= 1;
 		counter <= counter+'d1;
   	     end
@@ -54,7 +55,6 @@ module top
 	end
 
 	if(counter == 'd8) begin
-	     prev_pc<=pc;
 	     pc<=pc+'d64;
              bus_req<=pc;
 	     bus_reqcyc<=1;
