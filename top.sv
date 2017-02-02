@@ -24,10 +24,12 @@ module top
 );
 
   logic [63:0] pc;
+  logic [63:0] prev_pc;
   logic [8:0] counter;
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
 	pc <= entry;
+	prev_pc<=entry;
 	counter <= 'd8;
     end
     else begin
@@ -35,9 +37,13 @@ module top
 	     if(!bus_resp) begin
 		$finish;
 	     end
+	     else if (!bus_resp[63:32]) begin
+		$display("%x\t%h",prev_pc+counter*'d8,bus_resp[31:0]);
+		$finish;
+	     end
 	     else begin
-		$display("bus_resp %h", bus_resp[31:0]);
-		$display("bus_resp %h", bus_resp[63:32]);
+		$display("%x\t%h",prev_pc+counter*'d8,bus_resp[31:0]);
+		$display("%x\t %h", prev_pc+counter*'d8+'d4,bus_resp[63:32]);
 		$display("");
 		bus_respack <= 1;
 		counter <= counter+'d1;
@@ -48,6 +54,7 @@ module top
 	end
 
 	if(counter == 'd8) begin
+	     prev_pc<=pc;
 	     pc<=pc+'d64;
              bus_req<=pc;
 	     bus_reqcyc<=1;
