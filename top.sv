@@ -1,4 +1,18 @@
 `include "Sysbus.defs"
+module Process_Instruction
+#(
+  BUS_DATA_WIDTH = 64 
+)
+(
+  input [BUS_DATA_WIDTH/2-1:0] inst,
+  output ans
+);
+  string my_string = "gargi";
+  always_comb begin
+	assign ans=my_string;
+  end
+//process inst to provide output in ans string
+endmodule
 
 module top
 #(
@@ -29,7 +43,15 @@ module top
   logic [8:0] counter;
   logic [BUS_TAG_WIDTH-1:0] tag;
   logic [8:0] ncounter;
-
+  string output1;
+  string output2;
+  Process_Instruction inst_1 (.inst(bus_resp[31:0]),.ans(output1));
+  Process_Instruction inst_2 (.inst(bus_resp[63:32]),.ans(output2));
+//  always_comb begin
+    //(.d(data), .q(net_1), .clk(clock))
+//    Process_Instruction inst_1 (.inst(bus_resp[0:31]),.ans(output1));
+//    Process_Instruction inst_2 (.inst(bus_resp[63:32]),.ans(output2));
+//  end
   always_comb begin
     assign npc = pc+'d64;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
@@ -47,11 +69,15 @@ module top
 	     end
 	     else if (!bus_resp[63:32]) begin
 		$display("%h",bus_resp[31:0]);
+		$display("%s",output1);
 		$finish;
 	     end
 	     else begin
 		$display("%h",bus_resp[31:0]);
+		$display("%s",output1);
+		$display("");
 		$display("%h", bus_resp[63:32]);
+		$display("%s",output2);
 		$display("");
 		bus_respack <= 1;
   	     end
