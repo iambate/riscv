@@ -1,0 +1,3 @@
+`define	ADDI 	32'bxxxxxxxxxxxxxxxxx000xxxxx0010011
+`define	SD 	32'bxxxxxxxxxxxxxxxxx011xxxxx0100011
+

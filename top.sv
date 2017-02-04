@@ -1,4 +1,6 @@
 `include "Sysbus.defs"
+`include "Opcodes.defs"
+
 module Process_Instruction
 #(
   BUS_DATA_WIDTH = 64 
@@ -8,9 +10,9 @@ module Process_Instruction
   output [8:0] ans
 );
   always_comb begin
-    case (inst[6:0])
-	7'b0010011:assign ans =1;
-	7'b0100011:assign ans = 2;
+    casex (inst)
+	`ADDI:assign ans =1;
+	`SD:assign ans = 2;
 	default:assign ans =3;
     endcase
   end
