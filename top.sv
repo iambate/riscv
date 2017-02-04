@@ -38,7 +38,6 @@ module top
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
 	pc <= entry;
-//	prev_pc<=entry;//prev_pc needs to exist only in always_comb
 	counter <= 'd8;
     end
     else begin
@@ -54,9 +53,7 @@ module top
 		$display("%h",bus_resp[31:0]);
 		$display("%h", bus_resp[63:32]);
 		$display("");
-//		prev_pc<=prev_pc+'d8;
 		bus_respack <= 1;
-		counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
   	     end
 	end
 	else begin
@@ -67,11 +64,12 @@ module top
 	     pc<=npc;
              bus_req<=pc;
 	     bus_reqcyc<=1;
-	  //   bus_reqtag<=tag;
 	     counter<='d0;
 	end
+	else if (counter != 'd8 && bus_respcyc)
+	    counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
 	else begin
-	     bus_reqcyc<=0;
+	    bus_reqcyc<=0;
 	end
     end
   initial begin
