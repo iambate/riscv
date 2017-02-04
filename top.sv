@@ -24,12 +24,21 @@ module top
 );
 
   logic [63:0] pc;
+  logic [63:0] npc;
   logic [63:0] prev_pc;
   logic [8:0] counter;
+  logic [BUS_TAG_WIDTH-1:0] tag;
+  logic [8:0] ncounter;
+
+  always_comb begin
+    assign npc = pc+'d64;
+    assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
+    assign ncounter = counter+'d1;
+  end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
 	pc <= entry;
-	prev_pc<=entry;
+//	prev_pc<=entry;//prev_pc needs to exist only in always_comb
 	counter <= 'd8;
     end
     else begin
@@ -38,16 +47,16 @@ module top
 		$finish;
 	     end
 	     else if (!bus_resp[63:32]) begin
-		$display("%x\t%h",prev_pc,bus_resp[31:0]);
+		$display("%h",bus_resp[31:0]);
 		$finish;
 	     end
 	     else begin
-		$display("%x\t%h",prev_pc,bus_resp[31:0]);
-		$display("%x\t %h", prev_pc+'d4,bus_resp[63:32]);
+		$display("%h",bus_resp[31:0]);
+		$display("%h", bus_resp[63:32]);
 		$display("");
-		prev_pc<=prev_pc+'d8;
+//		prev_pc<=prev_pc+'d8;
 		bus_respack <= 1;
-		counter <= counter+'d1;
+		counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
   	     end
 	end
 	else begin
@@ -55,10 +64,10 @@ module top
 	end
 
 	if(counter == 'd8) begin
-	     pc<=pc+'d64;
+	     pc<=npc;
              bus_req<=pc;
 	     bus_reqcyc<=1;
-	     bus_reqtag<=`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
+	  //   bus_reqtag<=tag;
 	     counter<='d0;
 	end
 	else begin

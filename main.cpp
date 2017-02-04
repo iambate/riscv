@@ -76,9 +76,13 @@ int main(int argc, char* argv[]) {
 
 	top.reset = 1;
 	top.clk = 0;
+	int i =1;
 	TICK(); // 1
+//	cout<< "tick num "<<i++<<endl;
 	TICK(); // 0
+//	cout<< "tick num "<<i++<<endl;
 	TICK(); // 1
+//	cout<< "tick num "<<i++<<endl;
 	top.reset = 0;
 
 	const char* SHOWCONSOLE = getenv("SHOWCONSOLE");
@@ -86,6 +90,7 @@ int main(int argc, char* argv[]) {
 
 	while (main_time/ps_per_clock < 2000*KILO && !Verilated::gotFinish()) {
 		TICK();
+//		cout<< "tick num "<<i++<<endl;
 	}
 
 	top.final();
