@@ -5,13 +5,13 @@ module Process_Instruction
 )
 (
   input [31:0] inst,
-  output wire ans
+  output [8:0] ans
 );
   always_comb begin
     case (inst[6:0])
-	7'b0010011:assign ans ="ADDI";
-	7'b0100011:assign ans = "SD";
-	default:assign ans ="NONE";
+	7'b0010011:assign ans =1;
+	7'b0100011:assign ans = 2;
+	default:assign ans =3;
     endcase
   end
 //process inst to provide output in ans string
@@ -46,8 +46,8 @@ module top
   logic [8:0] counter;
   logic [BUS_TAG_WIDTH-1:0] tag;
   logic [8:0] ncounter;
-  wire output1;
-  wire output2;
+  logic [8:0] output1;
+  logic [8:0] output2;
   Process_Instruction inst_1 (bus_resp[31:0],output1);
   Process_Instruction inst_2 (bus_resp[63:32],output2);
   always_comb begin
@@ -67,15 +67,15 @@ module top
 	     end
 	     else if (!bus_resp[63:32]) begin
 		$display("%h",bus_resp[31:0]);
-		$display("%s",output1);
+		$display("%h",output1);
 		$finish;
 	     end
 	     else begin
 		$display("%h",bus_resp[31:0]);
-		$display("%s",output1);
+		$display("%h",output1);
 		$display("");
 		$display("%h", bus_resp[63:32]);
-		$display("%s",output2);
+		$display("%h",output2);
 		$display("");
 		bus_respack <= 1;
   	     end
