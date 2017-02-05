@@ -33,6 +33,7 @@ module get_variables
         else
           assign flag[3:0] = 'b0111;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
       end
       `I_TYPE: begin
         if(in_flag[`IS_DIFF_INDEX])
@@ -40,6 +41,7 @@ module get_variables
         else
           assign flag[3:0] = 'b1011;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
         assign u_13_var[11:0] = instruction[31:20];
       	assign u_13_var[12] = instruction[31];
         if(u_13_var[12] & in_flag[`IS_SIGNED_INDEX])
@@ -54,6 +56,7 @@ module get_variables
         else
           assign flag[3:0] = 'b1110;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
         assign u_13_var[4:0] = instruction[11:7];
         assign u_13_var[11:5] = instruction[31:25];
 	      assign u_13_var[12] = instruction[31];
@@ -69,6 +72,7 @@ module get_variables
         else
           assign flag[3:0] = 'b1110;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
         assign u_13_var[0] = 1'b0;
         assign u_13_var[4:1] = instruction[11:8];
         assign u_13_var[10:5] = instruction[30:25];
@@ -86,6 +90,7 @@ module get_variables
         else
           assign flag[3:0] = 'b1001;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
         assign u_21_var[19:0] = instruction[31:12];
         assign imm = u_21_var[19:0] << 12;
       end
@@ -95,6 +100,7 @@ module get_variables
         else
           assign flag[3:0] = 'b1001;
         assign flag[4] = in_flag[4];
+        assign flag[7] = in_flag[7];
         assign u_21_var[0] = 1'b0;
         assign u_21_var[10:1] = instruction[30:21];
         assign u_21_var[11] = instruction[20];
