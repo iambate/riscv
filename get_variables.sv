@@ -8,7 +8,7 @@ module get_variables
   REGISTER_WIDTH = 5,
   REGISTER_NAME_WIDTH = 4,
   IMMEDIATE_WIDTH = 32,
-  FLAG_WIDTH = 8
+  FLAG_WIDTH = 16
 )
 (
   input [INSTRUCTION_LENGTH-1:0] instruction,
