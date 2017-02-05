@@ -11,7 +11,8 @@ module process_instruction
   REGISTER_WIDTH = 5,
   REGISTER_NAME_WIDTH = 4,
   IMMEDIATE_WIDTH = 32,
-  FLAG_WIDTH = 8
+  FLAG_WIDTH = 8,
+  INSTRUCTION_NAME_WIDTH = 12
 )
 (
   input [BUS_DATA_WIDTH/2-1:0] instruction,
@@ -19,7 +20,8 @@ module process_instruction
   output [REGISTER_NAME_WIDTH*8:0] rs1,
   output [REGISTER_NAME_WIDTH*8:0] rs2,
   output [IMMEDIATE_WIDTH-1:0] imm,
-  output [FLAG_WIDTH-1: 0] flag
+  output [FLAG_WIDTH-1: 0] flag,
+  output [INSTRUCTION_NAME_WIDTH*8:0] instruction_name
 );
 
   logic [TYPE_WIDTH-1:0] instruction_type;

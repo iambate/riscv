@@ -11,7 +11,8 @@ module top
   REGISTER_NAME_WIDTH = 4,
   REGISTER_WIDTH = 5,
   IMMEDIATE_WIDTH = 32,
-  FLAG_WIDTH = 8
+  FLAG_WIDTH = 8,
+  INSTRUCTION_NAME_WIDTH = 12
 )
 (
   input  clk,
@@ -42,14 +43,16 @@ module top
   logic [REGISTER_WIDTH*8:0] rd_1;
   logic signed [IMMEDIATE_WIDTH-1:0] imm_1;
   logic [FLAG_WIDTH-1: 0] flag_1;
+  logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_1;
   logic [REGISTER_WIDTH*8:0] rs1_2;
   logic [REGISTER_WIDTH*8:0] rs2_2;
   logic [REGISTER_WIDTH*8:0] rd_2;
   logic signed [IMMEDIATE_WIDTH-1:0] imm_2;
   logic [FLAG_WIDTH-1: 0] flag_2;
+  logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_2;
 
-  process_instruction inst_1 (bus_resp[31:0], rd_1, rs1_1, rs2_1, imm_1, flag_1);
-  process_instruction inst_2 (bus_resp[63:32], rd_2, rs1_2, rs2_2, imm_2, flag_2);
+  process_instruction inst_1 (bus_resp[31:0], rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
+  process_instruction inst_2 (bus_resp[63:32], rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2);
 
   always_comb begin
     assign npc = pc+'d64;
