@@ -9,3 +9,7 @@
 `define IS_SIGNED_INDEX 5
 `define IS_DIFF_INDEX 6
 `define IS_LOAD_INDEX 7
+`define IS_RD 0
+`define IS_RS1 1
+`define IS_RS2 2
+`define IS_IMM 3
