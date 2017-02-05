@@ -1,0 +1,6 @@
+`define R_TYPE	3'b000
+`define I_TYPE	3'b001
+`define S_TYPE	3'b010
+`define SB_TYPE	3'b011
+`define U_TYPE	3'b100
+`define UJ_TYPE	3'b101

@@ -22,7 +22,9 @@ endmodule
 module top
 #(
   BUS_DATA_WIDTH = 64,
-  BUS_TAG_WIDTH = 13
+  BUS_TAG_WIDTH = 13,
+  REGISTER_NAME_WIDTH = 4,
+  REGISTER_WIDTH = 5
 )
 (
   input  clk,
@@ -50,8 +52,12 @@ module top
   logic [8:0] ncounter;
   logic [8:0] output1;
   logic [8:0] output2;
+  logic [REGISTER_WIDTH*8:0] rs1;
+  logic [REGISTER_WIDTH*8:0] rs2;
+  logic [REGISTER_WIDTH*8:0] rd;
   Process_Instruction inst_1 (bus_resp[31:0],output1);
   Process_Instruction inst_2 (bus_resp[63:32],output2);
+
   always_comb begin
     assign npc = pc+'d64;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
