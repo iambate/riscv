@@ -49,10 +49,6 @@ module get_variables
         else
 	        assign imm[IMMEDIATE_WIDTH-1:13] = 0;
         assign imm[12:0] = u_13_var[12:0];
-        if(u_13_var[12])
-	        assign imm = -u_13_var[12:0];
-        else
-	        assign imm = u_13_var[12:0];
       end
       `SB_TYPE: begin
         assign flag = 'd00001110;
