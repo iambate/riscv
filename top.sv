@@ -76,10 +76,10 @@ module top
 	     end
 	     else begin
 		$display("%h", bus_resp[31:0]);
-		$display("%s %s %s %d", rd_1, rs1_1, rs2_1, imm_1);
+		$display("%s %s %s %d %s", rd_1, rs1_1, rs2_1, imm_1, instruction_name_1);
 		$display("");
 		$display("%h", bus_resp[63:32]);
-		$display("%s %s %s %d", rd_2, rs1_2, rs2_2, imm_2);
+		$display("%s %s %s %d %s", rd_2, rs1_2, rs2_2, imm_2, instruction_name_2);
 		$display("");
 		bus_respack <= 1;
   	     end
