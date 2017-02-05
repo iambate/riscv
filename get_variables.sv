@@ -13,6 +13,7 @@ module get_variables
 (
   input [INSTRUCTION_LENGTH-1:0] instruction,
   input [TYPE_WIDTH-1:0] instruction_type,
+  input [FLAG_WIDTH-1: 0] in_flag,
   output [REGISTER_NAME_WIDTH*8:0] rd,
   output [REGISTER_NAME_WIDTH*8:0] rs1,
   output [REGISTER_NAME_WIDTH*8:0] rs2,
@@ -27,10 +28,18 @@ module get_variables
   always_comb begin
     case(instruction_type)
       `R_TYPE: begin
-        assign flag = 'd00000111;
+        if(in_flag[5])
+          assign flag[3:0] = 'b0111 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b0111;
+        assign flag[4] = in_flag[4];
       end
       `I_TYPE: begin
-        assign flag = 'd00001011;
+        if(in_flag[5])
+          assign flag[3:0] = 'b1011 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b1011;
+        assign flag[4] = in_flag[4];
         assign u_13_var[11:0] = instruction[31:20];
       	assign u_13_var[12] = instruction[31];
         if(u_13_var[12])
@@ -40,7 +49,11 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `S_TYPE: begin
-        assign flag = 'd00001110;
+        if(in_flag[5])
+          assign flag[3:0] = 'b1110 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b1110;
+        assign flag[4] = in_flag[4];
         assign u_13_var[4:0] = instruction[11:7];
         assign u_13_var[11:5] = instruction[31:25];
 	      assign u_13_var[12] = instruction[31];
@@ -51,7 +64,11 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `SB_TYPE: begin
-        assign flag = 'd00001110;
+        if(in_flag[5])
+          assign flag[3:0] = 'b1110 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b1110;
+        assign flag[4] = in_flag[4];
         assign u_13_var[0] = 1'b0;
         assign u_13_var[4:1] = instruction[11:8];
         assign u_13_var[10:5] = instruction[30:25];
@@ -64,12 +81,20 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `U_TYPE: begin
-        assign flag = 'd00001001;
+        if(in_flag[5])
+          assign flag[3:0] = 'b1001 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b1001;
+        assign flag[4] = in_flag[4];
         assign u_21_var[19:0] = instruction[31:12];
         assign imm = u_21_var[19:0] << 12;
       end
       `UJ_TYPE: begin
-        assign flag = 'd00001001;
+        if(in_flag[5])
+          assign flag[3:0] = 'b1001 & in_flag[3:0];
+        else
+          assign flag[3:0] = 'b1001;
+        assign flag[4] = in_flag[4];
         assign u_21_var[0] = 1'b0;
         assign u_21_var[10:1] = instruction[30:21];
         assign u_21_var[11] = instruction[20];

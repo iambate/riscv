@@ -38,15 +38,15 @@ module top
   logic [8:0] counter;
   logic [BUS_TAG_WIDTH-1:0] tag;
   logic [8:0] ncounter;
-  logic [REGISTER_WIDTH*8:0] rs1_1;
-  logic [REGISTER_WIDTH*8:0] rs2_1;
-  logic [REGISTER_WIDTH*8:0] rd_1;
+  logic [REGISTER_NAME_WIDTH*8:0] rs1_1;
+  logic [REGISTER_NAME_WIDTH*8:0] rs2_1;
+  logic [REGISTER_NAME_WIDTH*8:0] rd_1;
   logic signed [IMMEDIATE_WIDTH-1:0] imm_1;
   logic [FLAG_WIDTH-1: 0] flag_1;
   logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_1;
-  logic [REGISTER_WIDTH*8:0] rs1_2;
-  logic [REGISTER_WIDTH*8:0] rs2_2;
-  logic [REGISTER_WIDTH*8:0] rd_2;
+  logic [REGISTER_NAME_WIDTH*8:0] rs1_2;
+  logic [REGISTER_NAME_WIDTH*8:0] rs2_2;
+  logic [REGISTER_NAME_WIDTH*8:0] rd_2;
   logic signed [IMMEDIATE_WIDTH-1:0] imm_2;
   logic [FLAG_WIDTH-1: 0] flag_2;
   logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_2;
@@ -75,10 +75,10 @@ module top
 		$finish;
 	     end
 	     else begin
-		$display("%h", bus_resp[31:0]);
+		$display("%h %b", bus_resp[31:0], flag_1);
 		$display("%s %s %s %d %s", rd_1, rs1_1, rs2_1, imm_1, instruction_name_1);
 		$display("");
-		$display("%h", bus_resp[63:32]);
+		$display("%h %b", bus_resp[63:32], flag_2);
 		$display("%s %s %s %d %s", rd_2, rs1_2, rs2_2, imm_2, instruction_name_2);
 		$display("");
 		bus_respack <= 1;
