@@ -4,3 +4,4 @@
 `define SB_TYPE	3'b011
 `define U_TYPE	3'b100
 `define UJ_TYPE	3'b101
+`define UNKNOWN_TYPE	3'b110
