@@ -8,14 +8,8 @@ function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] 
   logic [7:0] comma =",";
   integer immediate_value;
   string str;
+  int comma_flag;
   begin
-/*
-      ans = {rd,ans};
-      ans = {rs1,ans};
-      ans = {rs2,ans};
-      ans = {imm,ans};
-      ans = {instruction_name,ans};
-*/
       //0:rd 1:rs1 2:rs2 3:imm 4:bracket
       if(flag&(1<<`IS_BRACKET_INDEX)) begin
 	 ans1 = {rbrace,ans1};
@@ -25,25 +19,47 @@ function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] 
 	 if(flag&(1<<`IS_LOAD_INDEX)) begin
 		ans2 = {comma,ans2};
                 ans2 = {rd,ans2};
-                ans2 = {"\t",ans2};
+                ans2 = {"\t    ",ans2};
                 ans2 = {instruction_name,ans2};
 	 end
 	 else begin
          	ans2 = {comma,ans2};
    	 	ans2 = {rs2,ans2};
-	 	ans2 = {"\t",ans2};
+	 	ans2 = {"\t    ",ans2};
 	 	ans2 = {instruction_name,ans2};
 	 end
 	 $display("%s%d%s",ans2,immediate_value,ans1);
       end
-/*
-      else if(flag&1)
-      	   if(flag&(1<<`IS_RS1))
-           if(flag&(1<<`IS_RS2))
-           if(flag&(1<<`IS_IMM))
-*/
+
       else begin
-	 ans = "hi";
+	 ans={instruction_name,ans};
+	 $write("%s\t",ans);
+	 comma_flag = 0;
+	 if(flag&(1<<`IS_RD)) begin
+	     if(comma_flag == 1)
+		$write("%s",comma);
+	     $write("%s",rd);
+	     comma_flag = 1;
+	 end
+	 if(flag&(1<<`IS_RS1)) begin
+             if(comma_flag == 1)
+                $write("%s",comma);
+             $write("%s",rs1);
+             comma_flag = 1;
+         end
+	 if(flag&(1<<`IS_RS2)) begin
+             if(comma_flag == 1)
+                $write("%s",comma);
+             $write("%s",rs2);
+             comma_flag = 1;
+         end
+	 if(flag&(1<<`IS_IMM)) begin
+             if(comma_flag == 1)
+                $write("%s",comma);
+             $write("%d",imm);
+             comma_flag = 1;
+         end
+	 $display();	 
       end
   end
 endfunction
