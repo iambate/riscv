@@ -9,7 +9,7 @@ module get_reg_name
 );
   always_comb begin
     casez(reg_number)
-      5'b00000: assign reg_name = "zero";
+      5'b00000: assign reg_name = "0x0";
       5'b00001: assign reg_name = "ra";
       5'b00010: assign reg_name = "sp";
       5'b00011: assign reg_name = "gp";
