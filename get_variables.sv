@@ -28,14 +28,14 @@ module get_variables
   always_comb begin
     case(instruction_type)
       `R_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b0111 & in_flag[3:0];
         else
           assign flag[3:0] = 'b0111;
         assign flag[4] = in_flag[4];
       end
       `I_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b1011 & in_flag[3:0];
         else
           assign flag[3:0] = 'b1011;
@@ -49,7 +49,7 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `S_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b1110 & in_flag[3:0];
         else
           assign flag[3:0] = 'b1110;
@@ -64,7 +64,7 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `SB_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b1110 & in_flag[3:0];
         else
           assign flag[3:0] = 'b1110;
@@ -81,7 +81,7 @@ module get_variables
         assign imm[12:0] = u_13_var[12:0];
       end
       `U_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b1001 & in_flag[3:0];
         else
           assign flag[3:0] = 'b1001;
@@ -90,7 +90,7 @@ module get_variables
         assign imm = u_21_var[19:0] << 12;
       end
       `UJ_TYPE: begin
-        if(in_flag[5])
+        if(in_flag[`IS_DIFF_INDEX])
           assign flag[3:0] = 'b1001 & in_flag[3:0];
         else
           assign flag[3:0] = 'b1001;

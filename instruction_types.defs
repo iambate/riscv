@@ -5,3 +5,6 @@
 `define U_TYPE	3'b100
 `define UJ_TYPE	3'b101
 `define UNKNOWN_TYPE	3'b110
+`define IS_BRACKET_INDEX 4
+`define IS_SIGNED_INDEX 5
+`define IS_DIFF_INDEX 6
