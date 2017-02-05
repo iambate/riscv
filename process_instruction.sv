@@ -36,6 +36,7 @@ module process_instruction
                       .flag(flag));
   always_comb begin
     assign tmp_flag[`IS_LOAD_INDEX] = 0;
+    assign tmp_flag[`IS_SHIFT_INDEX] = 0;
     assign tmp_flag[`IS_DIFF_INDEX] = 0;
     assign tmp_flag[`IS_BRACKET_INDEX]=0;
     assign tmp_flag[`IS_SIGNED_INDEX]=1;
@@ -110,6 +111,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="srai";
+            assign tmp_flag[`IS_SHIFT_INDEX] = 1;
         end
 	`ADD:
 	begin
@@ -151,6 +153,7 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="sra";
+            assign tmp_flag[`IS_SHIFT_INDEX] = 1;
         end
 	`OR:
 	begin
@@ -164,13 +167,17 @@ module process_instruction
         end 
 	`FENCE:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="fence";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0000;
         end
 	`FENCEI:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="fencei";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0000;
         end
 	`LUI:
 	begin
@@ -289,43 +296,59 @@ module process_instruction
         end
 	`SCALL:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
-	    assign instruction_name="addiw";
+            assign instruction_type=`I_TYPE;
+	    assign instruction_name="scall";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0000;
         end
 	`SBREAK:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="sbreak";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0000;
         end
 	`RDCYCLE:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdcycle";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end
 	`RDCYCLEH:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdcycleh";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end
 	`RDTIME:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdtime";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end
 	`RDTIMEH:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdtimeh";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end
 	`RDINSTREET:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdinstreet";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end
 	`RDINSTRETH:
 	begin
-            assign instruction_type=`UNKNOWN_TYPE;
+            assign instruction_type=`I_TYPE;
 	    assign instruction_name="rdinstreth";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0001;
         end 
 	`SLLIW :
 	begin
@@ -341,6 +364,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="sraiw";
+            assign tmp_flag[`IS_SHIFT_INDEX] = 1;
         end
 	`ADDW :
 	begin
@@ -366,6 +390,7 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="sraw";
+            assign tmp_flag[`IS_SHIFT_INDEX] = 1;
         end
 	`MULW :
 	begin

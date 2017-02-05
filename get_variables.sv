@@ -49,6 +49,8 @@ module get_variables
         else
 	        assign imm[IMMEDIATE_WIDTH-1:13] = 0;
         assign imm[12:0] = u_13_var[12:0];
+        if(in_flag[`IS_SHIFT_INDEX])
+          assign imm[10] = 0;
       end
       `S_TYPE: begin
         if(in_flag[`IS_DIFF_INDEX])
