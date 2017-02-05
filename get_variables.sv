@@ -42,7 +42,7 @@ module get_variables
         assign flag[4] = in_flag[4];
         assign u_13_var[11:0] = instruction[31:20];
       	assign u_13_var[12] = instruction[31];
-        if(u_13_var[12])
+        if(u_13_var[12] & in_flag[`IS_SIGNED_INDEX])
 	        assign imm[IMMEDIATE_WIDTH-1:13] = ~0;
         else
 	        assign imm[IMMEDIATE_WIDTH-1:13] = 0;
@@ -57,7 +57,7 @@ module get_variables
         assign u_13_var[4:0] = instruction[11:7];
         assign u_13_var[11:5] = instruction[31:25];
 	      assign u_13_var[12] = instruction[31];
-        if(u_13_var[12])
+        if(u_13_var[12] & in_flag[`IS_SIGNED_INDEX])
 	        assign imm[IMMEDIATE_WIDTH-1:13] = ~0;
         else
 	        assign imm[IMMEDIATE_WIDTH-1:13] = 0;
@@ -74,7 +74,7 @@ module get_variables
         assign u_13_var[10:5] = instruction[30:25];
         assign u_13_var[11] = instruction[7];
 	      assign u_13_var[12] = instruction[31];
-        if(u_13_var[12])
+        if(u_13_var[12] & in_flag[`IS_SIGNED_INDEX])
 	        assign imm[IMMEDIATE_WIDTH-1:13] = ~0;
         else
 	        assign imm[IMMEDIATE_WIDTH-1:13] = 0;
@@ -100,7 +100,7 @@ module get_variables
         assign u_21_var[11] = instruction[20];
         assign u_21_var[19:12] = instruction[19:12];
         assign u_21_var[20] = instruction[31];
-        if(u_21_var[20])
+        if(u_21_var[20] & in_flag[`IS_SIGNED_INDEX])
 	        assign imm[IMMEDIATE_WIDTH-1:21] = ~0;
         else
 	        assign imm[IMMEDIATE_WIDTH-1:21] = 0;

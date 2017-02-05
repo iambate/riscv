@@ -35,99 +35,81 @@ module process_instruction
                       .imm(imm),
                       .flag(flag));
   always_comb begin
-    assign in_flag[`IS_LOAD_INDEX] = 0;
-    assign in_flag[`IS_DIFF_INDEX] = 0;
+    assign tmp_flag[`IS_LOAD_INDEX] = 0;
+    assign tmp_flag[`IS_DIFF_INDEX] = 0;
+    assign tmp_flag[`IS_BRACKET_INDEX]=0;
+    assign tmp_flag[`IS_SIGNED_INDEX]=1;
     casex (instruction)
 	`SD: 
 	begin
 	    assign instruction_type=`S_TYPE;
 	    assign instruction_name="sd";
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
 	end
 	`BEQ:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="beq";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`BNE:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bne";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`BLT:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="blt";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`BGE:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bge";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`BLTU:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bltu";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`BGEU:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bgeu";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`SB:
 	begin
             assign instruction_type=`S_TYPE;
 	    assign instruction_name="sb";
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SH:
 	begin
             assign instruction_type=`S_TYPE;
 	    assign instruction_name="sh";
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SW :
 	begin
             assign instruction_type=`S_TYPE;
 	    assign instruction_name="sw";
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SLLI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="slli";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SRLI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="srli";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SRAI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="srai";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`ADD:
 	begin
@@ -153,6 +135,7 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="sltu";
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`XOR:
 	begin
@@ -183,73 +166,58 @@ module process_instruction
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="fence";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`FENCEI:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="fencei";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LUI:
 	begin
             assign instruction_type=`U_TYPE;
 	    assign instruction_name="lui";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`AUIPC:
 	begin
             assign instruction_type=`U_TYPE;
 	    assign instruction_name="auipc";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`JAL:
 	begin
             assign instruction_type=`UJ_TYPE;
 	    assign instruction_name="jal";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`JALR:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="jalr";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LB:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lb";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LH:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lh";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LW :
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lw";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LBU:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lbu";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
@@ -257,7 +225,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lhu";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
@@ -272,142 +240,107 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="addi";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SLTI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="slti";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SLTIU:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="sltiu";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`XORI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="xori";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`ORI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="ori";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
         end
 	`ANDI:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="andi";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`LWU:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lwu";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`LD:
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="ld";
-            assign in_flag[`IS_LOAD_INDEX] = 1;
+            assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`ADDIW :
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="addiw";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SCALL:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="addiw";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SBREAK:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="sbreak";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDCYCLE:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdcycle";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDCYCLEH:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdcycleh";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDTIME:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdtime";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDTIMEH:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdtimeh";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDINSTREET:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdinstreet";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`RDINSTRETH:
 	begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="rdinstreth";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end 
 	`SLLIW :
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="slliw";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SRLIW :
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="srliw";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`SRAIW :
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="sraiw";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`ADDW :
 	begin
@@ -473,11 +406,13 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="mulhsu";
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`MULHU:
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="mulhu";
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`DIV:
 	begin
@@ -488,6 +423,7 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="divu";
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`REM :
 	begin
@@ -498,13 +434,12 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="remu";
+            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	default:
         begin
             assign instruction_type=`UNKNOWN_TYPE;
 	    assign instruction_name="unknown";
-	    assign tmp_flag[`IS_BRACKET_INDEX]=0;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
     endcase
   end
