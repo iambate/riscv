@@ -70,15 +70,15 @@ module Process_Instruction
         end
 	`SLLI:
 	begin
-            assign instruction_type=`R_TYPE;
+            assign instruction_type=`I_TYPE;
         end
 	`SRLI:
 	begin
-            assign instruction_type=`R_TYPE;
+            assign instruction_type=`I_TYPE;
         end
 	`SRAI:
 	begin
-            assign instruction_type=`R_TYPE;
+            assign instruction_type=`I_TYPE;
         end
 	`ADD:
 	begin
