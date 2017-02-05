@@ -34,8 +34,9 @@ module process_instruction
                       .rs2(rs2),
                       .imm(imm),
                       .flag(flag));
-  
   always_comb begin
+    assign in_flag[`IS_LOAD_INDEX] = 0;
+    assign in_flag[`IS_DIFF_INDEX] = 0;
     casex (instruction)
 	`SD: 
 	begin
@@ -224,6 +225,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lb";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
@@ -231,6 +233,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lh";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
@@ -238,6 +241,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lw";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
@@ -245,6 +249,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lbu";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
@@ -252,8 +257,16 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lhu";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
+        end
+	`MOV:
+	begin
+            assign instruction_type=`I_TYPE;
+	    assign instruction_name="mov";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+	    assign tmp_flag[3:0]='b0011;
         end
 	`ADDI:
 	begin
@@ -300,6 +313,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="lwu";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
@@ -307,6 +321,7 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="ld";
+            assign in_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
 	    assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end

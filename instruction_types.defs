@@ -8,3 +8,4 @@
 `define IS_BRACKET_INDEX 4
 `define IS_SIGNED_INDEX 5
 `define IS_DIFF_INDEX 6
+`define IS_LOAD_INDEX 7

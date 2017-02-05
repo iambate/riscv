@@ -41,6 +41,7 @@
 `define LBU	32'bxxxxxxxxxxxxxxxxx100xxxxx0000011
 `define LHU	32'bxxxxxxxxxxxxxxxxx101xxxxx0000011
 
+`define MOV	32'b000000000000xxxxx000xxxxx0010011
 `define ADDI	32'bxxxxxxxxxxxxxxxxx000xxxxx0010011
 `define SLTI	32'bxxxxxxxxxxxxxxxxx010xxxxx0010011
 `define SLTIU	32'bxxxxxxxxxxxxxxxxx011xxxxx0010011
