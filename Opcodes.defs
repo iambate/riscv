@@ -1,3 +1,89 @@
-`define	ADDI 	32'bxxxxxxxxxxxxxxxxx000xxxxx0010011
 `define	SD 	32'bxxxxxxxxxxxxxxxxx011xxxxx0100011
+
+`define BEQ	32'bxxxxxxxxxxxxxxxxx000xxxxx1100011
+`define BNE	32'bxxxxxxxxxxxxxxxxx001xxxxx1100011
+`define BLT	32'bxxxxxxxxxxxxxxxxx100xxxxx1100011
+`define BGE	32'bxxxxxxxxxxxxxxxxx101xxxxx1100011
+`define BLTU	32'bxxxxxxxxxxxxxxxxx110xxxxx1100011
+`define BGEU	32'bxxxxxxxxxxxxxxxxx111xxxxx1100011
+
+`define SB	32'bxxxxxxxxxxxxxxxxx000xxxxx0100011
+`define SH	32'bxxxxxxxxxxxxxxxxx001xxxxx0100011
+`define SW	32'bxxxxxxxxxxxxxxxxx010xxxxx0100011
+
+`define SLLI	32'b0000000xxxxxxxxxx001xxxxx0010011
+`define SRLI	32'b0000000xxxxxxxxxx101xxxxx0010011
+`define SRAI	32'b0100000xxxxxxxxxx101xxxxx0010011
+`define ADD	32'b0000000xxxxxxxxxx000xxxxx0110011
+`define SUB	32'b0100000xxxxxxxxxx000xxxxx0110011
+`define SLL	32'b0000000xxxxxxxxxx001xxxxx0110011
+`define SLT	32'b0000000xxxxxxxxxx010xxxxx0110011
+`define SLTU	32'b0000000xxxxxxxxxx011xxxxx0110011
+`define XOR	32'b0000000xxxxxxxxxx100xxxxx0110011
+`define SRL	32'b0000000xxxxxxxxxx101xxxxx0110011
+`define SRA	32'b0100000xxxxxxxxxx101xxxxx0110011
+`define OR	32'b0000000xxxxxxxxxx110xxxxx0110011
+`define AND	32'b0000000xxxxxxxxxx111xxxxx0110011
+
+`define FENCE	32'b0000xxxxxxxx00000000000000001111
+`define FENCEI  32'b00000000000000000001000000001111
+
+
+
+`define LUI	32'bxxxxxxxxxxxxxxxxxxxxxxxxx0110111
+`define AUIPC	32'bxxxxxxxxxxxxxxxxxxxxxxxxx0010111
+`define JAL	32'bxxxxxxxxxxxxxxxxxxxxxxxxx1101111
+`define JALR	32'bxxxxxxxxxxxxxxxxx000xxxxx1100111
+
+`define LB	32'bxxxxxxxxxxxxxxxxx000xxxxx0000011
+`define LH    	32'bxxxxxxxxxxxxxxxxx001xxxxx0000011 
+`define LW	32'bxxxxxxxxxxxxxxxxx010xxxxx0000011
+`define LBU	32'bxxxxxxxxxxxxxxxxx100xxxxx0000011
+`define LHU	32'bxxxxxxxxxxxxxxxxx101xxxxx0000011
+
+`define ADDI	32'bxxxxxxxxxxxxxxxxx000xxxxx0010011
+`define SLTI	32'bxxxxxxxxxxxxxxxxx010xxxxx0010011
+`define SLTIU	32'bxxxxxxxxxxxxxxxxx011xxxxx0010011
+`define XORI	32'bxxxxxxxxxxxxxxxxx100xxxxx0010011
+`define ORI	32'bxxxxxxxxxxxxxxxxx110xxxxx0010011
+`define ANDI	32'bxxxxxxxxxxxxxxxxx111xxxxx0010011
+
+`define LWU	32'bxxxxxxxxxxxxxxxxx110xxxxx0000011
+`define LD	32'bxxxxxxxxxxxxxxxxx011xxxxx0000011
+`define ADDIW 	32'bxxxxxxxxxxxxxxxxx000xxxxx0011011
+
+`define SCALL		32'b00000000000000000000000001110011
+`define SBREAK		32'b00000000000100000000000001110011
+`define RDCYCLE		32'b11000000000000000010xxxxx1110011
+`define RDCYCLEH	32'b11001000000000000010xxxxx1110011
+`define RDTIME		32'b11000000000100000010xxxxx1110011
+`define RDTIMEH		32'b11001000000100000010xxxxx1110011
+`define RDINSTREET	32'b11000000001000000010xxxxx1110011
+`define RDINSTRETH	32'b11001000001000000010xxxxx1110011
+
+
+`define SLLIW		32'b0000000xxxxxxxxxx001xxxxx0011011
+`define SRLIW           32'b0000000xxxxxxxxxx101xxxxx0011011
+`define SRAIW           32'b0100000xxxxxxxxxx101xxxxx0011011
+
+`define ADDW           32'b0000000xxxxxxxxxx000xxxxx0111011
+`define SUBW           32'b0100000xxxxxxxxxx000xxxxx0111011
+`define SLLW           32'b0000000xxxxxxxxxx001xxxxx0111011
+`define SRLW           32'b0000000xxxxxxxxxx101xxxxx0111011
+`define SRAW           32'b0100000xxxxxxxxxx101xxxxx0111011
+
+`define MULW           32'b0000001xxxxxxxxxx000xxxxx0111011
+`define DIVW           32'b0000001xxxxxxxxxx100xxxxx0111011
+`define DIVUW          32'b0000001xxxxxxxxxx101xxxxx0111011
+`define REMW           32'b0000001xxxxxxxxxx110xxxxx0111011
+`define REMUW          32'b0000001xxxxxxxxxx111xxxxx0111011
+
+`define MUL		32'b0000001xxxxxxxxxx000xxxxx0110011
+`define MULH		32'b0000001xxxxxxxxxx001xxxxx0110011
+`define MULHSU		32'b0000001xxxxxxxxxx010xxxxx0110011
+`define MULHU		32'b0000001xxxxxxxxxx011xxxxx0110011
+`define DIV		32'b0000001xxxxxxxxxx100xxxxx0110011
+`define DIVU		32'b0000001xxxxxxxxxx101xxxxx0110011
+`define REM		32'b0000001xxxxxxxxxx110xxxxx0110011
+`define REMU		32'b0000001xxxxxxxxxx111xxxxx0110011
 

@@ -1,6 +1,6 @@
 `include "Sysbus.defs"
 `include "Opcodes.defs"
-
+//module type will have as input: inst name, type,inst
 module Process_Instruction
 #(
   BUS_DATA_WIDTH = 64 
@@ -9,10 +9,81 @@ module Process_Instruction
   input [31:0] inst,
   output [8:0] ans
 );
+  get_variables vars (instruction,instruction_type,rd,rs1,rs2,imm,flag);
   always_comb begin
     casex (inst)
-	`ADDI:assign ans =1;
-	`SD:assign ans = 2;
+	`SD:
+	`BEQ:
+	`BNE:
+	`BLT:
+	`BGE:
+	`BLTU:
+	`BGEU:
+	`SB:
+	`SH:
+	`SW :
+	`SLLI:
+	`SRLI:
+	`SRAI:
+	`ADD:
+	`SUB:
+	`SLL:
+	`SLT:
+	`SLTU:
+	`XOR:
+	`SRL:
+	`SRA:
+	`OR:
+	`AND: 
+	`FENCE:
+	`FENCEI:
+	`LUI:
+	`AUIPC:
+	`JAL:
+	`JALR:
+	`LB:
+	`LH:
+	`LW :
+	`LBU:
+	`LHU:
+	`ADDI:
+	`SLTI:
+	`SLTIU:
+	`XORI:
+	`ORI:
+	`ANDI:
+	`LWU:
+	`LD:
+	`ADDIW :
+	`SCALL:
+	`SBREAK:
+	`RDCYCLE:
+	`RDCYCLEH:
+	`RDTIME:
+	`RDTIMEH:
+	`RDINSTREET:
+	`RDINSTRETH: 
+	`SLLIW :
+	`SRLIW :
+	`SRAIW :
+	`ADDW :
+	`SUBW :
+	`SLLW :
+	`SRLW :  
+	`SRAW :
+	`MULW :     
+	`DIVW : 
+	`DIVUW :    
+	`REMW :       
+	`REMUW :
+	`MUL:
+	`MULH:
+	`MULHSU:
+	`MULHU:
+	`DIV:
+	`DIVU:
+	`REM :
+	`REMU:
 	default:assign ans =3;
     endcase
   end
