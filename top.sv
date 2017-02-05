@@ -2,7 +2,7 @@
 `include "Opcodes.defs"
 `include "get_variables.sv"
 `include "register_name.sv"
-`include " instruction_types.defs"
+`include "instruction_types.defs"
 
 //module type will have as input: inst name, type,inst
 module Process_Instruction
@@ -11,19 +11,20 @@ module Process_Instruction
   TYPE_WIDTH = 3,
   REGISTER_WIDTH = 5,
   REGISTER_NAME_WIDTH = 4,
-  IMMEDIATE_WIDTH = 32 
+  IMMEDIATE_WIDTH = 32,
+  FLAG_WIDTH = 8
 )
 (
   input [BUS_DATA_WIDTH/2-1:0] instruction,
   output [8:0] ans
 );
 
-  logic [TYPE_WIDTH-1:0] instruction_type,
-  logic [REGISTER_NAME_WIDTH*8:0] rd,
-  logic [REGISTER_NAME_WIDTH*8:0] rs1,
-  logic [REGISTER_NAME_WIDTH*8:0] rs2,
-  logic [IMMEDIATE_WIDTH-1:0] imm,
-  logic [FLAG_WIDTH-1: 0] flag
+  logic [TYPE_WIDTH-1:0] instruction_type;
+  logic [REGISTER_NAME_WIDTH*8:0] rd;
+  logic [REGISTER_NAME_WIDTH*8:0] rs1;
+  logic [REGISTER_NAME_WIDTH*8:0] rs2;
+  logic [IMMEDIATE_WIDTH-1:0] imm;
+  logic [FLAG_WIDTH-1: 0] flag;
   get_variables vars (instruction,instruction_type,rd,rs1,rs2,imm,flag);
   
   always_comb begin
@@ -122,12 +123,12 @@ module Process_Instruction
         end 
 	`FENCE:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
-	`FENCEI
+	`FENCEI:
 	begin
-            assign instruction_type=;
-        end:
+            assign instruction_type=`UNKNOWN_TYPE;
+        end
 	`LUI:
 	begin
             assign instruction_type=`U_TYPE;
@@ -202,35 +203,35 @@ module Process_Instruction
         end
 	`SCALL:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`SBREAK:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDCYCLE:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDCYCLEH:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDTIME:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDTIMEH:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDINSTREET:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end
 	`RDINSTRETH:
 	begin
-            assign instruction_type=;
+            assign instruction_type=`UNKNOWN_TYPE;
         end 
 	`SLLIW :
 	begin
@@ -316,7 +317,7 @@ module Process_Instruction
 	begin
             assign instruction_type=`R_TYPE;
         end
-	default:assign ans =3;
+	default: assign ans=3;
     endcase
   end
 //process inst to provide output in ans string
