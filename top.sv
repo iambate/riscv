@@ -2,8 +2,7 @@
 `include "Opcodes.defs"
 `include "process_instruction.sv"
 `include "instruction_types.defs"
-
-
+`include "get_output_string.sv"
 module top
 #(
   BUS_DATA_WIDTH = 64,
@@ -71,14 +70,17 @@ module top
 	     end
 	     else if (!bus_resp[63:32]) begin
 		$display("%h",bus_resp[31:0]);
+//		$display("X %s", get_output_string(rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1));
 		$display("%s %s %s %d", rd_1, rs1_1, rs2_1, imm_1);
 		$finish;
 	     end
 	     else begin
 		$display("%h", bus_resp[31:0]);
+//		$display("X %s", get_output_string(rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1));
 		$display("%s %s %s %d %s", rd_1, rs1_1, rs2_1, imm_1, instruction_name_1);
 		$display("");
 		$display("%h", bus_resp[63:32]);
+//		$display("X %s", get_output_string(rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2));
 		$display("%s %s %s %d %s", rd_2, rs1_2, rs2_2, imm_2, instruction_name_2);
 		$display("");
 		bus_respack <= 1;
