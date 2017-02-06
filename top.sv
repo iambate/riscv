@@ -49,17 +49,27 @@ module top
   logic signed [IMMEDIATE_WIDTH-1:0] imm_2;
   logic unsigned [FLAG_WIDTH-1: 0] flag_2;
   logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_2;
+  integer index1;
+  integer index2;
+  integer nindex1;
+  integer nindex2;
+  logic [63:0] nentry;
 
   process_instruction inst_1 (bus_resp[31:0], rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
   process_instruction inst_2 (bus_resp[63:32], rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2);
 
   always_comb begin
+    assign nentry = entry +'d4;
     assign npc = pc+'d64;
+    assign nindex1 = index1+'d8;
+    assign nindex2 = index2+'d8;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
     assign ncounter = counter+'d1;
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
+	index1<=entry;
+	index2<=nentry;
 	pc <= entry;
 	counter <= 'd8;
     end
@@ -69,20 +79,25 @@ module top
 		$finish;
 	     end
 	     else if (!bus_resp[63:32]) begin
-		$display("%h",bus_resp[31:0]);
+//		$display("%h",bus_resp[31:0]);
+		$write("%0x:\t",index1);
 		get_output_string(rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
 //		$display("%s %s %s %d", rd_1, rs1_1, rs2_1, imm_1);
 		$finish;
 	     end
 	     else begin
-		$display("%h %b", bus_resp[31:0], flag_1);
+		$write("%0x:\t",index1);
+//		$display("%h %b", bus_resp[31:0], flag_1);
 		get_output_string(rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
 //		$display("%s %s %s %d %s", rd_1, rs1_1, rs2_1, imm_1, instruction_name_1);
-		$display("");
-		$display("%h %b", bus_resp[63:32], flag_2);
+//		$display("");
+//		$display("%h %b", bus_resp[63:32], flag_2);
+		$write("%0x:\t",index2);
 		get_output_string(rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2);
 //		$display("%s %s %s %d %s", rd_2, rs1_2, rs2_2, imm_2, instruction_name_2);
-		$display("");
+//		$display("");
+		index1<=nindex1;
+		index2<=nindex2;
 		bus_respack <= 1;
   	     end
 	end

@@ -7,56 +7,57 @@ function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] 
   logic [7:0] lbrace = "(";
   logic [7:0] comma =",";
   integer immediate_value;
+  int unsigned var_unsigned;
   string str;
   int comma_flag;
   begin
       //0:rd 1:rs1 2:rs2 3:imm 4:bracket
       if(flag&(1<<`IS_BRACKET_INDEX)) begin
-	 ans1 = {rbrace,ans1};
-	 ans1 = {rs1,ans1};
-         ans1 = {lbrace,ans1};
-	 immediate_value = imm;
 	 if(flag&(1<<`IS_LOAD_INDEX)) begin
-		ans2 = {comma,ans2};
-                ans2 = {rd,ans2};
-                ans2 = {"\t    ",ans2};
-                ans2 = {instruction_name,ans2};
+		$display("%0s\t%0s%0s%0d%0s%0s%0s",instruction_name,rd,comma,imm,lbrace,rs1,rbrace);
 	 end
 	 else begin
-         	ans2 = {comma,ans2};
-   	 	ans2 = {rs2,ans2};
-	 	ans2 = {"\t    ",ans2};
-	 	ans2 = {instruction_name,ans2};
+		$display("%0s\t%0s%0s%0d%0s%0s%0s",instruction_name,rs2,comma,imm,lbrace,rs1,rbrace);
 	 end
-	 $display("%s%d%s",ans2,immediate_value,ans1);
       end
 
       else begin
 	 ans={instruction_name,ans};
-	 $write("%s\t",ans);
+	 $write("%0s\t",ans);
 	 comma_flag = 0;
 	 if(flag&(1<<`IS_RD)) begin
 	     if(comma_flag == 1)
-		$write("%s",comma);
-	     $write("%s",rd);
+		$write("%0s",comma);
+	     $write("%0s",rd);
 	     comma_flag = 1;
 	 end
 	 if(flag&(1<<`IS_RS1)) begin
              if(comma_flag == 1)
-                $write("%s",comma);
-             $write("%s",rs1);
+                $write("%0s",comma);
+             $write("%0s",rs1);
              comma_flag = 1;
          end
 	 if(flag&(1<<`IS_RS2)) begin
              if(comma_flag == 1)
-                $write("%s",comma);
-             $write("%s",rs2);
+                $write("%0s",comma);
+             $write("%0s",rs2);
              comma_flag = 1;
          end
 	 if(flag&(1<<`IS_IMM)) begin
              if(comma_flag == 1)
-                $write("%s",comma);
-             $write("%d",imm);
+                $write("%0s",comma);
+	     if(instruction_name == "lui" || instruction_name == "auipc") begin
+		$write("0x%0x",imm);
+	     end
+	     else begin
+		if (flag&(1<<`IS_SIGNED_INDEX)) begin
+		    var_unsigned = imm;
+             	    $write("%0d",var_unsigned);
+		end
+		else begin
+		    $write("%0d",imm);
+		end
+	     end
              comma_flag = 1;
          end
 	 $display();	 
