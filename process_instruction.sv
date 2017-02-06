@@ -239,7 +239,7 @@ module process_instruction
 	`MOV:
 	begin
             assign instruction_type=`I_TYPE;
-	    assign instruction_name="mov";
+	    assign instruction_name="mv";
 	    assign tmp_flag[`IS_DIFF_INDEX]=1;
 	    assign tmp_flag[3:0]='b0011;
         end
