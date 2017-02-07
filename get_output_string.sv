@@ -7,6 +7,7 @@ function void get_output_string(integer index, logic [40:0] rd, logic [40:0] rs1
   logic [7:0] lbrace = "(";
   logic [7:0] comma =",";
   integer immediate_value;
+  int unsigned pc_val;
   int unsigned var_unsigned;
   string str;
   int comma_flag;
@@ -52,7 +53,9 @@ function void get_output_string(integer index, logic [40:0] rd, logic [40:0] rs1
 		$write("0x%0x",imm);
 	     end
 	     else if(instruction_name == "beq" || instruction_name == "bne" || instruction_name ==  "blt" || instruction_name ==  "bge" || instruction_name ==  "bltu" || instruction_name ==  "bgeu") begin
-		$write("0x%0x",imm+index);
+		var_unsigned = imm;
+		pc_val = index;
+		$write("0x%0x",pc_val+var_unsigned);
 	     end
 	     else begin
 		if (flag&(1<<`IS_SIGNED_INDEX)) begin

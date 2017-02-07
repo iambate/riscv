@@ -198,6 +198,8 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="jalr";
+	    assign tmp_flag[`IS_DIFF_INDEX]=1;
+            assign tmp_flag[3:0]='b0010;
         end
 	`LB:
 	begin
