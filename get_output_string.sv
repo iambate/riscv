@@ -47,6 +47,8 @@ function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] 
              if(comma_flag == 1)
                 $write("%0s",comma);
 	     if(instruction_name == "lui" || instruction_name == "auipc") begin
+		$write("0x%0x",imm>>12);
+	     end else if( instruction_name == "auipc" ) begin
 		$write("0x%0x",imm);
 	     end
 	     else begin
