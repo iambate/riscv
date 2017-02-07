@@ -1,5 +1,5 @@
 
-function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] rs2, logic signed [31:0] imm, logic [7:0] flag, logic [96:0] instruction_name);
+function void get_output_string(integer index, logic [40:0] rd, logic [40:0] rs1, logic [40:0] rs2, logic signed [31:0] imm, logic [7:0] flag, logic [96:0] instruction_name);
   string ans="";
   string ans1="";
   string ans2="";
@@ -50,6 +50,9 @@ function void get_output_string(logic [40:0] rd, logic [40:0] rs1, logic [40:0] 
 		$write("0x%0x",imm>>12);
 	     end else if( instruction_name == "auipc" ) begin
 		$write("0x%0x",imm);
+	     end
+	     else if(instruction_name == "beq" || instruction_name == "bne" || instruction_name ==  "blt" || instruction_name ==  "bge" || instruction_name ==  "bltu" || instruction_name ==  "bgeu") begin
+		$write("0x%0x",imm+index);
 	     end
 	     else begin
 		if (flag&(1<<`IS_SIGNED_INDEX)) begin
