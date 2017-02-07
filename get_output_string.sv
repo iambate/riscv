@@ -47,7 +47,7 @@ function void get_output_string(integer index, logic [40:0] rd, logic [40:0] rs1
 	 if(flag&(1<<`IS_IMM)) begin
              if(comma_flag == 1)
                 $write("%0s",comma);
-	     if(instruction_name == "lui" || instruction_name == "auipc") begin
+	     if(instruction_name == "lui") begin
 		$write("0x%0x",imm>>12);
 	     end else if( instruction_name == "auipc" || instruction_name == "slli" || instruction_name == "srli" || instruction_name == "srai" || instruction_name == "slliw" || instruction_name == "srliw" || instruction_name == "sraiw") begin
 		$write("0x%0x",imm);
