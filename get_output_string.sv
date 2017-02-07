@@ -52,7 +52,10 @@ function void get_output_string(integer index, logic [40:0] rd, logic [40:0] rs1
 	     end else if( instruction_name == "auipc" || instruction_name == "slli" || instruction_name == "srli" || instruction_name == "srai" || instruction_name == "slliw" || instruction_name == "srliw" || instruction_name == "sraiw") begin
 		$write("0x%0x",imm);
 	     end
-	     else if(instruction_name == "beq" || instruction_name == "bne" || instruction_name ==  "blt" || instruction_name ==  "bge" || instruction_name ==  "bltu" || instruction_name ==  "bgeu") begin
+	     else if(instruction_name == "beq" || instruction_name == "bne" || instruction_name ==  "blt" || instruction_name ==  "bge" ) begin
+		$write("0x%0x",index+imm);
+	     end
+	     else if(instruction_name ==  "bltu" || instruction_name ==  "bgeu") begin
 		var_unsigned = imm;
 		pc_val = index;
 		$write("0x%0x",pc_val+var_unsigned);
