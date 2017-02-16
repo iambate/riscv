@@ -37,64 +37,53 @@ module top
   logic [8:0] counter;
   logic [BUS_TAG_WIDTH-1:0] tag;
   logic [8:0] ncounter;
-  logic [REGISTER_NAME_WIDTH*8:0] rs1_1;
-  logic [REGISTER_NAME_WIDTH*8:0] rs2_1;
-  logic [REGISTER_NAME_WIDTH*8:0] rd_1;
-  logic signed [IMMEDIATE_WIDTH-1:0] imm_1;
-  logic unsigned [FLAG_WIDTH-1: 0] flag_1;
-  logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_1;
-  logic [REGISTER_NAME_WIDTH*8:0] rs1_2;
-  logic [REGISTER_NAME_WIDTH*8:0] rs2_2;
-  logic [REGISTER_NAME_WIDTH*8:0] rd_2;
-  logic signed [IMMEDIATE_WIDTH-1:0] imm_2;
-  logic unsigned [FLAG_WIDTH-1: 0] flag_2;
-  logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name_2;
-  integer index1;
-  integer nindex1;
+  logic [REGISTER_NAME_WIDTH*8:0] rs1;
+  logic [REGISTER_NAME_WIDTH*8:0] rs2;
+  logic [REGISTER_NAME_WIDTH*8:0] rd;
+  logic signed [IMMEDIATE_WIDTH-1:0] imm;
+  logic unsigned [FLAG_WIDTH-1: 0] flag;
+  logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name;
+  logic [BUS_DATA_WIDTH/2 -1:0] nstage1_instruction_bits;
   logic alternator;
+  logic nalternator;
+  logic nbus_respack;
+  logic [63:0] nstage1_pc;
+  logic [63:0] stage1_pc;
 
-  process_instruction inst_1 (bus_resp[31:0], rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
-  process_instruction inst_2 (bus_resp[63:32], rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2);
+  process_instruction inst_1 (nstage1_instruction_bits, rd, rs1, rs2, imm, flag, instruction_name);
 
   always_comb begin
     assign npc = pc+'d64;
-    assign nindex1 = index1+'d4;
+    assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
-    assign ncounter = counter+'d1;
+    assign ncounter = counter + 'd1;
+    assign nalternator = alternator + 'd1;
+    if (alternator == 'b1) begin
+      assign nstage1_instruction_bits = bus_resp[31:0];
+      assign nbus_respack = 0;
+    end else begin
+      assign nstage1_instruction_bits = bus_resp[63:32];
+      assign nbus_respack = 1;
+    end
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
-	index1<=entry;
 	pc <= entry;
+	stage1_pc <= entry;
 	counter <= 'd16;
 	alternator <= 'b1;
     end
     else begin
 	if(bus_respcyc) begin
-	     if(!bus_resp) begin
-		$finish;
-	     end
-	     else if (!bus_resp[63:32]) begin
-//		$display("%h",bus_resp[31:0]);
-		$write("%0x:\t%x\t",index1, bus_resp[31:0]);
-		get_output_string(index1, rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
-//		$display("%s %s %s %d", rd_1, rs1_1, rs2_1, imm_1);
+	     if(!nstage1_instruction_bits) begin
 		$finish;
 	     end
 	     else begin
-		if(alternator == 'b1) begin
-			$write("%0x:\t%x\t",index1, bus_resp[31:0]);
-			get_output_string(index1, rd_1, rs1_1, rs2_1, imm_1, flag_1, instruction_name_1);
-			alternator <= 'b0;
-			index1<=nindex1;
-			bus_respack <= 0;
-		end else begin
-			$write("%0x:\t%x\t",index1, bus_resp[63:32]);
-			get_output_string(index1, rd_2, rs1_2, rs2_2, imm_2, flag_2, instruction_name_2);
-			alternator <= 'b1;
-			index1<=nindex1;
-			bus_respack <= 1;
-		end
+		alternator <= alternator + 'b1;
+		stage1_pc <= nstage1_pc;
+		$write("%0x:\t%x\t",stage1_pc, nstage1_instruction_bits);
+		get_output_string(stage1_pc, rd, rs1, rs2, imm, flag, instruction_name);
+		bus_respack <= nbus_respack;
   	     end
 	end
 	else begin
