@@ -21,7 +21,10 @@ module process_instruction
   output [REGISTER_NAME_WIDTH*8:0] rs2,
   output [IMMEDIATE_WIDTH-1:0] imm,
   output [FLAG_WIDTH-1: 0] flag,
-  output [INSTRUCTION_NAME_WIDTH*8:0] instruction_name
+  output [INSTRUCTION_NAME_WIDTH*8:0] instruction_name,
+  output [4:0] rd_number,
+  output [4:0] rs1_number,
+  output [4:0] rs2_number
 );
 
   logic [TYPE_WIDTH-1:0] instruction_type;
@@ -33,7 +36,10 @@ module process_instruction
                       .rs1(rs1),
                       .rs2(rs2),
                       .imm(imm),
-                      .flag(flag));
+                      .flag(flag),
+		      .rd_number(rd_number),
+		      .rs1_number(rs1_number),
+                      .rs2_number(rs2_number));
   always_comb begin
     assign tmp_flag[`IS_LOAD_INDEX] = 0;
     assign tmp_flag[`IS_SHIFT_INDEX] = 0;

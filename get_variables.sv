@@ -18,7 +18,10 @@ module get_variables
   output [REGISTER_NAME_WIDTH*8:0] rs1,
   output [REGISTER_NAME_WIDTH*8:0] rs2,
   output [IMMEDIATE_WIDTH-1:0] imm,
-  output [FLAG_WIDTH-1: 0] flag
+  output [FLAG_WIDTH-1: 0] flag,
+  output [4:0] rd_number,
+  output [4:0] rs1_number,
+  output [4:0] rs2_number
 );
   logic unsigned [12:0] u_13_var;
   logic unsigned [20:0] u_21_var;
@@ -26,6 +29,9 @@ module get_variables
   get_reg_name for_rs1(.reg_name(rs1), .reg_number(instruction[19:15]));
   get_reg_name for_rs2(.reg_name(rs2), .reg_number(instruction[24:20]));
   always_comb begin
+    assign rd_number = instruction[11:7];
+    assign rs1_number = instruction[19:15];
+    assign rs2_number = instruction[24:20];
     case(instruction_type)
       `R_TYPE: begin
         if(in_flag[`IS_DIFF_INDEX])
