@@ -21,7 +21,9 @@ module Decode
   output [63:0] nstage2_immediate,
   output [63:0] nstage2_pc,
   output [4:0] nstage2_dest,//p-assign to rd_number only for certain instructions
-  output [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op
+  output [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op,
+  input [4:0] stage3_dest_reg,
+  input [63:0] stage3_alu_result
 );
   logic [REGISTER_NAME_WIDTH*8:0] rs1;
   logic [REGISTER_NAME_WIDTH*8:0] rs2;
@@ -41,7 +43,9 @@ module Decode
   		       .nstage_rs1_content(nstage2_valA),
 		       .nstage_rs2_content(nstage2_valB),
 		       .clk(clk),
-		       .reset(reset));
+		       .reset(reset),
+		       .stage5_rd(stage3_dest_reg),
+		       .stage5_result(stage3_alu_result));
   always_comb begin
      assign nstage2_pc = stage1_pc;
      assign instruction = stage1_instruction_bits;

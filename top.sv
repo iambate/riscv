@@ -74,7 +74,9 @@ module top
 		     .nstage2_immediate(nstage2_immediate),
 		     .nstage2_pc(nstage2_pc),
 		     .nstage2_dest(nstage2_dest),
-		     .nstage2_op(nstage2_op));
+		     .nstage2_op(nstage2_op),
+		     .stage3_dest_reg(),
+		     .stage3_alu_result());
 
   always_comb begin
     assign npc = pc+'d64;
@@ -107,7 +109,6 @@ module top
 		stage1_pc <= nstage1_pc;
 		$write("%0x:\t%x\t",stage1_pc, nstage1_instruction_bits);
 		get_output_string(stage1_pc, rd, rs1, rs2, imm, flag, instruction_name);
- 		$display("%0x\t %x\t %x",nstage2_pc,nstage2_valA,nstage2_valB);
 		bus_respack <= nbus_respack;
   	     end
 	end
