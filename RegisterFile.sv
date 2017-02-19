@@ -9,6 +9,7 @@ module RegisterFile
    input [4:0] stage1_rs1,
    input [4:0] stage1_rs2,
    input [4:0] stage5_rd,
+   input display_regs,
    input [BUS_DATA_WIDTH-1:0] stage5_result,
    output [BUS_DATA_WIDTH-1:0] nstage_rs1_content,
    output [BUS_DATA_WIDTH-1:0] nstage_rs2_content
@@ -40,6 +41,8 @@ module RegisterFile
 	end
 	else if(wr_en) begin
 	    Registers[stage5_rd] <= stage5_result;
+	end
+	else if(display_regs) begin
 	    $display("Register0: %d", Registers[0]);
 	    $display("Register1: %d", Registers[1]);
 	    $display("Register2: %d", Registers[2]);
@@ -73,6 +76,7 @@ module RegisterFile
 	    $display("Register30: %d", Registers[30]);
 	    $display("Register31: %d", Registers[31]);
 	    $display("");
+	    $finish;
 	end
    end
 /*

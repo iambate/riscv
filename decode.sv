@@ -24,7 +24,8 @@ module Decode
   output [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op,
   input [4:0] stage3_dest_reg,
   input [63:0] stage3_alu_result,
-  input wr_en
+  input wr_en,
+  input display_regs
 );
   logic [REGISTER_NAME_WIDTH*8:0] rs1;
   logic [REGISTER_NAME_WIDTH*8:0] rs2;
@@ -47,7 +48,8 @@ module Decode
 		       .wr_en(wr_en),
 		       .reset(reset),
 		       .stage5_rd(stage3_dest_reg),
-		       .stage5_result(stage3_alu_result));
+		       .stage5_result(stage3_alu_result),
+		       .display_regs(display_regs));
   always_comb begin
      assign nstage2_pc = stage1_pc;
      assign nstage2_immediate = imm;

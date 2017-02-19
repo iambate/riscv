@@ -64,6 +64,7 @@ module top
   logic [INSTRUCTION_NAME_WIDTH*8:0] nstage3_opcode_name;
   logic [BUS_DATA_WIDTH-1:0] nstage3_pc;
   logic wr_en;
+  logic display_regs;
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -84,7 +85,8 @@ module top
 		     .nstage2_op(nstage2_op),
 		     .stage3_dest_reg(nstage3_rd),
 		     .stage3_alu_result(nstage3_alu_result),
-		     .wr_en(wr_en));
+		     .wr_en(wr_en),
+		     .display_regs(display_regs));
   execute_instruction ei(
                       .stage2_rd(nstage2_dest),
                       .stage2_rs1_val(nstage2_valA),
@@ -123,7 +125,8 @@ module top
     else begin
 	if(bus_respcyc) begin
 	     if(!nstage1_instruction_bits) begin
-		$finish;
+	//	$finish;
+		display_regs <= 'd1;
 	     end
 	     else begin
 		alternator <= nalternator;
