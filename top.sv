@@ -63,6 +63,8 @@ module top
   logic [REGISTER_NUMBER_WIDTH:0] nstage3_rd;
   logic [INSTRUCTION_NAME_WIDTH*8:0] nstage3_opcode_name;
   logic [BUS_DATA_WIDTH-1:0] nstage3_pc;
+  logic wr_en;
+
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
                               .rs1(rs1),
@@ -81,7 +83,8 @@ module top
 		     .nstage2_dest(nstage2_dest),
 		     .nstage2_op(nstage2_op),
 		     .stage3_dest_reg(nstage3_rd),
-		     .stage3_alu_result(nstage2_alu_result));
+		     .stage3_alu_result(nstage2_alu_result),
+		     .wr_en(wr_en));
   execute_instruction ei(
                       .stage2_rd(nstage2_dest),
                       .stage2_rs1_val(nstage2_valA),

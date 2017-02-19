@@ -23,7 +23,8 @@ module Decode
   output [4:0] nstage2_dest,//p-assign to rd_number only for certain instructions
   output [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op,
   input [4:0] stage3_dest_reg,
-  input [63:0] stage3_alu_result
+  input [63:0] stage3_alu_result,
+  input wr_en
 );
   logic [REGISTER_NAME_WIDTH*8:0] rs1;
   logic [REGISTER_NAME_WIDTH*8:0] rs2;
@@ -43,6 +44,7 @@ module Decode
   		       .nstage_rs1_content(nstage2_valA),
 		       .nstage_rs2_content(nstage2_valB),
 		       .clk(clk),
+		       .wr_en(wr_en),
 		       .reset(reset),
 		       .stage5_rd(stage3_dest_reg),
 		       .stage5_result(stage3_alu_result));
