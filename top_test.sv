@@ -3,7 +3,7 @@
 `include "process_instruction.sv"
 `include "instruction_types.defs"
 `include "get_output_string.sv"
-module top
+module top_test
 #(
   BUS_DATA_WIDTH = 64,
   BUS_TAG_WIDTH = 13,
@@ -49,12 +49,13 @@ module top
   logic nbus_respack;
   logic [63:0] nstage1_pc;
   logic [63:0] stage1_pc;
+  logic [63:0] stage3_pc;
   logic signed [63:0] tp;
   logic unsigned [31:0] tp1;
   logic unsigned [31:0] tp2;
   logic [REGISTER_NAME_WIDTH*8:0] tp_reg;
   process_instruction inst_1 (nstage1_instruction_bits, rd, rs1, rs2, imm, flag, instruction_name);
-  execute_instruction ei (.stage2_rs1_val(-12), .stage2_rs2_val(1), .stage2_immediate(2), .stage2_opcode_name("slti"), .nstage3_alu_result(tp), .nstage3_rs2_val(tp1), .nstage3_rd(tp2), .nstage3_opcode_name(tp_reg));
+  execute_instruction ei (.stage2_pc(nstage1_pc), .stage2_rs1_val(-12), .stage2_rs2_val(1), .stage2_immediate(2), .stage2_opcode_name(instruction_name), .nstage3_alu_result(tp), .nstage3_rs2_val(tp1), .nstage3_rd(tp2), .nstage3_opcode_name(tp_reg), .nstage3_pc(stage3_pc));
   always_comb begin
     assign npc = pc+'d64;
     assign nstage1_pc = stage1_pc + 'd4;
