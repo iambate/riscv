@@ -96,7 +96,8 @@ module top
                       .nstage3_rs2_val(nstage3_rs2_val),
                       .nstage3_rd(nstage3_rd),
                       .nstage3_opcode_name(nstage3_opcode_name),
-                      .nstage3_pc(nstage3_pc));
+                      .nstage3_pc(nstage3_pc),
+                      .wr_en(wr_en));
 
   always_comb begin
     assign npc = pc+'d64;

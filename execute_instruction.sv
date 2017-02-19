@@ -19,7 +19,8 @@ module execute_instruction
   output [REGISTER_WIDTH-1:0] nstage3_rs2_val,
   output [REGISTER_NUMBER_WIDTH:0] nstage3_rd,
   output [INSTRUCTION_NAME_WIDTH*8:0] nstage3_opcode_name,
-  output [BUS_DATA_WIDTH-1:0] nstage3_pc
+  output [BUS_DATA_WIDTH-1:0] nstage3_pc,
+  output wr_en
 );
 function [REGISTER_WIDTH-1:0] add_sub(
 input [REGISTER_WIDTH-1:0] num1,
@@ -149,6 +150,7 @@ endfunction
     assign nstage3_rd = stage2_rd;
     assign nstage3_rs2_val = stage2_rs2_val;
     assign nstage3_pc = stage2_pc;
+    assign wr_en = 0;
     casez (stage2_opcode_name)
 	"sd":
 	begin
@@ -193,54 +195,67 @@ endfunction
 	"slli":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val << stage2_immediate[5:0];
+		assign wr_en = 1;
         end
 	"srli":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val >> stage2_immediate[5:0];
+		assign wr_en = 1;
         end
 	"srai":
 	begin
 		assign  nstage3_alu_result = $signed(stage2_rs1_val) >>> stage2_immediate[5:0];
+		assign wr_en = 1;
         end
 	"add":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 1, 0);
+		assign wr_en = 1;
         end
 	"sub":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 0, 0);
+		assign wr_en = 1;
         end
 	"sll":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val << stage2_rs2_val[5:0];
+		assign wr_en = 1;
         end
 	"slt":
 	begin
 		assign  nstage3_alu_result = $signed(stage2_rs1_val) < $signed(stage2_rs2_val);
+		assign wr_en = 1;
         end
 	"sltu":
 	begin
 		assign  nstage3_alu_result = $unsigned(stage2_rs1_val) < $unsigned(stage2_rs2_val);
+		assign wr_en = 1;
         end
 	"xor":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val ^ stage2_rs2_val;
+		assign wr_en = 1;
         end
 	"srl":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val >> stage2_rs2_val[5:0];
+		assign wr_en = 1;
         end
 	"sra":
 	begin
 		assign  nstage3_alu_result = $signed(stage2_rs1_val) >>> stage2_rs2_val[5:0];
+		assign wr_en = 1;
         end
 	"or":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val | stage2_rs2_val;
+		assign wr_en = 1;
         end
 	"and":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val & stage2_rs2_val;
+		assign wr_en = 1;
         end 
 	"fence":
 	begin
@@ -253,10 +268,12 @@ endfunction
 	"lui":
 	begin
 		assign  nstage3_alu_result = stage2_immediate;
+		assign wr_en = 1;
         end
 	"auipc":
 	begin
 		assign  nstage3_pc = stage2_pc + stage2_immediate;
+		assign wr_en = 1;
         end
 	"jal":
 	begin
@@ -297,26 +314,32 @@ endfunction
 	"addi":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_immediate, 1, 0);
+		assign wr_en = 1;
         end
 	"slti":
 	begin
 		assign  nstage3_alu_result = $signed(stage2_rs1_val) < $signed(stage2_immediate);
+		assign wr_en = 1;
         end
 	"sltiu":
 	begin
 		assign  nstage3_alu_result = $unsigned(stage2_rs1_val) < $unsigned(stage2_immediate);
+		assign wr_en = 1;
         end
 	"xori":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val ^ stage2_immediate;
+		assign wr_en = 1;
         end
 	"ori":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val | stage2_immediate;
+		assign wr_en = 1;
         end
 	"andi":
 	begin
 		assign  nstage3_alu_result = stage2_rs1_val & stage2_immediate;
+		assign wr_en = 1;
         end
 	"lwu":
 	begin
@@ -329,6 +352,7 @@ endfunction
 	"addiw":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_immediate, 1, 1);
+		assign wr_en = 1;
         end
 	"scall":
 	begin
@@ -369,6 +393,7 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end
 	"srliw":
 	begin
@@ -377,6 +402,7 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end
 	"sraiw":
 	begin
@@ -385,14 +411,17 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end
 	"addw":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 1, 1);
+		assign wr_en = 1;
         end
 	"subw":
 	begin
 		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 0, 1);
+		assign wr_en = 1;
         end
 	"sllw":
 	begin
@@ -401,6 +430,7 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end
 	"srlw":
 	begin
@@ -409,6 +439,7 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end  
 	"sraw":
 	begin
@@ -417,58 +448,72 @@ endfunction
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
 		else
 			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
+		assign wr_en = 1;
         end
 	"mulw":
 	begin
 		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 1, 0, 0, 0);
+		assign wr_en = 1;
         end     
 	"divw":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 1, 0);
+		assign wr_en = 1;
         end 
 	"divuw":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 1, 1);
+		assign wr_en = 1;
         end    
 	"remw":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 1, 0);
+		assign wr_en = 1;
         end       
 	"remuw":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 1, 1);
+		assign wr_en = 1;
         end
 	"mul":
 	begin
 		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 0, 0, 0);
+		assign wr_en = 1;
         end
 	"mulh":
 	begin
 		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 0, 0, 1);
+		assign wr_en = 1;
         end
 	"mulhsu":
 	begin
 		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 1, 1, 1);
+		assign wr_en = 1;
         end
 	"mulhu":
 	begin
 		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 1, 0, 1);
+		assign wr_en = 1;
         end
 	"div":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 0, 0);
+		assign wr_en = 1;
         end
 	"divu":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 0, 1);
+		assign wr_en = 1;
         end
 	"rem":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 0, 0);
+		assign wr_en = 1;
         end
 	"remu":
 	begin
 		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 0, 1);
+		assign wr_en = 1;
         end
 	default:
         begin
