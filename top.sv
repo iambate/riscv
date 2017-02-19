@@ -3,6 +3,8 @@
 `include "process_instruction.sv"
 `include "instruction_types.defs"
 `include "get_output_string.sv"
+`include "decode.sv"
+
 module top
 #(
   BUS_DATA_WIDTH = 64,
@@ -49,15 +51,37 @@ module top
   logic nbus_respack;
   logic [63:0] nstage1_pc;
   logic [63:0] stage1_pc;
+  logic [63:0] nstage2_valA;
+  logic [63:0] nstage2_valB;
+  logic [63:0] nstage2_immediate;
+  logic [63:0] nstage2_pc;
+  logic [4:0] nstage2_dest;
+  logic [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op;
 
-  process_instruction inst_1 (nstage1_instruction_bits, rd, rs1, rs2, imm, flag, instruction_name);
+  process_instruction inst_1 (.instruction(nstage1_instruction_bits),
+                              .rd(rd),
+                              .rs1(rs1),
+                              .rs2(rs2),
+                              .imm(imm),
+                              .flag(flag), 
+                              .instruction_name(instruction_name));
+  Decode decode_inst(.clk(clk),
+		     .reset(reset),
+		     .stage1_instruction_bits(nstage1_instruction_bits),
+		     .stage1_pc(nstage1_pc),
+		     .nstage2_valA(nstage2_valA),
+		     .nstage2_valB(nstage2_valB),
+		     .nstage2_immediate(nstage2_immediate),
+		     .nstage2_pc(nstage2_pc),
+		     .nstage2_dest(nstage2_dest),
+		     .nstage2_op(nstage2_op));
 
   always_comb begin
     assign npc = pc+'d64;
     assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
     assign ncounter = counter + 'd1;
-    assign nalternator = alternator + 'd1;
+    assign nalternator = alternator + 'b1;
     if (alternator == 'b1) begin
       assign nstage1_instruction_bits = bus_resp[31:0];
       assign nbus_respack = 0;
@@ -79,10 +103,11 @@ module top
 		$finish;
 	     end
 	     else begin
-		alternator <= alternator + 'b1;
+		alternator <= nalternator;
 		stage1_pc <= nstage1_pc;
 		$write("%0x:\t%x\t",stage1_pc, nstage1_instruction_bits);
 		get_output_string(stage1_pc, rd, rs1, rs2, imm, flag, instruction_name);
+ 		$display("%0x\t %x\t %x",nstage2_pc,nstage2_valA,nstage2_valB);
 		bus_respack <= nbus_respack;
   	     end
 	end
