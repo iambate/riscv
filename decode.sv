@@ -37,7 +37,7 @@ module Decode
   logic [4:0] rs2_number;
   process_instruction inst_1 (.instruction(stage1_instruction_bits), 
                               .rd(rd), .rs1(rs1), .rs2(rs2), .imm(imm), 
-                              .flag(flag), .instruction_name(instruction_name), 
+                              .flag(flag), .instruction_name(nstage2_op), 
                               .rd_number(rd_number), .rs1_number(rs1_number), .rs2_number(rs2_number));
   RegisterFile regfile(.stage1_rs1(rs1_number),
 		       .stage1_rs2(rs2_number),
