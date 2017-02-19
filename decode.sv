@@ -35,7 +35,7 @@ module Decode
   logic [4:0] rd_number;
   logic [4:0] rs1_number;
   logic [4:0] rs2_number;
-  process_instruction inst_1 (.instruction(instruction), 
+  process_instruction inst_1 (.instruction(stage1_instruction_bits), 
                               .rd(rd), .rs1(rs1), .rs2(rs2), .imm(imm), 
                               .flag(flag), .instruction_name(instruction_name), 
                               .rd_number(rd_number), .rs1_number(rs1_number), .rs2_number(rs2_number));
@@ -50,8 +50,6 @@ module Decode
 		       .stage5_result(stage3_alu_result));
   always_comb begin
      assign nstage2_pc = stage1_pc;
-     assign instruction = stage1_instruction_bits;
-     assign nstage2_op = instruction_name;
      assign nstage2_immediate = imm;
      assign nstage2_dest = rd_number;
   end

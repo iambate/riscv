@@ -83,7 +83,7 @@ module top
 		     .nstage2_dest(nstage2_dest),
 		     .nstage2_op(nstage2_op),
 		     .stage3_dest_reg(nstage3_rd),
-		     .stage3_alu_result(nstage2_alu_result),
+		     .stage3_alu_result(nstage3_alu_result),
 		     .wr_en(wr_en));
   execute_instruction ei(
                       .stage2_rd(nstage2_dest),
@@ -130,6 +130,11 @@ module top
 		stage1_pc <= nstage1_pc;
 		$write("%0x:\t%x\t",stage1_pc, nstage1_instruction_bits);
 		get_output_string(stage1_pc, rd, rs1, rs2, imm, flag, instruction_name);
+		$display("imme: %d", nstage2_immediate);
+		$display("op: %s", nstage2_op);
+		$display("nstage2_valA: %d", nstage2_valA);
+		$display("nstage2_valB: %d", nstage2_valB);
+		$display("alu result: %d", nstage3_alu_result);
 		bus_respack <= nbus_respack;
   	     end
 	end
