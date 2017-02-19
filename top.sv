@@ -10,7 +10,8 @@ module top
   BUS_DATA_WIDTH = 64,
   BUS_TAG_WIDTH = 13,
   REGISTER_NAME_WIDTH = 4,
-  REGISTER_WIDTH = 5,
+  REGISTER_NUMBER_WIDTH = 5,
+  REGISTER_WIDTH = 64,
   IMMEDIATE_WIDTH = 32,
   FLAG_WIDTH = 16,
   INSTRUCTION_NAME_WIDTH = 12
@@ -57,7 +58,11 @@ module top
   logic [63:0] nstage2_pc;
   logic [4:0] nstage2_dest;
   logic [INSTRUCTION_NAME_WIDTH*8:0] nstage2_op;
-
+  logic [REGISTER_WIDTH-1:0] nstage3_alu_result;
+  logic [REGISTER_WIDTH-1:0] nstage3_rs2_val;
+  logic [REGISTER_NUMBER_WIDTH:0] nstage3_rd;
+  logic [INSTRUCTION_NAME_WIDTH*8:0] nstage3_opcode_name;
+  logic [BUS_DATA_WIDTH-1:0] nstage3_pc;
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
                               .rs1(rs1),
@@ -75,8 +80,20 @@ module top
 		     .nstage2_pc(nstage2_pc),
 		     .nstage2_dest(nstage2_dest),
 		     .nstage2_op(nstage2_op),
-		     .stage3_dest_reg(),
-		     .stage3_alu_result());
+		     .stage3_dest_reg(nstage3_rd),
+		     .stage3_alu_result(nstage2_alu_result));
+  execute_instruction ei(
+                      .stage2_rd(nstage2_dest),
+                      .stage2_rs1_val(nstage2_valA),
+                      .stage2_rs2_val(nstage2_valB),
+                      .stage2_immediate(nstage2_immediate),
+                      .stage2_opcode_name(nstage2_op),
+                      .stage2_pc(nstage2_pc),
+                      .nstage3_alu_result(nstage3_alu_result),
+                      .nstage3_rs2_val(nstage3_rs2_val),
+                      .nstage3_rd(nstage3_rd),
+                      .nstage3_opcode_name(nstage3_opcode_name),
+                      .nstage3_pc(nstage3_pc));
 
   always_comb begin
     assign npc = pc+'d64;
@@ -117,15 +134,20 @@ module top
 	end
 
 	if(counter == 'd16) begin
-	     pc<=npc;
-             bus_req<=pc;
-	     bus_reqcyc<=1;
-	     counter<='d0;
-	end
-	else if (counter != 'd16 && bus_respcyc)
-	    counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
-	else begin
-	    bus_reqcyc<=0;
+	     pc <= npc;
+             bus_req <= pc;
+	     bus_reqcyc <= 1;
+	     counter <= 'd0;
+	end else if (counter != 'd16 && bus_respcyc) begin
+	     pc <= pc;
+             bus_req <= bus_req;
+	     bus_reqcyc <= bus_reqcyc;
+	     counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
+	end else begin
+	     pc <= pc;
+             bus_req <= bus_req;
+	     bus_reqcyc<=0;
+	     counter <= counter;
 	end
     end
   initial begin
