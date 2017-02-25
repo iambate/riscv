@@ -26,7 +26,7 @@ clean:
 	rm -rf obj_dir/ dramsim2/results trace.vcd core 
 
 SUBMITTO=/submit
-SUBMIT_SUFFIX=-wp1
+SUBMIT_SUFFIX=-wp2
 submit: clean
 	rm -f $(USER).tgz
 	tar -czvf $(USER).tgz --exclude=.*.sw? --exclude=$(USER).tgz* --exclude=*~ --exclude=.git *
