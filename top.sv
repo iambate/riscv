@@ -154,17 +154,17 @@ endfunction
 	assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if(level == 1) begin
-	assign temp = ptbr[63:0]+(ol_pc[38:30]*PTESIZE);
+	assign temp = a[63:0]+(ol_pc[38:30]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if (level == 2) begin
-	assign temp = ptbr[63:0]+(old_pc[29:21]*PTESIZE);
+	assign temp = a[63:0]+(old_pc[29:21]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else begin
-	assign temp = ptbr[63:0]+(old_pc[20:12]*PTESIZE);
+	assign temp = a[63:0]+(old_pc[20:12]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
