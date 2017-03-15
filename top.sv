@@ -254,7 +254,7 @@ module top
 		else begin
 			new_va_to_pa_req <= 0;
 			paddr_set <= 1;
-			bus_req <= a |old_pc[11:0]
+			bus_req <= a |old_pc[11:0];
 		end
 	end
     end
