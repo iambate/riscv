@@ -235,7 +235,7 @@ module top
 			bus_respack <= 1;
 			bus_req <= bus_req;
 			bus_reqcyc <= bus_reqcyc;
-			v_to_p_counter = n_v_to_p_counter;
+			v_to_p_counter <= n_v_to_p_counter;
 		end
 		else if(level < 4) begin //finished processing one block
 			level <= level;
