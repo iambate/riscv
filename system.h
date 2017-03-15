@@ -57,6 +57,7 @@ class System {
     uint64_t get_new_pte(uint64_t base_addr, int vpn, bool isleaf);
     uint64_t get_old_pte(uint64_t base_addr, int vpn);
     uint64_t virt_to_new_phy(uint64_t virt_addr);
+    uint64_t virt_to_old_phy(uint64_t virt_addr);
 
     DRAMSim::MultiChannelMemorySystem* dramsim;
     

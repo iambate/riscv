@@ -235,6 +235,7 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 	return pte;
 }
 
+// function for testing
 uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
 	__uint64_t addr = base_addr + vpn*8;
 	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
@@ -243,6 +244,21 @@ uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
 		return 0;
 	}
 	return pte;
+}
+
+// function for testing
+uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
+	int vpn;
+	__uint64_t pte, phy_offset, tmp_virt_addr;
+	__uint64_t pt_base_addr = 0;
+	phy_offset = virt_addr & 0x0fff;
+	tmp_virt_addr = virt_addr >> 12;
+	for(int i=0;i<4;i++) {
+		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
+		pte = get_old_pte(pt_base_addr, vpn);
+		pt_base_addr = ((pte&0x0000ffffffffffff)>>10);
+	}
+	return (pt_base_addr << 12) | phy_offset;
 }
 
 uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
@@ -294,13 +310,15 @@ uint64_t System::load_elf(const char* filename) {
       assert(-1 != off);
 
       int total_full_pages = shdr.sh_size/PAGE_SIZE;
-      uint64_t virt_addr=0, phy_addr;
+      uint64_t virt_addr=0, phy_addr, tmp_phy_addr;
       size_t len, last_page_len = shdr.sh_size % PAGE_SIZE;
       cout << "Total full pages: " << total_full_pages << endl;
       cout << "Total size: " << shdr.sh_size << endl;
       cout << "Total last page size: " << last_page_len << endl;
       for(int i = 0; i < total_full_pages; i++) {
         phy_addr = virt_to_new_phy(virt_addr);
+        tmp_phy_addr = virt_to_old_phy(virt_addr);
+        assert(phy_addr == tmp_phy_addr);
         cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
         len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), PAGE_SIZE);
         assert(len == PAGE_SIZE);
@@ -308,6 +326,8 @@ uint64_t System::load_elf(const char* filename) {
       }
       if(last_page_len > 0) {
         phy_addr = virt_to_new_phy(virt_addr);
+        tmp_phy_addr = virt_to_old_phy(virt_addr);
+        assert(phy_addr == tmp_phy_addr);
         cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
         len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), last_page_len);
         assert(len == last_page_len);
