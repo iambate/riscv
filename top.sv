@@ -69,10 +69,18 @@ module top
 // for virtual to physical translation
   logic paddr_set;
   logic [1:0] level;
-  logic [63:0] phy_addr;
   logic [1:0] nlevel;
   logic [8:0] v_to_p_counter;
   logic [8:0] n_v_to_p_counter;
+  logic [63:0] temp;
+  logic [63:0] ptbr;
+  logic [63:0] next_bus_req_v_addr;
+  logic [63:0] n_distance_act_addr;
+  logic [63:0] a;
+  logic [63:0] new_a;
+  logic [63:0] old_pc;
+  logic new_va_to_pa_req;
+
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -108,47 +116,6 @@ module top
                       .nstage3_opcode_name(nstage3_opcode_name),
                       .nstage3_pc(nstage3_pc),
                       .wr_en(wr_en));
-function trans_vir_addr_to_phy_addr(
-);
-	if (bus_respcyc) begin //we have a response..we can go ahead and process it
-		if(v_to_p_counter == distance_act_addr) begin
-			//put it in phy addr and increment level and send ack
-			//set new_bus_req_v_addr
-		        //set a to new value
-			a <= new_a;
-			level <= nlevel;	
-		end
-		else begin
-			//send ack, let level stay the same
-			level <= level;
-		end
-		bus_respack <= 1;
-		bus_req <= bus_req;
-		bus_reqcyc <= bus_reqcyc;
-		v_to_p_counter = n_v_to_p_counter;
-	end
-	else if(level < 4) begin //finished processing one block
-		level <= level;
-		bus_respack <= 0;
-		if(v_to_p_counter == 'd8) begin //send request and change counter to 0
-			bus_req <= next_bus_req_v_addr;
-			bus_reqcyc <= 1;
-			v_to_p_counter <= 0;
-			distance_act_addr <= n_distance_act_addr;
-		end
-		else begin //wait
-			bus_req <= bus_req;
-			bus_reqcyc <= 0;
-			v_to_p_counter <= v_to_p_counter;
-		end
-	end
-	else begin
-		new_va_to_pa_req <= 0;
-		paddr_set <= 1;
-		bus_req <= a |old_pc[11:0]
-	end
-	
-endfunction
   
   always_comb begin
     if(level == 0) begin
@@ -186,18 +153,6 @@ endfunction
     end
     assign nlevel = level+1;
     assign n_v_to_p_counter = v_to_p_counter + 'd1;
-    //assign new_bus_req_v_addr = //a + va.vpn[i] X  PTESIZE.
-/*
-    assign ptbr = 0;
-    assign new_va = ( + (pc[47:39] * PTESIZE));
-    assign new_va_64_aligned = ((new_va >> 6)<<6);//64 byte aligned addr
-    assign distance_act_addr = (new_va - new_va_64_aligned)/PTESIZE;
-
-    
-    assign temp_first_va = (ptbr+old_pc[47:39]*PTESIZE);
-    assign first_va = (temp_first_va >> 6) <<6;
-    assign diff_from_first_va = temp_first_va - first_va;
-*/
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
@@ -227,15 +182,6 @@ endfunction
 		end
 
 		if(counter == 'd16) begin
-/*
-	     		pc <= npc;
-             		bus_req <= bus_req;
-	     		bus_reqcyc <= 1;
-			//bus_reqcyc <= 0;
-	    	 	counter <= 'd0;
-			level <= 0;
- 			paddr_set <= 0;
-*/
 			if(new_va_to_pa_req) begin
 				pc <= npc;
 				old_pc <= pc;
@@ -275,7 +221,41 @@ endfunction
     	end
 	else begin
 		
-		trans_vir_addr_to_phy_addr();		
+		if (bus_respcyc) begin //we have a response..we can go ahead and process it
+			if(v_to_p_counter == distance_act_addr) begin
+				//put it in phy addr and increment level and send ack
+				a <= new_a;
+				level <= nlevel;	
+			end
+			else begin
+				//send ack, let level stay the same
+				level <= level;
+			end
+			bus_respack <= 1;
+			bus_req <= bus_req;
+			bus_reqcyc <= bus_reqcyc;
+			v_to_p_counter = n_v_to_p_counter;
+		end
+		else if(level < 4) begin //finished processing one block
+			level <= level;
+			bus_respack <= 0;
+			if(v_to_p_counter == 'd8) begin //send request and change counter to 0
+				bus_req <= next_bus_req_v_addr;
+				bus_reqcyc <= 1;
+				v_to_p_counter <= 0;
+				distance_act_addr <= n_distance_act_addr;
+			end
+			else begin //wait
+				bus_req <= bus_req;
+				bus_reqcyc <= 0;
+				v_to_p_counter <= v_to_p_counter;
+			end
+		end
+		else begin
+			new_va_to_pa_req <= 0;
+			paddr_set <= 1;
+			bus_req <= a |old_pc[11:0]
+		end
 	end
     end
   initial begin
