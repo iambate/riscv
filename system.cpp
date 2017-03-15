@@ -224,7 +224,7 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
 	__uint64_t page_no;
 	if(!(pte&VALID_PAGE)){
-		page_no = get_random_page(memmap);
+		page_no = get_random_page();
 		if(isleaf)
 			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE;
 		else
@@ -292,8 +292,26 @@ uint64_t System::load_elf(const char* filename) {
       // copy segment content from file to memory
       off_t off = lseek(fileDescriptor, shdr.sh_offset, SEEK_SET);
       assert(-1 != off);
-      size_t len = read(fileDescriptor, (void*)(ram + 0/* addr */), shdr.sh_size);
-      assert(len == shdr.sh_size);
+
+      int total_full_pages = shdr.sh_size/PAGE_SIZE;
+      uint64_t virt_addr=0, phy_addr;
+      size_t len, last_page_len = shdr.sh_size % PAGE_SIZE;
+      cout << "Total full pages: " << total_full_pages << endl;
+      cout << "Total size: " << shdr.sh_size << endl;
+      cout << "Total last page size: " << last_page_len << endl;
+      for(int i = 0; i < total_full_pages; i++) {
+        phy_addr = virt_to_new_phy(virt_addr);
+        cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
+        len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), PAGE_SIZE);
+        assert(len == PAGE_SIZE);
+        virt_addr += PAGE_SIZE;
+      }
+      if(last_page_len > 0) {
+        phy_addr = virt_to_new_phy(virt_addr);
+        cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
+        len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), last_page_len);
+        assert(len == last_page_len);
+      }
       break; // just load the first one
     }
     

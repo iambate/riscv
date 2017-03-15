@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <queue>
+#include <bitset>
 #include "DRAMSim2/DRAMSim.h"
 #include "Vtop.h"
 

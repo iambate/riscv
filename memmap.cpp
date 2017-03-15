@@ -62,7 +62,7 @@ __uint64_t virt_to_new_phy(char *ram, __uint64_t virt_addr, bitset <GIGA/PAGE_SI
 	}
 	return (pt_base_addr << 12) | phy_offset;
 }
-int main() {
+int tmp_main() {
 	char *ram = (char *)malloc(1*GIGA);
 
 	bitset<GIGA/PAGE_SIZE> memmap;
