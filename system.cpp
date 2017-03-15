@@ -47,6 +47,9 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, int ps_per_clock
 {
     ram = (char*) malloc(ramsize);
     assert(ram);
+    bitset<GIGA/PAGE_SIZE> memmap;
+    memmap[0] = true;
+    init_page_table(0);
     
     // load the program image
     if (ramelf) top->entry = load_elf(ramelf);
@@ -197,6 +200,63 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
 }
 
 void System::dram_write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
+}
+
+uint64_t System::get_random_page(){
+	int page_no;
+	// This logic could be improved but then we (GIGA/PAGE_SIZE) space
+	// Hence sticking to this logic since the number of pages used will be less for us
+	do{
+		page_no = rand()%(GIGA/PAGE_SIZE);
+	}while(memmap[page_no]);
+	memmap[page_no] = true;
+	return page_no;
+}
+
+void System::init_page_table(uint64_t table_addr){
+	for(int i=0;i<1024;i++) {
+		*((__uint64_t*)(&ram[table_addr+i*8])) = 0;
+	}
+}
+
+uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
+	__uint64_t addr = base_addr + vpn*8;
+	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
+	__uint64_t page_no;
+	if(!(pte&VALID_PAGE)){
+		page_no = get_random_page(memmap);
+		if(isleaf)
+			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE;
+		else
+			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
+		pte = (*(__uint64_t*)&ram[addr]);
+		init_page_table(pte);
+	}
+	return pte;
+}
+
+uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
+	__uint64_t addr = base_addr + vpn*8;
+	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
+	if(!(pte&VALID_PAGE)){
+		cerr << pte <<" invalid pte" <<endl;
+		return 0;
+	}
+	return pte;
+}
+
+uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
+	int vpn;
+	__uint64_t pte, phy_offset, tmp_virt_addr;
+	__uint64_t pt_base_addr = 0;
+	phy_offset = virt_addr & 0x0fff;
+	tmp_virt_addr = virt_addr >> 12;
+	for(int i=0;i<4;i++) {
+		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
+		pte = get_new_pte(pt_base_addr, vpn, i == 3);
+		pt_base_addr = ((pte&0x0000ffffffffffff)>>10);
+	}
+	return (pt_base_addr << 12) | phy_offset;
 }
 
 uint64_t System::load_elf(const char* filename) {

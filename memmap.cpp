@@ -3,7 +3,7 @@
 #include<stdlib.h>
 using namespace std;
 #define GIGA 		(1024UL*1024*1024)
-#define PAGE_SIZE 	(1024UL*8)
+#define PAGE_SIZE 	(1024UL*4)
 #define VALID_PAGE_DIR 	(0b0000000011)
 #define VALID_PAGE 	(0b0000000001)
 
