@@ -75,6 +75,7 @@ module top
   logic [63:0] temp;
   logic [63:0] ptbr;
   logic [63:0] next_bus_req_v_addr;
+  logic [63:0] distance_act_addr;
   logic [63:0] n_distance_act_addr;
   logic [63:0] a;
   logic [63:0] new_a;
@@ -191,7 +192,7 @@ module top
 				counter <= counter;
 				level <= level;
 				v_to_p_counter <= 0;
-				disance_act_addr <= n_distance_act_addr;
+				distance_act_addr <= n_distance_act_addr;
 			end
 			else begin
 				pc <= pc;
