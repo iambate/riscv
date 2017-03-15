@@ -14,7 +14,8 @@ module top
   REGISTER_WIDTH = 64,
   IMMEDIATE_WIDTH = 32,
   FLAG_WIDTH = 16,
-  INSTRUCTION_NAME_WIDTH = 12
+  INSTRUCTION_NAME_WIDTH = 12,
+  PTESIZE = 8
 )
 (
   input  clk,
@@ -65,6 +66,13 @@ module top
   logic [BUS_DATA_WIDTH-1:0] nstage3_pc;
   logic wr_en;
   logic display_regs;
+// for virtual to physical translation
+  logic paddr_set;
+  logic [1:0] level;
+  logic [63:0] phy_addr;
+  logic [1:0] nlevel;
+  logic [8:0] v_to_p_counter;
+  logic [8:0] n_v_to_p_counter;
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -100,8 +108,70 @@ module top
                       .nstage3_opcode_name(nstage3_opcode_name),
                       .nstage3_pc(nstage3_pc),
                       .wr_en(wr_en));
-
+function trans_vir_addr_to_phy_addr(
+);
+	if (bus_respcyc) begin //we have a response..we can go ahead and process it
+		if(v_to_p_counter == distance_act_addr) begin
+			//put it in phy addr and increment level and send ack
+			//set new_bus_req_v_addr
+		        //set a to new value
+			a <= new_a;
+			level <= nlevel;	
+		end
+		else begin
+			//send ack, let level stay the same
+			level <= level;
+		end
+		bus_respack <= 1;
+		bus_req <= bus_req;
+		bus_reqcyc <= bus_reqcyc;
+		v_to_p_counter = n_v_to_p_counter;
+	end
+	else if(level < 4) begin //finished processing one block
+		level <= level;
+		bus_respack <= 0;
+		if(v_to_p_counter == 'd8) begin //send request and change counter to 0
+			bus_req <= next_bus_req_v_addr;
+			bus_reqcyc <= 1;
+			v_to_p_counter <= 0;
+			distance_act_addr <= n_distance_act_addr;
+		end
+		else begin //wait
+			bus_req <= bus_req;
+			bus_reqcyc <= 0;
+			v_to_p_counter <= v_to_p_counter;
+		end
+	end
+	else begin
+		new_va_to_pa_req <= 0;
+		paddr_set <= 1;
+		bus_req <= a |old_pc[11:0]
+	end
+	
+endfunction
+  
   always_comb begin
+    if(level == 0) begin
+	assign temp = ptbr[63:0]+(pc[47:39]*PTESIZE);
+	assign next_bus_req_v_addr = temp[63:6] << 6;
+	assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+    end
+    else if(level == 1) begin
+	assign temp = a[63:0]+(old_pc[38:30]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+    end
+    else if (level == 2) begin
+	assign temp = a[63:0]+(old_pc[29:21]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+    end
+    else begin
+	assign temp = a[63:0]+(old_pc[20:12]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+    end
+    assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+'d64;
     assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
@@ -114,6 +184,20 @@ module top
       assign nstage1_instruction_bits = bus_resp[63:32];
       assign nbus_respack = 1;
     end
+    assign nlevel = level+1;
+    assign n_v_to_p_counter = v_to_p_counter + 'd1;
+    //assign new_bus_req_v_addr = //a + va.vpn[i] X  PTESIZE.
+/*
+    assign ptbr = 0;
+    assign new_va = ( + (pc[47:39] * PTESIZE));
+    assign new_va_64_aligned = ((new_va >> 6)<<6);//64 byte aligned addr
+    assign distance_act_addr = (new_va - new_va_64_aligned)/PTESIZE;
+
+    
+    assign temp_first_va = (ptbr+old_pc[47:39]*PTESIZE);
+    assign first_va = (temp_first_va >> 6) <<6;
+    assign diff_from_first_va = temp_first_va - first_va;
+*/
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
@@ -121,38 +205,77 @@ module top
 	stage1_pc <= entry;
 	counter <= 'd16;
 	alternator <= 'b1;
+        level <= 0;
+	paddr_set <= 1;
+	new_va_to_pa_req <= 1;
     end
     else begin
-	if(bus_respcyc) begin
-	     if(!nstage1_instruction_bits) begin
-	//	$finish;
-		display_regs <= 'd1;
-	     end
-	     else begin
-		alternator <= nalternator;
-		stage1_pc <= nstage1_pc;
-		bus_respack <= nbus_respack;
-  	     end
-	end
-	else begin
-	     bus_respack <= 0;
-	end
+	if(paddr_set)  begin
+		if(bus_respcyc) begin
+	     		if(!nstage1_instruction_bits) begin
+	//			$finish;
+				display_regs <= 'd1;
+	     		end
+	     		else begin
+				alternator <= nalternator;
+				stage1_pc <= nstage1_pc;
+				bus_respack <= nbus_respack;
+  	     		end
+		end
+		else begin
+	     		bus_respack <= 0;
+		end
 
-	if(counter == 'd16) begin
-	     pc <= npc;
-             bus_req <= pc;
-	     bus_reqcyc <= 1;
-	     counter <= 'd0;
-	end else if (counter != 'd16 && bus_respcyc) begin
-	     pc <= pc;
-             bus_req <= bus_req;
-	     bus_reqcyc <= bus_reqcyc;
-	     counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
-	end else begin
-	     pc <= pc;
-             bus_req <= bus_req;
-	     bus_reqcyc<=0;
-	     counter <= counter;
+		if(counter == 'd16) begin
+/*
+	     		pc <= npc;
+             		bus_req <= bus_req;
+	     		bus_reqcyc <= 1;
+			//bus_reqcyc <= 0;
+	    	 	counter <= 'd0;
+			level <= 0;
+ 			paddr_set <= 0;
+*/
+			if(new_va_to_pa_req) begin
+				pc <= npc;
+				old_pc <= pc;
+				bus_req <= next_bus_req_v_addr;
+				bus_reqcyc <= 1;
+				paddr_set <= 0;
+				counter <= counter;
+				level <= level;
+				v_to_p_counter <= 0;
+				disance_act_addr <= n_distance_act_addr;
+			end
+			else begin
+				pc <= pc;
+				bus_req <= bus_req;
+				bus_reqcyc <= 1;
+				paddr_set <= paddr_set;
+				counter <= 0;
+				level <= level;
+				v_to_p_counter <= v_to_p_counter;
+			end
+			new_va_to_pa_req <= 0;
+		end else if (counter != 'd16 && bus_respcyc) begin
+	     		pc <= pc;
+             		bus_req <= bus_req;
+	     		bus_reqcyc <= bus_reqcyc;
+	     		counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
+			paddr_set <= paddr_set;
+			new_va_to_pa_req <= 1;
+			level <= 0;
+		end else begin
+	     		pc <= pc;
+             		bus_req <= bus_req;
+	     		bus_reqcyc<=0;
+	     		counter <= counter;
+			paddr_set <= paddr_set;
+		end
+    	end
+	else begin
+		
+		trans_vir_addr_to_phy_addr();		
 	end
     end
   initial begin
