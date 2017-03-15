@@ -239,7 +239,7 @@ endfunction
 				bus_reqcyc <= 1;
 				paddr_set <= 0;
 				counter <= counter;
-				level <= 0;
+				level <= level;
 				v_to_p_counter <= 0;
 			end
 			else begin
@@ -259,6 +259,7 @@ endfunction
 	     		counter <= ncounter;//implement as assign new_counter=counter+'d1 and counter <= new_counter
 			paddr_set <= paddr_set;
 			new_va_to_pa_req <= 1;
+			level <= 0;
 		end else begin
 	     		pc <= pc;
              		bus_req <= bus_req;
