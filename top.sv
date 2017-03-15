@@ -150,22 +150,22 @@ endfunction
   always_comb begin
     if(level == 0) begin
 	assign temp = ptbr[63:0]+(pc[47:39]*PTESIZE);
-	assign next_bus_req_v_addr = temp[63:6] << 6
+	assign next_bus_req_v_addr = temp[63:6] << 6;
 	assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if(level == 1) begin
 	assign temp = ptbr[63:0]+(ol_pc[38:30]*PTESIZE);
-        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if (level == 2) begin
 	assign temp = ptbr[63:0]+(old_pc[29:21]*PTESIZE);
-        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else begin
 	assign temp = ptbr[63:0]+(old_pc[20:12]*PTESIZE);
-        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign next_bus_req_v_addr = temp[63:6] << 6;
         assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     assign new_a = bus_resp[47:10] << 12;
@@ -235,7 +235,7 @@ endfunction
 			if(new_va_to_pa_req) begin
 				pc <= npc;
 				old_pc <= pc;
-				bus_req <= first_va;
+				bus_req <= next_bus_req_v_addr;
 				bus_reqcyc <= 1;
 				paddr_set <= 0;
 				counter <= counter;
