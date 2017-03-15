@@ -148,14 +148,25 @@ function trans_vir_addr_to_phy_addr(
 endfunction
   
   always_comb begin
-    if(level == 1) begin
-	assign next_bus_req_v_addr = a+old_pc[38:30]*PTESIZE;
+    if(level == 0) begin
+	assign temp = ptbr[63:0]+(pc[47:39]*PTESIZE);
+	assign next_bus_req_v_addr = temp[63:6] << 6
+	assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+    end
+    else if(level == 1) begin
+	assign temp = ptbr[63:0]+(ol_pc[38:30]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if (level == 2) begin
-	assign next_bus_req_v_addr = a+old_pc[29:21]*PTESIZE;
+	assign temp = ptbr[63:0]+(old_pc[29:21]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else begin
-	assign next_bus_req_v_addr = a+old_pc[20:12]*PTESIZE;
+	assign temp = ptbr[63:0]+(old_pc[20:12]*PTESIZE);
+        assign next_bus_req_v_addr = temp[63:6] << 6
+        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+'d64;
@@ -178,10 +189,12 @@ endfunction
     assign new_va = ( + (pc[47:39] * PTESIZE));
     assign new_va_64_aligned = ((new_va >> 6)<<6);//64 byte aligned addr
     assign distance_act_addr = (new_va - new_va_64_aligned)/PTESIZE;
-*/
+
+    
     assign temp_first_va = (ptbr+old_pc[47:39]*PTESIZE);
     assign first_va = (temp_first_va >> 6) <<6;
     assign diff_from_first_va = temp_first_va - first_va;
+*/
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
