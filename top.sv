@@ -134,7 +134,7 @@ function trans_vir_addr_to_phy_addr(
 			bus_req <= next_bus_req_v_addr;
 			bus_reqcyc <= 1;
 			v_to_p_counter <= 0;
-			disance_act_addr <= n_disance_act_addr;
+			distance_act_addr <= n_distance_act_addr;
 		end
 		else begin //wait
 			bus_req <= bus_req;
@@ -142,9 +142,10 @@ function trans_vir_addr_to_phy_addr(
 			v_to_p_counter <= v_to_p_counter;
 		end
 	end
-	else begin //put phy addr together
+	else begin
 		new_va_to_pa_req <= 0;
 		paddr_set <= 1;
+		bus_req <= a |old_pc[11:0]
 	end
 	
 endfunction
@@ -153,22 +154,22 @@ endfunction
     if(level == 0) begin
 	assign temp = ptbr[63:0]+(pc[47:39]*PTESIZE);
 	assign next_bus_req_v_addr = temp[63:6] << 6;
-	assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+	assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if(level == 1) begin
 	assign temp = a[63:0]+(old_pc[38:30]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if (level == 2) begin
 	assign temp = a[63:0]+(old_pc[29:21]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else begin
 	assign temp = a[63:0]+(old_pc[20:12]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+'d64;
@@ -244,7 +245,7 @@ endfunction
 				counter <= counter;
 				level <= level;
 				v_to_p_counter <= 0;
-				disance_act_addr <= n_distance_act_addr
+				disance_act_addr <= n_distance_act_addr;
 			end
 			else begin
 				pc <= pc;
