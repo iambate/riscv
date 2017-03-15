@@ -113,7 +113,8 @@ function trans_vir_addr_to_phy_addr(
 		if(v_to_p_counter == distance_act_addr) begin
 			//put it in phy addr and increment level and send ack
 			//set new_bus_req_v_addr
-			
+		        //set a to new value
+			a <= new_a;
 			level <= nlevel;	
 		end
 		else begin
@@ -129,7 +130,7 @@ function trans_vir_addr_to_phy_addr(
 		level <= level;
 		bus_respack <= 0;
 		if(v_to_p_counter == 'd8) begin //send request and change counter to 0
-			bus_req <= new_bus_req_v_addr;
+			bus_req <= next_bus_req_v_addr;
 			bus_reqcyc <= 1;
 			v_to_p_counter <= 0;
 		end
@@ -140,13 +141,23 @@ function trans_vir_addr_to_phy_addr(
 		end
 	end
 	else begin //put phy addr together
-		bus_req <= new_bus_req_v_addr;
+		new_va_to_pa_req <= 0;
 		paddr_set <= 1;
 	end
 	
 endfunction
   
   always_comb begin
+    if(level == 1) begin
+	assign next_bus_req_v_addr = a+old_pc[38:30]*PTESIZE;
+    end
+    else if (level == 2) begin
+	assign next_bus_req_v_addr = a+old_pc[29:21]*PTESIZE;
+    end
+    else begin
+	assign next_bus_req_v_addr = a+old_pc[20:12]*PTESIZE;
+    end
+    assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+'d64;
     assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
@@ -162,10 +173,15 @@ endfunction
     assign nlevel = level+1;
     assign n_v_to_p_counter = v_to_p_counter + 'd1;
     //assign new_bus_req_v_addr = //a + va.vpn[i] X  PTESIZE.
+/*
     assign ptbr = 0;
     assign new_va = ( + (pc[47:39] * PTESIZE));
     assign new_va_64_aligned = ((new_va >> 6)<<6);//64 byte aligned addr
     assign distance_act_addr = (new_va - new_va_64_aligned)/PTESIZE;
+*/
+    assign temp_first_va = (ptbr+old_pc[47:39]*PTESIZE);
+    assign first_va = (temp_first_va >> 6) <<6;
+    assign diff_from_first_va = temp_first_va - first_va;
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
@@ -205,7 +221,8 @@ endfunction
 */
 			if(new_va_to_pa_req) begin
 				pc <= npc;
-				bus_req <= new_va_64_aligned;
+				old_pc <= pc;
+				bus_req <= first_va;
 				bus_reqcyc <= 1;
 				paddr_set <= 0;
 				counter <= counter;
