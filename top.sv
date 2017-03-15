@@ -72,6 +72,7 @@ module top
   logic [63:0] phy_addr;
   logic [1:0] nlevel;
   logic [8:0] v_to_p_counter;
+  logic [8:0] n_v_to_p_counter;
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -133,6 +134,7 @@ function trans_vir_addr_to_phy_addr(
 			bus_req <= next_bus_req_v_addr;
 			bus_reqcyc <= 1;
 			v_to_p_counter <= 0;
+			disance_act_addr <= n_disance_act_addr;
 		end
 		else begin //wait
 			bus_req <= bus_req;
@@ -151,22 +153,22 @@ endfunction
     if(level == 0) begin
 	assign temp = ptbr[63:0]+(pc[47:39]*PTESIZE);
 	assign next_bus_req_v_addr = temp[63:6] << 6;
-	assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+	assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if(level == 1) begin
-	assign temp = a[63:0]+(ol_pc[38:30]*PTESIZE);
+	assign temp = a[63:0]+(old_pc[38:30]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else if (level == 2) begin
 	assign temp = a[63:0]+(old_pc[29:21]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     else begin
 	assign temp = a[63:0]+(old_pc[20:12]*PTESIZE);
         assign next_bus_req_v_addr = temp[63:6] << 6;
-        assign disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
+        assign n_disance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+'d64;
@@ -203,7 +205,8 @@ endfunction
 	counter <= 'd16;
 	alternator <= 'b1;
         level <= 0;
-	paddr_set <= 0;
+	paddr_set <= 1;
+	new_va_to_pa_req <= 1;
     end
     else begin
 	if(paddr_set)  begin
@@ -241,6 +244,7 @@ endfunction
 				counter <= counter;
 				level <= level;
 				v_to_p_counter <= 0;
+				disance_act_addr <= n_distance_act_addr
 			end
 			else begin
 				pc <= pc;
