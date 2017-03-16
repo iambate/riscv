@@ -68,8 +68,8 @@ module top
   logic display_regs;
 // for virtual to physical translation
   logic paddr_set;
-  logic [1:0] level;
-  logic [1:0] nlevel;
+  logic [2:0] level;
+  logic [2:0] nlevel;
   logic [8:0] v_to_p_counter;
   logic [8:0] n_v_to_p_counter;
   logic [63:0] temp;
@@ -169,7 +169,7 @@ module top
 	if(paddr_set)  begin
 		if(bus_respcyc) begin
 	     		if(!nstage1_instruction_bits) begin
-	//			$finish;
+				//$finish;
 				display_regs <= 'd1;
 	     		end
 	     		else begin
@@ -193,6 +193,7 @@ module top
 				level <= level;
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
+				$display("in counter=16, new_va_to  bus_req: %d", bus_req);
 			end
 			else begin
 				pc <= pc;
@@ -202,6 +203,7 @@ module top
 				counter <= 0;
 				level <= level;
 				v_to_p_counter <= v_to_p_counter;
+				//$display("in counter=16, NO new_va_to  bus_req: %d", bus_req);
 			end
 			new_va_to_pa_req <= 0;
 		end else if (counter != 'd16 && bus_respcyc) begin
@@ -227,6 +229,9 @@ module top
 				//put it in phy addr and increment level and send ack
 				a <= new_a;
 				level <= nlevel;	
+				$display("in paddr_set, setting a: %d", new_a);
+				$display("in paddr_set, setting a level: %d", nlevel);
+				//$display("in paddr_set, setting a, distance_act_addr: %d", distance_act_addr);
 			end
 			else begin
 				//send ack, let level stay the same
@@ -236,6 +241,11 @@ module top
 			bus_req <= bus_req;
 			bus_reqcyc <= bus_reqcyc;
 			v_to_p_counter <= n_v_to_p_counter;
+			//$display("in paddr_set, bus_resp=y bus_req: %d", bus_req);
+			//$display("in paddr_set, setting a: %d", a);
+			//$display("in paddr_set, bus_resp=y bus_resp: %d", bus_resp);
+			//$display("in paddr_set, bus_resp=y v_to_p_counter: %d", v_to_p_counter);
+			//$display();
 		end
 		else if(level < 4) begin //finished processing one block
 			level <= level;
@@ -245,8 +255,10 @@ module top
 				bus_reqcyc <= 1;
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
+				$display("in level <4 , v_to_p_counter=8  bus_req: %d level: %d", next_bus_req_v_addr, level);
 			end
 			else begin //wait
+				//$display("in level <4 , wait  bus_req: %d", bus_req);
 				bus_req <= bus_req;
 				bus_reqcyc <= 0;
 				v_to_p_counter <= v_to_p_counter;
@@ -256,6 +268,7 @@ module top
 			new_va_to_pa_req <= 0;
 			paddr_set <= 1;
 			bus_req <= a |old_pc[11:0];
+			$display("Phy bus_req: %d", a|old_pc[11:0]);
 		end
 	end
     end

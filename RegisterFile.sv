@@ -45,7 +45,7 @@ module RegisterFile
 	else if(display_regs) begin
 	    int i;
 	    for(i=0;i<32;i++)
-	        $display("Register %0d:\t%0h",i, Registers[i]);
+	        $display("Register %0d:\t%0d",i, Registers[i]);
 	    $display("");
 	    $finish;
 	end
