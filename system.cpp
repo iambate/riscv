@@ -116,7 +116,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        //cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        //cout << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -232,6 +232,8 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 		pte = (*(__uint64_t*)&ram[addr]);
 		init_page_table(pte);
 	}
+	cout << "page_no: " << page_no << endl;
+	cout << "PTE: " << pte << endl;
 	return pte;
 }
 
@@ -256,9 +258,9 @@ uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
 	for(int i=0;i<4;i++) {
 		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
 		pte = get_old_pte(pt_base_addr, vpn);
-		pt_base_addr = ((pte&0x0000ffffffffffff)>>10);
+		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
 	}
-	return (pt_base_addr << 12) | phy_offset;
+	return (pt_base_addr) | phy_offset;
 }
 
 uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
@@ -270,9 +272,9 @@ uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
 	for(int i=0;i<4;i++) {
 		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
 		pte = get_new_pte(pt_base_addr, vpn, i == 3);
-		pt_base_addr = ((pte&0x0000ffffffffffff)>>10);
+		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
 	}
-	return (pt_base_addr << 12) | phy_offset;
+	return (pt_base_addr) | phy_offset;
 }
 
 uint64_t System::load_elf(const char* filename) {
