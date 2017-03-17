@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	const char* SHOWCONSOLE = getenv("SHOWCONSOLE");
 	if (SHOWCONSOLE?(atoi(SHOWCONSOLE)!=0):0) sys.console();
 
-	while (main_time/ps_per_clock < 2000*KILO && !Verilated::gotFinish()) {
+	while (main_time/ps_per_clock < 32000*KILO && !Verilated::gotFinish()) {
 		TICK();
 //		cout<< "tick num "<<i++<<endl;
 	}

@@ -9,6 +9,7 @@ module execute_instruction
   INSTRUCTION_NAME_WIDTH = 12
 )
 (
+  input decode_en,
   input [REGISTER_NUMBER_WIDTH:0] stage2_rd,
   input [REGISTER_WIDTH-1:0] stage2_rs1_val,
   input [REGISTER_WIDTH-1:0] stage2_rs2_val,
@@ -151,6 +152,7 @@ endfunction
     assign nstage3_rs2_val = stage2_rs2_val;
     assign nstage3_pc = stage2_pc;
     assign wr_en = 0;
+    if(decode_en) begin
     casez (stage2_opcode_name)
 	"sd":
 	begin
@@ -520,6 +522,7 @@ endfunction
 	    assign instruction_name="unknown";
         end
     endcase
+    end
   end
 //process inst to provide output in ans string
 endmodule

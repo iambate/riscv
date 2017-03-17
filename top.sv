@@ -81,7 +81,7 @@ module top
   logic [63:0] new_a;
   logic [63:0] old_pc;
   logic new_va_to_pa_req;
-
+  logic decode_en;
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -105,6 +105,7 @@ module top
 		     .wr_en(wr_en),
 		     .display_regs(display_regs));
   execute_instruction ei(
+                      .decode_en(decode_en),
                       .stage2_rd(nstage2_dest),
                       .stage2_rs1_val(nstage2_valA),
                       .stage2_rs2_val(nstage2_valB),
@@ -170,6 +171,7 @@ module top
 		if(bus_respcyc) begin
 	     		if(!nstage1_instruction_bits) begin
 				//$finish;
+				$display("it's done!");
 				display_regs <= 'd1;
 	     		end
 	     		else begin
@@ -193,6 +195,7 @@ module top
 				level <= level;
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
+				decode_en <= 0;
 				$display("in counter=16, new_va_to  bus_req: %d", bus_req);
 			end
 			else begin
@@ -224,7 +227,7 @@ module top
     	end
 	else begin
 		
-		if (bus_respcyc) begin //we have a response..we can go ahead and process it
+		if  (bus_respcyc) begin //we have a response..we can go ahead and process it
 			if(v_to_p_counter == distance_act_addr) begin
 				//put it in phy addr and increment level and send ack
 				a <= new_a;
@@ -265,6 +268,7 @@ module top
 			end
 		end
 		else begin
+			decode_en <=1;
 			new_va_to_pa_req <= 0;
 			paddr_set <= 1;
 			bus_req <= a |old_pc[11:0];

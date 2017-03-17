@@ -1,6 +1,6 @@
 .PHONY: all run clean submit
 
-RUNELF=/shared/cse502/tests/project/prog1
+RUNELF=/shared/cse502/tests/project/prog5
 
 TRACE=--trace
 
