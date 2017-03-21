@@ -196,7 +196,7 @@ module top
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
 				decode_en <= 0;
-				$display("in counter=16, new_va_to  bus_req: %d", bus_req);
+				//$display("in counter=16, new_va_to  bus_req: %d", bus_req);
 			end
 			else begin
 				pc <= pc;
