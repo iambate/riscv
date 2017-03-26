@@ -227,9 +227,6 @@ uint64_t System::get_random_page(){
 		page_no = rand()%(GIGA/PAGE_SIZE);
 	}while(memmap[page_no]);
 	memmap[page_no] = true;
-	cout << "Max pages GIGA :" << GIGA << endl;
-	cout << "Max pages PAGE_SIZE:" << PAGE_SIZE << endl;
-	cout << "Random pages: "<< page_no <<endl;
 	return page_no;
 }
 
@@ -250,11 +247,15 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 		else
 			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
 		pte = (*(__uint64_t*)&ram[addr]);
+		cout << "Initialized " << page_no << endl;
 		init_page_table(pte);
+	} else {
+		page_no = pte >> 10;
 	}
+	cout << "vpn: " << vpn <<endl;
 	cout << "page_no: " << page_no << endl;
 	cout << "PTE: " << pte << endl;
-	if(page_no>262144)
+	if(page_no>=262144)
 		exit(-1);
 	return pte;
 }
@@ -385,6 +386,11 @@ uint64_t System::load_elf(const char* filename) {
                 assert(-1 != lseek(fileDescriptor, phdr.p_offset, SEEK_SET));
 		int total_full_pages = phdr.p_memsz/PAGE_SIZE;
 		uint64_t virt_addr=phdr.p_vaddr, phy_addr, tmp_phy_addr;
+		int page_size=PAGE_SIZE;
+		if(virt_addr%4096==0){
+		} else {
+			page_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
+		}
 		size_t len, last_page_len = phdr.p_memsz % PAGE_SIZE;
 		cout << "Total full pages: " << total_full_pages << endl;
 		cout << "Total size: " << phdr.p_memsz << endl;
@@ -392,13 +398,15 @@ uint64_t System::load_elf(const char* filename) {
 		for(int i = 0; i < total_full_pages; i++) {
 		  phy_addr = virt_to_new_phy(virt_addr);
 		  // initialize the memory segment to zero
-		  memset(ram + phy_addr, 0, PAGE_SIZE);
+		  memset(ram + phy_addr, 0, page_size);
 		  tmp_phy_addr = virt_to_old_phy(virt_addr);
 		  assert(phy_addr == tmp_phy_addr);
 		  cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
-		  len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), PAGE_SIZE);
-		  assert(len == PAGE_SIZE);
-		  virt_addr += PAGE_SIZE;
+		  len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), page_size);
+		  assert(len == page_size);
+		  virt_addr += page_size;
+		  assert(virt_addr%4096==0);
+		  page_size = PAGE_SIZE;
 		}
 		if(last_page_len > 0) {
 		  phy_addr = virt_to_new_phy(virt_addr);
