@@ -4,17 +4,12 @@
 #include <map>
 #include <list>
 #include <queue>
-#include <bitset>
 #include "DRAMSim2/DRAMSim.h"
 #include "Vtop.h"
 
 #define KILO (1024UL)
 #define MEGA (1024UL*1024)
 #define GIGA (1024UL*1024*1024)
-
-#define PAGE_SIZE 	(1024UL*4)
-#define VALID_PAGE_DIR 	(0b0000000011)
-#define VALID_PAGE 	(0b0000000001)
 
 typedef unsigned long __uint64_t;
 typedef __uint64_t uint64_t;
@@ -35,7 +30,6 @@ class System {
     char* ram;
     unsigned int ramsize;
     uint64_t max_elf_addr;
-    bitset<GIGA/PAGE_SIZE> memmap;
 
     enum { IRQ_TIMER=0, IRQ_KBD=1 };
     int interrupts;
@@ -52,13 +46,6 @@ class System {
 
     void dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cycle);
     void dram_write_complete(unsigned id, uint64_t address, uint64_t clock_cycle);
-    uint64_t get_random_page();
-    void init_page_table(uint64_t table_addr);
-    uint64_t get_new_pte(uint64_t base_addr, int vpn, bool isleaf);
-    uint64_t get_old_pte(uint64_t base_addr, int vpn);
-    uint64_t virt_to_new_phy(uint64_t virt_addr);
-    uint64_t virt_to_old_phy(uint64_t virt_addr);
-
     DRAMSim::MultiChannelMemorySystem* dramsim;
     
 public:
