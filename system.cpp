@@ -51,6 +51,9 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
 {
     ram = (char*)malloc(ramsize);
     assert(ram);
+    bitset<GIGA/PAGE_SIZE> memmap;
+    memmap[0] = true;
+    init_page_table(0);
     top->stackptr = (uint64_t)ram + ramsize - 4*MEGA;
 
     uint64_t* argvp = (uint64_t*)top->stackptr + 1;
@@ -58,8 +61,8 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
     char* argvtgt = (char*)&argvp[argc];
     for(int arg = 0; arg < argc; ++arg) {
 	cout << "argvtgt: " << argvtgt << endl;
-        argvp[arg] = argvtgt - ram;
-        argvtgt = 1+stpcpy(argvtgt, argv[arg]);
+        //argvp[arg] = argvtgt - ram;
+        //argvtgt = 1+stpcpy(argvtgt, argv[arg]);
     }
 
     // load the program image
@@ -224,6 +227,9 @@ uint64_t System::get_random_page(){
 		page_no = rand()%(GIGA/PAGE_SIZE);
 	}while(memmap[page_no]);
 	memmap[page_no] = true;
+	cout << "Max pages GIGA :" << GIGA << endl;
+	cout << "Max pages PAGE_SIZE:" << PAGE_SIZE << endl;
+	cout << "Random pages: "<< page_no <<endl;
 	return page_no;
 }
 
@@ -236,7 +242,7 @@ void System::init_page_table(uint64_t table_addr){
 uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 	__uint64_t addr = base_addr + vpn*8;
 	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
-	__uint64_t page_no;
+	__uint64_t page_no=0;
 	if(!(pte&VALID_PAGE)){
 		page_no = get_random_page();
 		if(isleaf)
@@ -248,6 +254,8 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 	}
 	cout << "page_no: " << page_no << endl;
 	cout << "PTE: " << pte << endl;
+	if(page_no>262144)
+		exit(-1);
 	return pte;
 }
 
@@ -364,6 +372,14 @@ uint64_t System::load_elf(const char* filename) {
                     cerr << "Not enough 'physical' ram" << endl;
                     exit(-1);
                 }
+                cout << "Loading ELF header #" << phn << "."
+                    << " offset: "   << phdr.p_offset
+                    << " filesize: " << phdr.p_filesz
+                    << " memsize: "  << phdr.p_memsz
+                    << " vaddr: "    << std::hex << phdr.p_vaddr << std::dec
+                    << " paddr: "    << std::hex << phdr.p_paddr << std::dec
+                    << " align: "    << phdr.p_align
+                    << endl;
 
                 // copy segment content from file to memory
                 assert(-1 != lseek(fileDescriptor, phdr.p_offset, SEEK_SET));
