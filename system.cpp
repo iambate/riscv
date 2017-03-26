@@ -276,6 +276,21 @@ uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
 	return (pt_base_addr) | phy_offset;
 }
 
+// function for testing
+uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
+	int vpn;
+	__uint64_t pte, phy_offset, tmp_virt_addr;
+	__uint64_t pt_base_addr = 0;
+	phy_offset = virt_addr & 0x0fff;
+	tmp_virt_addr = virt_addr >> 12;
+	for(int i=0;i<4;i++) {
+		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
+		pte = get_old_pte(pt_base_addr, vpn);
+		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
+	}
+	return (pt_base_addr) | phy_offset;
+}
+
 uint64_t System::load_elf(const char* filename) {
 
     // check libelf version
@@ -344,7 +359,7 @@ uint64_t System::load_elf(const char* filename) {
             gelf_getphdr(elf, phn, &phdr);
 
             switch(phdr.p_type) {
-            case PT_LOAD:
+            case PT_LOAD: {
                 if ((phdr.p_vaddr + phdr.p_memsz) > ramsize) {
                     cerr << "Not enough 'physical' ram" << endl;
                     exit(-1);
@@ -392,6 +407,7 @@ uint64_t System::load_elf(const char* filename) {
                     << " align: "    << phdr.p_align
                     << endl;
                 break;
+            }
             case PT_NOTE:
             case PT_TLS:
             case PT_GNU_STACK:

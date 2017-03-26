@@ -1,4 +1,3 @@
-`include "Sysbus.defs"
 `include "Opcodes.defs"
 `include "get_variables.sv"
 `include "instruction_types.defs"
