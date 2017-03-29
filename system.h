@@ -58,6 +58,7 @@ class System {
     uint64_t get_old_pte(uint64_t base_addr, int vpn);
     uint64_t virt_to_new_phy(uint64_t virt_addr);
     uint64_t virt_to_old_phy(uint64_t virt_addr);
+    void load_segment(int fileDescriptor, size_t header_size, uint64_t start_addr);
 
     DRAMSim::MultiChannelMemorySystem* dramsim;
     
