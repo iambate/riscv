@@ -51,7 +51,7 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
 {
     ram = (char*)malloc(ramsize);
     assert(ram);
-    bitset<GIGA/PAGE_SIZE> memmap;
+    vector< bitset<1> >memmap(ramsize/PAGE_SIZE);
     memmap[0] = true;
     init_page_table(0);
     top->stackptr = (uint64_t)ram + ramsize - 4*MEGA;
@@ -301,40 +301,42 @@ uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
 }
 
 
+uint64_t System::load_elf_parts(int fileDescriptor, size_t size, uint64_t virt_addr){
+	uint64_t phy_addr, tmp_phy_addr;
+	size_t len;
+	phy_addr = virt_to_new_phy(virt_addr);
+	// initialize the memory segment to zero
+	memset(ram + phy_addr, 0, size);
+	tmp_phy_addr = virt_to_old_phy(virt_addr);
+	assert(phy_addr == tmp_phy_addr);
+	cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
+	cout << "Before Phy ram" << ram[phy_addr] << endl;
+	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), size);
+	cout << "Phy ram" << ram[phy_addr] << endl;
+	assert(len == size);
+	virt_addr += size;
+	return virt_addr;
+}
+
+
 void System::load_segment(int fileDescriptor, size_t header_size, uint64_t start_addr){
 	int total_full_pages = header_size/PAGE_SIZE;
-	uint64_t virt_addr=start_addr, phy_addr, tmp_phy_addr;
-	int page_size=PAGE_SIZE;
-	if(virt_addr%PAGE_SIZE==0){
-	} else {
-		page_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
+	uint64_t virt_addr=start_addr;
+	int size=PAGE_SIZE;
+	if(virt_addr%PAGE_SIZE!=0){
+		size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
 	}
-	size_t len, last_page_len = header_size % PAGE_SIZE;
+	size_t last_page_len = header_size % PAGE_SIZE;
 	cout << "Total full pages: " << total_full_pages << endl;
 	cout << "Total size: " << header_size << endl;
 	cout << "Total last page size: " << last_page_len << endl;
 	for(int i = 0; i < total_full_pages; i++) {
-	  phy_addr = virt_to_new_phy(virt_addr);
-	  // initialize the memory segment to zero
-	  memset(ram + phy_addr, 0, page_size);
-	  tmp_phy_addr = virt_to_old_phy(virt_addr);
-	  assert(phy_addr == tmp_phy_addr);
-	  cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
-	  len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), page_size);
-	  assert(len == page_size);
-	  virt_addr += page_size;
+	  virt_addr = load_elf_parts(fileDescriptor, size, virt_addr);
 	  assert(virt_addr%PAGE_SIZE==0);
-	  page_size = PAGE_SIZE;
+	  size = PAGE_SIZE;
 	}
 	if(last_page_len > 0) {
-	  phy_addr = virt_to_new_phy(virt_addr);
-	  // initialize the memory segment to zero
-	  memset(ram + phy_addr, 0, PAGE_SIZE);
-	  tmp_phy_addr = virt_to_old_phy(virt_addr);
-	  assert(phy_addr == tmp_phy_addr);
-	  cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
-	  len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), last_page_len);
-	  assert(len == last_page_len);
+	  virt_addr = load_elf_parts(fileDescriptor, last_page_len, virt_addr);
 	}
 }
 
@@ -376,7 +378,7 @@ uint64_t System::load_elf(const char* filename) {
 
             // copy segment content from file to memory
             assert(-1 != lseek(fileDescriptor, shdr.sh_offset, SEEK_SET));
-	    load_segment(fileDescriptor, shdr.sh_offset, 0);
+	    load_segment(fileDescriptor, shdr.sh_size, 0);
             break; // just load the first one
         }
     } else {
