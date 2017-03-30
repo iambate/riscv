@@ -178,8 +178,8 @@ void System::tick(int clk) {
 
         switch(cmd) {
         case MEMORY:
-            xfer_addr = top->bus_req;
-            assert(!(xfer_addr & 7));
+            xfer_addr = top->bus_req & ~0x3fULL;
+            //assert(!(xfer_addr & 7));
             if (addr_to_tag.find(xfer_addr)!=addr_to_tag.end()) {
                 cerr << "Access for " << std::hex << xfer_addr << " already outstanding. Ignoring..." << endl;
             } else {
@@ -187,7 +187,7 @@ void System::tick(int clk) {
                         dramsim->addTransaction(isWrite, xfer_addr)
                       );
                 //cerr << "add transaction " << std::hex << xfer_addr << " on tag " << top->bus_reqtag << endl;
-                if (!isWrite) addr_to_tag[xfer_addr] = top->bus_reqtag;
+                if (!isWrite) addr_to_tag[xfer_addr] = make_pair(top->bus_req, top->bus_reqtag);
             }
             break;
 
@@ -207,11 +207,12 @@ void System::tick(int clk) {
 }
 
 void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
-    map<uint64_t, int>::iterator tag = addr_to_tag.find(address);
+    map<uint64_t, pair<uint64_t, int> >::iterator tag = addr_to_tag.find(address);
     assert(tag != addr_to_tag.end());
+    uint64_t orig_addr = tag->second.first;
     for(int i = 0; i < 64; i += 8) {
         //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
-        tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((address&(~63))+((address+i)&63))])),tag->second));
+        tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
     }
     addr_to_tag.erase(tag);
 }

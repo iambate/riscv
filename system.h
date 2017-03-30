@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <queue>
+#include <utility>
 #include <bitset>
 #include "DRAMSim2/DRAMSim.h"
 #include "Vtop.h"
@@ -47,7 +48,7 @@ class System {
 
     int cmd, rx_count;
     uint64_t xfer_addr;
-    std::map<uint64_t, int> addr_to_tag;
+    std::map<uint64_t, std::pair<uint64_t, int> > addr_to_tag;
     std::list<std::pair<uint64_t, int> > tx_queue;
 
     void dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cycle);
