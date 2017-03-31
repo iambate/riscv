@@ -1,0 +1,286 @@
+--- prof/system.cpp	2017-03-31 17:37:31.736871056 -0400
++++ wp1/system.cpp	2017-03-31 18:22:03.184627527 -0400
+@@ -14,7 +14,7 @@
+ #include <syscall.h>
+ #include "system.h"
+ #include "Vtop.h"
+-
++#define DEBUG
+ using namespace std;
+ 
+ /**
+@@ -49,14 +49,21 @@
+ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, char* argv[], int ps_per_clock)
+     : top(top), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0)
+ {
++    ptbr = 4096;
+     ram = (char*)malloc(ramsize);
+     assert(ram);
++    vector< bitset<1> >memmap(ramsize/PAGE_SIZE);
++    memmap[ptbr/PAGE_SIZE] = true;
++    init_page_table(ptbr);
+     top->stackptr = (uint64_t)ram + ramsize - 4*MEGA;
+ 
+     uint64_t* argvp = (uint64_t*)top->stackptr + 1;
+     argvp[-1] = argc;
+     char* argvtgt = (char*)&argvp[argc];
+     for(int arg = 0; arg < argc; ++arg) {
++#ifdef DEBUG
++	cout << "argvtgt: " << argvtgt << endl;
++#endif
+         argvp[arg] = argvtgt - ram;
+         argvtgt = 1+stpcpy(argvtgt, argv[arg]);
+     }
+@@ -118,7 +125,7 @@
+         if (ch != ERR) {
+             if (!(interrupts & (1<<IRQ_KBD))) {
+                 interrupts |= (1<<IRQ_KBD);
+-                tx_queue.push_back(make_pair(IRQ_KBD, (int)IRQ));
++                tx_queue.push_back(make_pair(IRQ_KBD,(int)IRQ));
+                 keys.push(ch);
+             }
+         }
+@@ -175,6 +182,7 @@
+         switch(cmd) {
+         case MEMORY:
+             xfer_addr = top->bus_req & ~0x3fULL;
++            //assert(!(xfer_addr & 7));
+             if (addr_to_tag.find(xfer_addr)!=addr_to_tag.end()) {
+                 cerr << "Access for " << std::hex << xfer_addr << " already outstanding. Ignoring..." << endl;
+             } else {
+@@ -189,7 +197,7 @@
+         case MMIO:
+             xfer_addr = top->bus_req;
+             assert(!(xfer_addr & 7));
+-            if (!isWrite) tx_queue.push_back(make_pair(*((uint64_t*)(&ram[xfer_addr])), top->bus_reqtag)); // hack - real I/O takes time
++            if (!isWrite) tx_queue.push_back(make_pair(*((uint64_t*)(&ram[xfer_addr])),top->bus_reqtag)); // hack - real I/O takes time
+             break;
+ 
+         default:
+@@ -206,8 +214,11 @@
+     assert(tag != addr_to_tag.end());
+     uint64_t orig_addr = tag->second.first;
+     for(int i = 0; i < 64; i += 8) {
+-        //cerr << "fill data from " << std::hex << (orig_addr+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second.second << endl;
+-        tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])), tag->second.second));
++#ifdef DEBUG
++        //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
++        cerr << "fill data from " << std::dec << ((orig_addr&(~63))+((orig_addr+i)&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
++#endif
++        tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
+     }
+     addr_to_tag.erase(tag);
+ }
+@@ -215,6 +226,150 @@
+ void System::dram_write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
+ }
+ 
++uint64_t System::get_random_page(){
++	int page_no;
++	// This logic could be improved but then we (GIGA/PAGE_SIZE) space
++	// Hence sticking to this logic since the number of pages used will be less for us
++	do{
++		page_no = rand()%(ramsize/PAGE_SIZE);
++	}while(memmap[page_no]);
++	memmap[page_no] = true;
++	return page_no;
++}
++
++void System::init_page_table(uint64_t table_addr){
++	for(int i=0;i<1024;i++) {
++		*((__uint64_t*)(&ram[table_addr+i*8])) = 0;
++	}
++#ifdef DEBUG
++	cout << "Initialize page table addr: " << std::dec << table_addr << endl;
++#endif
++}
++
++uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
++	__uint64_t addr = base_addr + vpn*8;
++	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
++	__uint64_t page_no=0;
++	if(!(pte&VALID_PAGE)){
++		page_no = get_random_page();
++		if(isleaf)
++			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE;
++		else
++			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
++		pte = (*(__uint64_t*)&ram[addr]);
++#ifdef DEBUG
++		cout << "Addr:" << std::dec << addr << endl;
++		cout << "Initialized page no" << std::dec << page_no << endl;
++#endif
++		init_page_table(page_no<<12);
++	} else {
++		page_no = pte >> 10;
++	}
++#ifdef DEBUG
++	cout << "vpn: " << vpn <<endl;
++	cout << "page_no: " << page_no << endl;
++	cout << "PTE: " << pte << endl;
++#endif
++	if(page_no>=262144)
++		exit(-1);
++	return pte;
++}
++
++// function for testing
++uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
++	__uint64_t addr = base_addr + vpn*8;
++	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
++	if(!(pte&VALID_PAGE)){
++		cerr << pte <<" invalid pte" <<endl;
++		return 0;
++	}
++	return pte;
++}
++
++uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
++	int vpn;
++	__uint64_t pte, phy_offset, tmp_virt_addr;
++	__uint64_t pt_base_addr = ptbr;
++	assert(ptbr==4096);
++	phy_offset = virt_addr & 0x0fff;
++	tmp_virt_addr = virt_addr >> 12;
++	for(int i=0;i<4;i++) {
++		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
++		pte = get_new_pte(pt_base_addr, vpn, i == 3);
++		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
++	}
++	return (pt_base_addr) | phy_offset;
++}
++
++// function for testing
++uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
++	int vpn;
++	__uint64_t pte, phy_offset, tmp_virt_addr;
++	__uint64_t pt_base_addr = ptbr;
++	phy_offset = virt_addr & 0x0fff;
++	tmp_virt_addr = virt_addr >> 12;
++	for(int i=0;i<4;i++) {
++		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
++		pte = get_old_pte(pt_base_addr, vpn);
++		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
++	}
++	return (pt_base_addr) | phy_offset;
++}
++
++
++uint64_t System::load_elf_parts(int fileDescriptor, size_t part_size, uint64_t virt_addr){
++	uint64_t phy_addr, tmp_phy_addr;
++	size_t len;
++	phy_addr = virt_to_new_phy(virt_addr);
++	// initialize the memory segment to zero
++	memset(ram + phy_addr, 0, part_size);
++	tmp_phy_addr = virt_to_old_phy(virt_addr);
++	assert(phy_addr == tmp_phy_addr);
++#ifdef DEBUG
++	cout << "part size: " << std::dec << part_size << endl;
++	cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << std::dec << phy_addr << endl;
++#endif
++	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), part_size);
++#ifdef DEBUG
++	cout << "part size: " << std::dec << part_size << endl;
++	//TODO: remove
++	int j =0;
++	for(int i=phy_addr; j< part_size; i+=4){
++		cout << std::dec << virt_addr+j << ": " << std::hex <<*((uint32_t*)&ram[i]) << endl;
++		j+=4;
++	}
++#endif
++	assert(len == part_size);
++	virt_addr += part_size;
++	return virt_addr;
++}
++
++
++void System::load_segment(int fileDescriptor, size_t header_size, uint64_t start_addr){
++	int total_full_pages = header_size/PAGE_SIZE;
++	uint64_t virt_addr=start_addr;
++	size_t part_size=PAGE_SIZE;
++	if(virt_addr%PAGE_SIZE!=0){
++		part_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
++	}
++	size_t last_page_len = header_size % PAGE_SIZE;
++#ifdef DEBUG
++	cout << "part size: " << std::dec << part_size << endl;
++	cout << "Total full pages: " << total_full_pages << endl;
++	cout << "Total size: " << header_size << endl;
++	cout << "Total last page size: " << last_page_len << endl;
++#endif
++	for(int i = 0; i < total_full_pages; i++) {
++	  virt_addr = load_elf_parts(fileDescriptor, part_size, virt_addr);
++	  part_size = 4096;
++	  assert(virt_addr%4096==0);
++	}
++	if(last_page_len > 0) {
++	  virt_addr = load_elf_parts(fileDescriptor, last_page_len, virt_addr);
++	}
++}
++
++
+ uint64_t System::load_elf(const char* filename) {
+ 
+     // check libelf version
+@@ -252,7 +407,7 @@
+ 
+             // copy segment content from file to memory
+             assert(-1 != lseek(fileDescriptor, shdr.sh_offset, SEEK_SET));
+-            assert(shdr.sh_size == read(fileDescriptor, (void*)(ram + 0/* addr */), shdr.sh_size));
++	    load_segment(fileDescriptor, shdr.sh_size, 0);
+             break; // just load the first one
+         }
+     } else {
+@@ -261,17 +416,23 @@
+             gelf_getphdr(elf, phn, &phdr);
+ 
+             switch(phdr.p_type) {
+-            case PT_LOAD:
++            case PT_LOAD: {
+                 if ((phdr.p_vaddr + phdr.p_memsz) > ramsize) {
+                     cerr << "Not enough 'physical' ram" << endl;
+                     exit(-1);
+                 }
++                cout << "Loading ELF header #" << phn << "."
++                    << " offset: "   << phdr.p_offset
++                    << " filesize: " << phdr.p_filesz
++                    << " memsize: "  << phdr.p_memsz
++                    << " vaddr: "    << std::hex << phdr.p_vaddr << std::dec
++                    << " paddr: "    << std::hex << phdr.p_paddr << std::dec
++                    << " align: "    << phdr.p_align
++                    << endl;
+ 
+-                // initialize the memory segment to zero
+-                memset(ram + phdr.p_vaddr, 0, phdr.p_memsz);
+                 // copy segment content from file to memory
+                 assert(-1 != lseek(fileDescriptor, phdr.p_offset, SEEK_SET));
+-                assert(phdr.p_filesz == read(fileDescriptor, (void*)(ram + phdr.p_vaddr), phdr.p_filesz));
++		load_segment(fileDescriptor, phdr.p_memsz, phdr.p_vaddr);
+ 
+                 if (max_elf_addr < (phdr.p_vaddr + phdr.p_filesz))
+                     max_elf_addr = (phdr.p_vaddr + phdr.p_filesz);
+@@ -285,6 +446,7 @@
+                     << " align: "    << phdr.p_align
+                     << endl;
+                 break;
++            }
+             case PT_NOTE:
+             case PT_TLS:
+             case PT_GNU_STACK:
+@@ -300,7 +462,6 @@
+         // page-align max_elf_addr
+         max_elf_addr = ((max_elf_addr + 4095) / 4096) * 4096;
+     }
+-
+     // finalize
+     close(fileDescriptor);
+     return elf_header.e_entry /* entry point */;
+@@ -324,7 +485,7 @@
+ 
+         case __NR_mmap:
+             assert(a0 == 0 && (a3 & MAP_ANONYMOUS)); // only support ANONYMOUS mmap with NULL argument
+-            return do_ecall(__NR_brk, a1, 0, 0, 0, 0, 0, 0, a0ret);
++            return do_ecall(__NR_brk,a1,0,0,0,0,0,0,a0ret);
+ 
+ #define ECALL_OFFSET(v) do { (v) += ecall_ram; assert((v) < (ecall_ram + ecall_ramsize)); } while(0)
+         case __NR_open:
