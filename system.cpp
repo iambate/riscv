@@ -236,6 +236,7 @@ void System::init_page_table(uint64_t table_addr){
 	for(int i=0;i<1024;i++) {
 		*((__uint64_t*)(&ram[table_addr+i*8])) = 0;
 	}
+	cout << "Initialize page table addr: " << std::dec << table_addr << endl;
 }
 
 uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
@@ -249,8 +250,8 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 		else
 			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
 		pte = (*(__uint64_t*)&ram[addr]);
-		cout << "Initialized " << page_no << endl;
-		init_page_table(pte);
+		cout << "Initialized page no" << std::dec << page_no << endl;
+		init_page_table(page_no<<12);
 	} else {
 		page_no = pte >> 10;
 	}
@@ -440,7 +441,6 @@ uint64_t System::load_elf(const char* filename) {
         // page-align max_elf_addr
         max_elf_addr = ((max_elf_addr + 4095) / 4096) * 4096;
     }
-
     // finalize
     close(fileDescriptor);
     return elf_header.e_entry /* entry point */;
