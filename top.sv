@@ -165,6 +165,7 @@ module top
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
+	ptbr <= 'd4096;
 	pc <= entry;
 	stage1_pc <= entry;
 	counter <= 'd16;
@@ -283,7 +284,7 @@ module top
 				bus_reqcyc <= 1;
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
-				//$display("in level <4 , v_to_p_counter=8  bus_req: %d level: %d", next_bus_req_v_addr, level);
+				$display("in level <4 , v_to_p_counter=8  bus_req: %d level: %d", next_bus_req_v_addr, level);
 			end
 			else begin //wait
 				//$display("in level <4 , wait  bus_req: %d", bus_req);

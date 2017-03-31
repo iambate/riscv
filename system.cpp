@@ -14,7 +14,7 @@
 #include <syscall.h>
 #include "system.h"
 #include "Vtop.h"
-
+#define DEBUG
 using namespace std;
 
 /**
@@ -49,20 +49,23 @@ static unsigned ecall_ramsize = 0;
 System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, char* argv[], int ps_per_clock)
     : top(top), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0)
 {
+    ptbr = 4096;
     ram = (char*)malloc(ramsize);
     assert(ram);
     vector< bitset<1> >memmap(ramsize/PAGE_SIZE);
-    memmap[0] = true;
-    init_page_table(0);
+    memmap[ptbr/PAGE_SIZE] = true;
+    init_page_table(ptbr);
     top->stackptr = (uint64_t)ram + ramsize - 4*MEGA;
 
     uint64_t* argvp = (uint64_t*)top->stackptr + 1;
     argvp[-1] = argc;
     char* argvtgt = (char*)&argvp[argc];
     for(int arg = 0; arg < argc; ++arg) {
+#ifdef DEBUG
 	cout << "argvtgt: " << argvtgt << endl;
-        //argvp[arg] = argvtgt - ram;
-        //argvtgt = 1+stpcpy(argvtgt, argv[arg]);
+#endif
+        argvp[arg] = argvtgt - ram;
+        argvtgt = 1+stpcpy(argvtgt, argv[arg]);
     }
 
     // load the program image
@@ -211,8 +214,10 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
     assert(tag != addr_to_tag.end());
     uint64_t orig_addr = tag->second.first;
     for(int i = 0; i < 64; i += 8) {
+#ifdef DEBUG
         //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
         cerr << "fill data from " << std::dec << ((orig_addr&(~63))+((orig_addr+i)&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
+#endif
         tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
     }
     addr_to_tag.erase(tag);
@@ -236,7 +241,9 @@ void System::init_page_table(uint64_t table_addr){
 	for(int i=0;i<1024;i++) {
 		*((__uint64_t*)(&ram[table_addr+i*8])) = 0;
 	}
+#ifdef DEBUG
 	cout << "Initialize page table addr: " << std::dec << table_addr << endl;
+#endif
 }
 
 uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
@@ -250,14 +257,19 @@ uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
 		else
 			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
 		pte = (*(__uint64_t*)&ram[addr]);
+#ifdef DEBUG
+		cout << "Addr:" << std::dec << addr << endl;
 		cout << "Initialized page no" << std::dec << page_no << endl;
+#endif
 		init_page_table(page_no<<12);
 	} else {
 		page_no = pte >> 10;
 	}
+#ifdef DEBUG
 	cout << "vpn: " << vpn <<endl;
 	cout << "page_no: " << page_no << endl;
 	cout << "PTE: " << pte << endl;
+#endif
 	if(page_no>=262144)
 		exit(-1);
 	return pte;
@@ -277,7 +289,8 @@ uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
 uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
 	int vpn;
 	__uint64_t pte, phy_offset, tmp_virt_addr;
-	__uint64_t pt_base_addr = 0;
+	__uint64_t pt_base_addr = ptbr;
+	assert(ptbr==4096);
 	phy_offset = virt_addr & 0x0fff;
 	tmp_virt_addr = virt_addr >> 12;
 	for(int i=0;i<4;i++) {
@@ -292,7 +305,7 @@ uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
 uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
 	int vpn;
 	__uint64_t pte, phy_offset, tmp_virt_addr;
-	__uint64_t pt_base_addr = 0;
+	__uint64_t pt_base_addr = ptbr;
 	phy_offset = virt_addr & 0x0fff;
 	tmp_virt_addr = virt_addr >> 12;
 	for(int i=0;i<4;i++) {
@@ -312,15 +325,20 @@ uint64_t System::load_elf_parts(int fileDescriptor, size_t part_size, uint64_t v
 	memset(ram + phy_addr, 0, part_size);
 	tmp_phy_addr = virt_to_old_phy(virt_addr);
 	assert(phy_addr == tmp_phy_addr);
+#ifdef DEBUG
 	cout << "part size: " << std::dec << part_size << endl;
 	cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << std::dec << phy_addr << endl;
+#endif
 	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), part_size);
+#ifdef DEBUG
+	cout << "part size: " << std::dec << part_size << endl;
 	//TODO: remove
 	int j =0;
 	for(int i=phy_addr; j< part_size; i+=4){
 		cout << std::dec << virt_addr+j << ": " << std::hex <<*((uint32_t*)&ram[i]) << endl;
 		j+=4;
 	}
+#endif
 	assert(len == part_size);
 	virt_addr += part_size;
 	return virt_addr;
@@ -335,9 +353,12 @@ void System::load_segment(int fileDescriptor, size_t header_size, uint64_t start
 		part_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
 	}
 	size_t last_page_len = header_size % PAGE_SIZE;
+#ifdef DEBUG
+	cout << "part size: " << std::dec << part_size << endl;
 	cout << "Total full pages: " << total_full_pages << endl;
 	cout << "Total size: " << header_size << endl;
 	cout << "Total last page size: " << last_page_len << endl;
+#endif
 	for(int i = 0; i < total_full_pages; i++) {
 	  virt_addr = load_elf_parts(fileDescriptor, part_size, virt_addr);
 	  part_size = 4096;

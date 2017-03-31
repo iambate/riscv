@@ -35,6 +35,7 @@ class System {
 
     char* ram;
     unsigned int ramsize;
+    uint64_t ptbr;
     uint64_t max_elf_addr;
     bitset<GIGA/PAGE_SIZE> memmap;
 
