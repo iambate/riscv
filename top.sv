@@ -176,6 +176,7 @@ module top
 				display_regs <= 'd1;
 	     		end
 	     		else begin
+				$display("pc: %d", stage1_pc, " nstage_instruction_bits: ", nstage1_instruction_bits);
 				alternator <= nalternator;
 				stage1_pc <= nstage1_pc;
 				bus_respack <= nbus_respack;
@@ -233,8 +234,8 @@ module top
 				//put it in phy addr and increment level and send ack
 				a <= new_a;
 				level <= nlevel;	
-				$display("in paddr_set, setting a: %d", new_a);
-				$display("in paddr_set, setting a level: %d", nlevel);
+				//$display("in paddr_set, setting a: %d", new_a);
+				//$display("in paddr_set, setting a level: %d", nlevel);
 				//$display("in paddr_set, setting a, distance_act_addr: %d", distance_act_addr);
 			end
 			else begin
@@ -259,7 +260,7 @@ module top
 				bus_reqcyc <= 1;
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
-				$display("in level <4 , v_to_p_counter=8  bus_req: %d level: %d", next_bus_req_v_addr, level);
+				//$display("in level <4 , v_to_p_counter=8  bus_req: %d level: %d", next_bus_req_v_addr, level);
 			end
 			else begin //wait
 				//$display("in level <4 , wait  bus_req: %d", bus_req);

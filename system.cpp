@@ -212,6 +212,7 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
     uint64_t orig_addr = tag->second.first;
     for(int i = 0; i < 64; i += 8) {
         //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
+        cerr << "fill data from " << std::dec << (address+(i&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
         tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
     }
     addr_to_tag.erase(tag);
@@ -225,7 +226,7 @@ uint64_t System::get_random_page(){
 	// This logic could be improved but then we (GIGA/PAGE_SIZE) space
 	// Hence sticking to this logic since the number of pages used will be less for us
 	do{
-		page_no = rand()%(GIGA/PAGE_SIZE);
+		page_no = rand()%(ramsize/PAGE_SIZE);
 	}while(memmap[page_no]);
 	memmap[page_no] = true;
 	return page_no;
@@ -302,20 +303,25 @@ uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
 }
 
 
-uint64_t System::load_elf_parts(int fileDescriptor, size_t size, uint64_t virt_addr){
+uint64_t System::load_elf_parts(int fileDescriptor, size_t part_size, uint64_t virt_addr){
 	uint64_t phy_addr, tmp_phy_addr;
 	size_t len;
 	phy_addr = virt_to_new_phy(virt_addr);
 	// initialize the memory segment to zero
-	memset(ram + phy_addr, 0, size);
+	memset(ram + phy_addr, 0, part_size);
 	tmp_phy_addr = virt_to_old_phy(virt_addr);
 	assert(phy_addr == tmp_phy_addr);
-	cout << "Virtual addr: " << virt_addr << " Physical addr: " << phy_addr << endl;
-	cout << "Before Phy ram" << ram[phy_addr] << endl;
-	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), size);
-	cout << "Phy ram" << ram[phy_addr] << endl;
-	assert(len == size);
-	virt_addr += size;
+	cout << "part size: " << std::dec << part_size << endl;
+	cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << std::dec << phy_addr << endl;
+	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), part_size);
+	//TODO: remove
+	int j =0;
+	for(int i=phy_addr; j< part_size; i+=4){
+		cout << std::dec << virt_addr+j << ": " << std::hex <<*((uint32_t*)&ram[i]) << endl;
+		j+=4;
+	}
+	assert(len == part_size);
+	virt_addr += part_size;
 	return virt_addr;
 }
 
@@ -323,18 +329,18 @@ uint64_t System::load_elf_parts(int fileDescriptor, size_t size, uint64_t virt_a
 void System::load_segment(int fileDescriptor, size_t header_size, uint64_t start_addr){
 	int total_full_pages = header_size/PAGE_SIZE;
 	uint64_t virt_addr=start_addr;
-	int size=PAGE_SIZE;
+	size_t part_size=PAGE_SIZE;
 	if(virt_addr%PAGE_SIZE!=0){
-		size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
+		part_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
 	}
 	size_t last_page_len = header_size % PAGE_SIZE;
 	cout << "Total full pages: " << total_full_pages << endl;
 	cout << "Total size: " << header_size << endl;
 	cout << "Total last page size: " << last_page_len << endl;
 	for(int i = 0; i < total_full_pages; i++) {
-	  virt_addr = load_elf_parts(fileDescriptor, size, virt_addr);
-	  assert(virt_addr%PAGE_SIZE==0);
-	  size = PAGE_SIZE;
+	  virt_addr = load_elf_parts(fileDescriptor, part_size, virt_addr);
+	  part_size = 4096;
+	  assert(virt_addr%4096==0);
 	}
 	if(last_page_len > 0) {
 	  virt_addr = load_elf_parts(fileDescriptor, last_page_len, virt_addr);
