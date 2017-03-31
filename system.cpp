@@ -212,7 +212,7 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
     uint64_t orig_addr = tag->second.first;
     for(int i = 0; i < 64; i += 8) {
         //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
-        cerr << "fill data from " << std::dec << (address+(i&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
+        cerr << "fill data from " << std::dec << ((orig_addr&(~63))+((orig_addr+i)&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
         tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
     }
     addr_to_tag.erase(tag);
