@@ -83,6 +83,10 @@ module top
   logic [63:0] old_pc;
   logic new_va_to_pa_req;
   logic decode_en;
+  logic stop_reading_flag;
+  logic [8:0] num_reads_within_block;
+  logic [8:0] num_reads;
+  logic [8:0] n_num_reads_within_block;
 
   process_instruction inst_1 (.instruction(nstage1_instruction_bits),
                               .rd(rd),
@@ -142,7 +146,8 @@ module top
         assign n_distance_act_addr = (temp[63:0]- next_bus_req_v_addr[63:0])/PTESIZE;
     end
     assign new_a = bus_resp[47:10] << 12;
-    assign npc = pc+'d64;
+    assign npc = pc+('d64-pc[5:0]);
+    assign num_reads = ('d64-pc[5:0])>>2;
     assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
     assign ncounter = counter + 'd1;
@@ -151,11 +156,12 @@ module top
       assign nstage1_instruction_bits = bus_resp[31:0];
       assign nbus_respack = 0;
     end else begin
-      assign nstage1_instruction_bits = bus_resp[63:32];
+      assign nstage1_instruction_bits = bus_resp[63:32]; 
       assign nbus_respack = 1;
     end
     assign nlevel = level+1;
     assign n_v_to_p_counter = v_to_p_counter + 'd1;
+    assign n_num_reads_within_block = num_reads_within_block + 'd1;
   end
   always @ (posedge clk)//note: all statements run in parallel
     if(reset) begin
@@ -168,25 +174,35 @@ module top
 	new_va_to_pa_req <= 1;
     end
     else begin
-	if(paddr_set)  begin
+	if(paddr_set)  begin //fetching data here
 		if(bus_respcyc) begin
-	     		if(!nstage1_instruction_bits) begin
-				//$finish;
-				$display("it's done!");
-				display_regs <= 'd1;
-	     		end
-	     		else begin
-				$display("pc: %d", stage1_pc, " nstage_instruction_bits: ", nstage1_instruction_bits);
-				alternator <= nalternator;
-				stage1_pc <= nstage1_pc;
+			if(stop_reading_flag == 'd0) begin
+				if(!nstage1_instruction_bits) begin
+					//$finish;
+					$display("it's done!");
+					display_regs <= 'd1;
+				end
+				else begin
+					$display("pc: %d", stage1_pc);
+					$display(" nstage_instruction_bits:%x ", nstage1_instruction_bits);
+					alternator <= nalternator;
+					stage1_pc <= nstage1_pc;
+					bus_respack <= nbus_respack;
+  	     			end
+				num_reads_within_block <= n_num_reads_within_block;
+				if(n_num_reads_within_block == num_reads) begin
+					stop_reading_flag <= 'd1;
+				end
+			end
+			else begin
 				bus_respack <= nbus_respack;
-  	     		end
+			end
 		end
 		else begin
 	     		bus_respack <= 0;
 		end
 
-		if(counter == 'd16) begin
+		if(counter == 'd16) begin //if counter is 16 get ready to send request for data
 			if(new_va_to_pa_req) begin
 				pc <= npc;
 				old_pc <= pc;
@@ -208,6 +224,8 @@ module top
 				counter <= 0;
 				level <= level;
 				v_to_p_counter <= v_to_p_counter;
+				stop_reading_flag <= 'd0;
+                                num_reads_within_block <= 'd0;
 				//$display("in counter=16, NO new_va_to  bus_req: %d", bus_req);
 			end
 			new_va_to_pa_req <= 0;
@@ -227,7 +245,7 @@ module top
 			paddr_set <= paddr_set;
 		end
     	end
-	else begin
+	else begin //process for va to pa
 		
 		if  (bus_respcyc) begin //we have a response..we can go ahead and process it
 			if(v_to_p_counter == distance_act_addr) begin
