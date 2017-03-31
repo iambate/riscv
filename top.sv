@@ -147,7 +147,7 @@ module top
     end
     assign new_a = bus_resp[47:10] << 12;
     assign npc = pc+('d64-pc[5:0]);
-    assign num_reads = ('d64-pc[5:0])>>2;
+    assign num_reads = ('d64-old_pc[5:0])>>2;
     assign nstage1_pc = stage1_pc + 'd4;
     assign bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
     assign ncounter = counter + 'd1;
@@ -190,12 +190,17 @@ module top
 					bus_respack <= nbus_respack;
   	     			end
 				num_reads_within_block <= n_num_reads_within_block;
-				if(n_num_reads_within_block == num_reads) begin
+				$display("num_reads_within_block value while reading data %d",num_reads_within_block);
+				$display("num_reads value rd %d, pc %d",num_reads,stage1_pc);
+				if(num_reads_within_block == num_reads) begin
 					stop_reading_flag <= 'd1;
 				end
 			end
 			else begin
+				$display("num_reads_within_block value while waiting %d",num_reads_within_block);
+				$display("num_reads value nrd %d",num_reads);
 				bus_respack <= nbus_respack;
+				alternator <= nalternator;
 			end
 		end
 		else begin
@@ -214,7 +219,7 @@ module top
 				v_to_p_counter <= 0;
 				distance_act_addr <= n_distance_act_addr;
 				decode_en <= 0;
-				//$display("in counter=16, new_va_to  bus_req: %d", bus_req);
+				$display("in counter=16, new_va_to  bus_req: %d", next_bus_req_v_addr);
 			end
 			else begin
 				pc <= pc;
@@ -225,7 +230,7 @@ module top
 				level <= level;
 				v_to_p_counter <= v_to_p_counter;
 				stop_reading_flag <= 'd0;
-                                num_reads_within_block <= 'd0;
+                                num_reads_within_block <= 'd1;
 				//$display("in counter=16, NO new_va_to  bus_req: %d", bus_req);
 			end
 			new_va_to_pa_req <= 0;
