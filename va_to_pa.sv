@@ -125,7 +125,7 @@ module va_to_pa
             end
             2:
             begin
-                assign pt_no = virt_addr[29:19] << 3;
+                assign pt_no = virt_addr[29:21] << 3;
             end
             3:
             begin
