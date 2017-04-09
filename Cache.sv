@@ -60,12 +60,14 @@ module Set_Associative_Cache
 				end
 				else if(data_available == READ_MISS) begin//miss
 					if(flush_before_read == FLUSH_BEFORE_REWRITE) begin
+						//change variables
 						addr_data_enable <= 1;
 						phy_addr <= Tag[Rset][index];
 						int j;
 						for(j=0;j<(64/(SIZE/8));j+=1) begin
                                                         data[(SIZE*j)+(SIZE-1):(SIZE*j)] <= Data[RSet][index][j];
                                                 end
+						//till here
 						flush_before_read <= 2;	
 					end
 					else if(flush_before_read == FLUSHING_NOT_NEEDED) begin
@@ -74,11 +76,13 @@ module Set_Associative_Cache
 						data_available = WAITING_FOR_MEM_READ;	
 					end
 					else if(flush_before_read == WAITING_FOR_MEM_WRITE) begin //wait for data to be written
-						addr_data_enable <= 0;
 						if(addr_data_ready) begin
 							addr_data_enable <= 1;
                                                 	phy_addr <= addr;
                                                 	data_available = WAITING_FOR_MEM_READ;
+						end
+						else begin
+							addr_data_enable <= 0;
 						end
 					end
 				end
