@@ -117,7 +117,6 @@ module va_to_pa
     always_comb begin
         assign nlevel = level + 1;
         assign ncounter = counter + 1;
-        assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
         case(level)
             1:
             begin
@@ -149,11 +148,17 @@ module va_to_pa
                 assign abtr_reqcyc = 1;
                 assign main_bus_reqcyc = 1;
                 assign main_bus_respack = 0;
+                assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
+                // TODO: Remove. Testing out.
+                main_bus_req = request_addr[63:6] << 6;
+                // TODO: uncommet the if else block. Testing out.
+                /*
                 if(level == 1) begin //forwarding path
                     assign main_bus_req = ptbr[63:0] + virt_addr[47:39];
                 end else begin
                     assign main_bus_req = request_addr[63:6] << 6;
                 end
+                */
             end
             STATEWAIT:
             begin
