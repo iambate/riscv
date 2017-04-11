@@ -45,7 +45,7 @@ module top
   logic store_data_ready;
   logic [BUS_DATA_WIDTH*8-1:0] data;
   enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
-        STATEADBEGIN=4'b0100, STATEAD=4'b0101, STATEADWAIT=4'b0110, STATEWD=4'b0111, STATEWDWAIT=4'b1000} state, next_state;
+        STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111} state, next_state;
 
   bus_controller bc    (.clk(clk),
             .bus_reqcyc1(va_pa_abtr_reqcyc),
@@ -115,7 +115,7 @@ module top
         STATERESET:
         begin
             assign next_state = STATEVAPABEGIN;
-            assign va_pa_enable = 1;
+            assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
         end
@@ -135,13 +135,6 @@ module top
         end
         STATEADBEGIN:
         begin
-            assign next_state = STATEAD;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 1;
-            assign store_data_enable = 0;
-        end
-        STATEAD:
-        begin
             assign next_state = STATEADWAIT;
             assign va_pa_enable = 0;
             assign addr_data_enable = 1;
@@ -149,12 +142,12 @@ module top
         end
         STATEADWAIT:
         begin
-            assign next_state = addr_data_ready? STATEWD : STATEADWAIT;
+            assign next_state = addr_data_ready? STATEWDBEGIN : STATEADWAIT;
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
         end
-        STATEWD:
+        STATEWDBEGIN:
         begin
             assign next_state = STATEWDWAIT;
             assign va_pa_enable = 0;
@@ -179,7 +172,7 @@ module top
                 $finish;
             state <= next_state;
             case(state)
-            STATEAD:
+            STATEADBEGIN:
             begin
                 $display("TOP virtual address: %d physical address: %d", pc, phy_addr);
                 pc <= npc;

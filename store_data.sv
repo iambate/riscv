@@ -25,7 +25,7 @@ module store_data
     output [BUS_DATA_WIDTH-1:0] main_bus_req,
     output ready,
     input [BUS_DATA_WIDTH-1:0] addr,
-    output [BUS_DATA_WIDTH*8-1:0] data,
+    input [BUS_DATA_WIDTH*8-1:0] data,
     output [BUS_TAG_WIDTH-1:0] main_bus_reqtag
 );
     logic[3:0] counter;

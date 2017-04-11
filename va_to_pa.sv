@@ -47,7 +47,6 @@ module va_to_pa
                 if (counter < 8) begin
                     next_state = STATERESP;
                 end else begin
-                    // TODO: Change to 4
                     if (level < 4) begin
                         next_state = STATEREQ;
                     end else begin
@@ -63,7 +62,7 @@ module va_to_pa
         if(reset) begin
             state <= STATERESET;
             level <= 0;
-            request_addr[63:0] <= ptbr[63:0] + virt_addr[47:39];
+            //request_addr[63:0] <= ptbr[63:0] + virt_addr[47:39];
             $display("VP state resetted");
             $display("VP Virt Addr to: %d",virt_addr[47:39]);
         end else begin
