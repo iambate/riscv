@@ -15,10 +15,12 @@ module bus_controller
     input bus_reqcyc2,
     input bus_reqcyc3,
     input bus_reqcyc4,
+    input bus_reqcyc5,
     output bus_grant1,
     output bus_grant2,
     output bus_grant3,
     output bus_grant4,
+    output bus_grant5,
     input bus_busy
 );
     always_ff @(posedge clk) begin
@@ -27,26 +29,37 @@ module bus_controller
             bus_grant2 <= 0;
             bus_grant3 <= 0;
             bus_grant4 <= 0;
+            bus_grant5 <= 0;
         end else if(!bus_busy & bus_reqcyc2) begin
             bus_grant1 <= 0;
             bus_grant2 <= 1;
             bus_grant3 <= 0;
             bus_grant4 <= 0;
+            bus_grant5 <= 0;
         end else if(!bus_busy & bus_reqcyc3) begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 1;
             bus_grant4 <= 0;
+            bus_grant5 <= 0;
         end else if(!bus_busy & bus_reqcyc4) begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 0;
             bus_grant4 <= 1;
+            bus_grant5 <= 0;
+        end else if(!bus_busy & bus_reqcyc5) begin
+            bus_grant1 <= 0;
+            bus_grant2 <= 0;
+            bus_grant3 <= 0;
+            bus_grant4 <= 0;
+            bus_grant5 <= 1;
         end else begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 0;
             bus_grant4 <= 0;
+            bus_grant5 <= 0;
         end
     end
 endmodule
