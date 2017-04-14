@@ -12,16 +12,24 @@ module Set_Associative_Cache
 	DIRTY='b001
 )
 (	
+	input [1:0] rd_wr_evict_flag,
 	input[63:0]  addr,
 	output [SIZE-1:0] read_data,
-	output data_available
 );
 	logic [8:0] index;
 	logic [48:0] tag;
 	logic [5:0] block_offset;
 	logic WSet;
 	logic RSet;
-	logic 
+	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
+	logic [48:0] Tag[2][512];
+	logic [2:0] State[2][512];
+	logic [1:0] canWrite;
+	logic [1:0] flush_before_replacement;
+	//TODO:data_available,store_data_enable,store_data_at_addr,phy_addr,
+	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
+	//CHECK:~ sign works?
+
 //marked least recently used set as 1
 	always_comb begin
 		assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];
@@ -171,7 +179,7 @@ module Set_Associative_Cache
 				end
 			end
 			else if(rd_wr_evict_flag == 1) begin//write
-				if(can_Write==1)begin
+				if(canWrite==1)begin
 					Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 					State[WSet][index][1]<= 0;
 					State[~WSet][index][1]<=1;
