@@ -1,0 +1,12 @@
+Caches:
+
+	On Reset:
+		set Flags wait for mem write/read to Zero
+		Set all valid bits to invalid
+		Set read_data to None
+	On Cache Miss:
+		Think what difference in clock cycle between two situations:
+		1. Data is Hit
+		2. Data is available after Data Miss
+		3. Do we need to save previous state somewhere?(check line no 127). If on cache miss/stalling, we are letting the previous stage complete then we will have to save it otherwise the inputs will change.
+		previous stage, 
