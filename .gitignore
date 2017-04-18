@@ -1,3 +1,4 @@
 dramsim2/results/
 obj_dir/
+decode_old.sv
 trace.vcd
