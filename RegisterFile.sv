@@ -14,23 +14,23 @@ module RegisterFile
   input [REGISTERNO_WIDTH-1:0] in_rs2_regno,
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input [REGISTER_WIDTH-1:0] in_rd_value,
-  output [REGISTER_WIDTH-1:0] nstage_rs1_content,
-  output [REGISTER_WIDTH-1:0] nstage_rs2_content
+  output [REGISTER_WIDTH-1:0] out_rs1_value,
+  output [REGISTER_WIDTH-1:0] out_rs2_value
 );
   reg[REGISTER_WIDTH -1:0] Registers[32];
 
   always_comb begin
     if(in_rs1_regno >= 'd0 && in_rs1_regno <= 'd31) begin
-      assign nstage_rs1_content = Registers[in_rs1_regno];
+      assign out_rs1_value = Registers[in_rs1_regno];
     end
     else begin
-      assign nstage_rs1_content = 'd0;
+      assign out_rs1_value = 'd0;
     end
     if(in_rs2_regno >= 'd0 && in_rs2_regno <= 'd31) begin
-      assign nstage_rs2_content = Registers[in_rs2_regno];
+      assign out_rs2_value = Registers[in_rs2_regno];
     end
     else begin
-      assign nstage_rs2_content = 'd0;
+      assign out_rs2_value = 'd0;
     end
   end
 
