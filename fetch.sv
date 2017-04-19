@@ -2,7 +2,7 @@
  * TODO:
  * Add instruction cache module and respective buslines
  */
-module Fetch
+module fetch
 #(
   ADDRESS_WIDTH = 64,
   REGISTER_WIDTH = 64,

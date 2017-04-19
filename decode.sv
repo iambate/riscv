@@ -1,6 +1,6 @@
 `include "RegisterFile.sv"
 `define DECODE_DEBUG
-module Decode
+module decode
 #(
   ADDRESS_WIDTH = 64,
   REGISTER_WIDTH = 64,

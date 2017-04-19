@@ -14,7 +14,7 @@ module top
 )
 (
   input  clk,
-         reset,
+  input  reset,
 
   // 64-bit address of the program entry point
   input  [63:0] entry,
@@ -151,7 +151,7 @@ module top
             .ready(store_data_ready)
                        );
 
-  Decode decode0 (.clk(clk),
+  decode decode0 (.clk(clk),
                   .reset(reset),
                   .in_decode_enable(pipeline_enable),
                   .in_pcplus1(fetch_pc),
