@@ -42,13 +42,44 @@ module Set_Associative_Cache
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
 
-//marked least recently used set as 1
 	always_comb begin
 		assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];
 		assign tag = addr[63:STARTING_INDEX+15];
 		assign block_offset = addr[STARTING_INDEX+5:STARTING_INDEX];
 		assign starting_addr_of_block = addr[63:6]<<6;
-		if(Wait_fr_mem_write=SET_WAIT) begin
+		if(rd_wr_evict_flag == INVALIDATE_SIGNAL) begin
+			if(Wait_fr_mem_write==SET_WAIT) begin
+				assign CSet=ff_CSet;
+                                assign Cache_block_invalidation=ff_Cache_block_invalidation;
+				assign flush_before_replacement=WAIT_FOR_FLUSH_COMPLETION;
+			end
+			else if((Tag[SET1][index]==tag) && (State[SET1][index]&DIRTY==0)) begin
+				assign CSet=SET1;
+				assign Cache_block_invalidation =1;
+				assign flush_before_replacement =FLUSHING_NOT_NEEDED;
+			end
+			else if ((Tag[SET1][index]==tag) && (State[SET1][index]&DIRTY==0)) begin
+				assign CSet=SET2;
+				assign Cache_block_invalidation =1;
+				assign flush_before_replacement =FLUSHING_NOT_NEEDED;
+                        end
+			else begin//flushing needed
+				if(Tag[SET1][index]==tag) begin
+					assign CSet=SET1;
+					assign Cache_block_invalidation =0;
+					assign flush_before_replacement =FLUSHING_NEEDED;
+				end
+				else if (Tag[SET2][index]==tag) begin
+					assign CSet=SET2;
+                                        assign Cache_block_invalidation =0;
+					assign flush_before_replacement =FLUSHING_NEEDED;
+                                end
+				else begin//TODO: not sure what to do in this case,throw error?
+					assign Cache_block_invalidation =1;
+				end
+			end
+		end
+		else if(Wait_fr_mem_write=SET_WAIT) begin
 			
 			assign WSet=ff_WSet;
                         assign canWrite=ff_canWrite;
@@ -60,11 +91,10 @@ module Set_Associative_Cache
 		else if(Wait_fr_mem_read == SET_WAIT) begin
 			
 			assign WSet=ff_WSet;
-			assign canWrite=ff_canWrite;
 			assign RSet=ff_RSet;
 			assign read_data=ff_read_data;
 			assign flush_before_replacement = ff_flush_before_replacement;
-			
+			assign canWrite=WAITING_FOR_MEM_READ;	
 			assign data_available = WAITING_FOR_MEM_READ;
 		end
 		else if((Tag[SET1][index] == tag) && (State[SET1][index]&VALID == 1)) begin
@@ -83,10 +113,10 @@ module Set_Associative_Cache
                 end
 		else begin//pick least recently used set to be replaced
 			assign canWrite=CACHE_MISS;//write
+			assign data_available = CACHE_MISS;
 			if(Tag[SET1][index]&LRU == 1) begin
 				assign WSet= SET1;//write
 				assign RSet = SET1;
-				assign data_available = CACHE_MISS;
 				assign read_data = 0;
 				if(State[RSet][index]&DIRTY == 1) begin
 					//use for write
@@ -100,7 +130,6 @@ module Set_Associative_Cache
 			else begin
 				assign WSet=1;
 				assign RSet = 1;
-				assign data_available = CACHE_MISS;
                                 assign read_data = 0;
 				if(State[RSet][index]&DIRTY == 1) begin
                                         assign flush_before_replacement = FLUSHING_NEEDED;
@@ -113,6 +142,8 @@ module Set_Associative_Cache
 	end
 	always_ff @(posedge clk) begin
 		if(reset) begin
+			Wait_fr_mem_read <= UNSET_WAIT;
+			Wait_fr_mem_write <= UNSET_WAIT;
 		end
 		else begin
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
@@ -123,7 +154,6 @@ module Set_Associative_Cache
 				else if(data_available == CACHE_MISS) begin//miss
 					if(flush_before_replacement == FLUSHING_NEEDED) begin
 						//TODO:change variables
-						//NOT SURE TO PUT IT HERE OR NOT:Wait_fr_mem_read <= SET_WAIT;
 						
                                                 ff_RSet<=RSet;
                                                 ff_WSet<=WSet;
@@ -164,16 +194,17 @@ module Set_Associative_Cache
                                                         flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[RSet][index][7];
                                                 end
 						Wait_fr_mem_write<=SET_WAIT;
+						Wait_fr_mem_read <=UNSET_WAIT;
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 						addr_data_enable <= 1;
 						phy_addr <= starting_addr_of_block;
 						Wait_fr_mem_read <= SET_WAIT;
-						
+						Wait_fr_mem_write <=UNSET_WAIT;
+	
 						ff_RSet<=RSet;
 						ff_WSet<=WSet;
 						ff_read_data<=read_data;
-						ff_canWrite<=canWrite;
 						ff_flush_before_replacement<=flush_before_replacement;
 					end
 					else if(flush_before_replacement ==  WAIT_FOR_FLUSH_COMPLETION) begin
@@ -184,10 +215,12 @@ module Set_Associative_Cache
                                                 ff_data_available<=data_available;
 						if(store_data_ready) begin//TODO:we are done writing to mem
 							Wait_fr_mem_write <=UNSET_WAIT;
+							Wait_fr_mem_read<=UNSET_WAIT;
 							State[RSet][index][DIRTY_BIT]<=0;
 						end
 						else begin
 							Wait_fr_mem_write <=SET_WAIT;
+							Wait_fr_mem_read<=UNSET_WAIT;
 							store_data_enable <= 0;
 						end
 					end
@@ -195,6 +228,7 @@ module Set_Associative_Cache
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
 						Wait_fr_mem_read <= UNSET_WAIT;
+						Wait_fr_mem_write<=UNSET_WAIT;
 						if(SIZE == 32) begin
 							Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
                                                         Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
@@ -224,14 +258,15 @@ module Set_Associative_Cache
 							Data[RSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
 						end	
 						Tag[RSet][index] <= tag;
-						State[RSet][index][2] <= 1;
-						State[RSet][index][0] <= 0;
-						State[RSet][index][1] <= 0;
-						State[~RSet][index][1] <= 1;
+						State[RSet][index][VALID_BIT] <= 1;
+						State[RSet][index][DIRTY_BIT] <= 0;
+						State[RSet][index][LRU_BIT] <= 0;
+						State[~RSet][index][LRU_BIT] <= 1;
 					end
 					else begin
 						addr_data_enable <= 0;
 						Wait_fr_mem_read <= SET_WAIT;
+						Wait_fr_mem_write<=UNSET_WAIT;
 					end
 					//wait, request has been sent, check if data is available, if its
 					// fill in this cycle and change Tag, State arrays 
@@ -241,7 +276,7 @@ module Set_Associative_Cache
 //----------------------------------------------------------------------------------------------------------------
 			//write signal
 			else if(rd_wr_evict_flag == WRITE_SIGNAL) begin//write
-				if(canWrite==DATA_AVAILABLE_FOR_WRITE)begin
+				if(canWrite==CACHE_HIT)begin
 					Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 					State[WSet][index][LRU_BIT]<= 0;
 					State[~WSet][index][LRU_BIT]<=1;
@@ -249,16 +284,16 @@ module Set_Associative_Cache
 				end
 				else if(canWrite ==CACHE_MISS) begin
 					if(flush_before_replacement==FLUSHING_NEEDED) begin
-						Wait_fr_mem_read <= SET_WAIT;
-                                                ff_RSet<=RSet;
+						 ff_RSet<=RSet;
                                                 ff_WSet<=WSet;
                                                 ff_read_data<=read_data;
                                                 ff_canWrite<=canWrite;
                                                 ff_data_available<=data_available;
                                                 ff_flush_before_replacement <=flush_before_replacement;
-                                                store_data_enable <= 1;
-                                                store_data_at_addr <= Tag[Rset][index]; //TODO:49 bit to 64 bit
 
+                                                store_data_enable <= 1;
+                                                //TODO:move to always_comb
+                                                store_data_at_addr <= ((Tag[RSet][index]<<15)+(index<<6));
                                                 if(SIZE == 32) begin
                                                         flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[WSet][index][0];
                                                         flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[WSet][index][1];
@@ -288,32 +323,42 @@ module Set_Associative_Cache
                                                         flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[WSet][index][7];
 						end
 						Wait_fr_mem_write<=SET_WAIT;
+                                                Wait_fr_mem_read <=UNSET_WAIT;
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 						addr_data_enable <= 1;
-                                                phy_addr <= addr[63:6]<<6;//TODO:64 byte aligned
+                                                phy_addr <= starting_addr_of_block;
                                                 Wait_fr_mem_read <= SET_WAIT;
+                                                Wait_fr_mem_write <=UNSET_WAIT;
+
                                                 ff_RSet<=RSet;
                                                 ff_WSet<=WSet;
                                                 ff_read_data<=read_data;
                                                 ff_canWrite<=canWrite;
-                                                ff_data_available<=data_available;
                                                 ff_flush_before_replacement<=flush_before_replacement;
 					end
-					else if(flush_before_replacement == WAITING_FOR_MEM_WRITE) begin
+					else if(flush_before_replacement == WAIT_FOR_FLUSH_COMPLETION) begin
+						ff_WSet <= WSet;
+                                                ff_canWrite <= canWrite;
+                                                ff_RSet <=RSet;
+                                                ff_read_data <=read_data;
+                                                ff_data_available<=data_available;
 						if(store_data_ready) begin//TODO:we are done writing to mem
 							Wait_fr_mem_write <=UNSET_WAIT;
-                                                        State[RSet][index][0]<=0;
+                                                        Wait_fr_mem_read<=UNSET_WAIT;
+                                                        State[RSet][index][DIRTY_BIT]<=0;
                                                 end
                                                 else begin
-							store_data_enable <= 0;
+							Wait_fr_mem_write <=SET_WAIT;
+                                                        Wait_fr_mem_read<=UNSET_WAIT;
+                                                        store_data_enable <= 0;
                                                 end
 					end
 				end
-				else if(canWrite==WAITING_FOR_CACHE_FILL) begin
-					addr_data_enable <= 0;
+				else if(canWrite==WAITING_FOR_MEM_READ) begin
                                         if(addr_data_ready) begin
-                                                Wait_fr_mem_read <= UNSET_WAIT;
+						Wait_fr_mem_read <= UNSET_WAIT;
+                                                Wait_fr_mem_write<=UNSET_WAIT;
                                                 if(SIZE == 32) begin
                                                         Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
                                                         Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
@@ -348,6 +393,11 @@ module Set_Associative_Cache
                                                 State[RSet][index][LRU_BIT] <= 0;
                                                 State[~RSet][index][LRU_BIT] <= 1;
                                         end
+					else begin
+                                                addr_data_enable <= 0;
+                                                Wait_fr_mem_read <= SET_WAIT;
+                                                Wait_fr_mem_write<=UNSET_WAIT;
+                                        end
 				end
 			end
 	
@@ -355,6 +405,57 @@ module Set_Associative_Cache
                         //invalidation signal
 
 			else if(rd_wr_evict_flag == EVICT_SIGNAL) begin//cache eviction
+				if(flush_before_replacement ==FLUSHING_NOT_NEEDED) begin
+					State[CSet][index][VALID_BIT]<=0;
+				end
+				else if(flush_before_replacement ==FLUSHING_NEEDED) begin
+					store_data_enable <= 1;
+					 //TODO:move to always_comb
+					store_data_at_addr <= ((Tag[CSet][index]<<15)+(index<<6));
+					if(SIZE == 32) begin
+						flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[CSet][index][0];
+						flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[CSet][index][1];
+						flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[CSet][index][2];
+						flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[CSet][index][3];
+						flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[CSet][index][4];
+						flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[CSet][index][5];
+						flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[CSet][index][6];
+						flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[CSet][index][7];
+						flush_data[(SIZE*8)+(SIZE-1):(SIZE*8)] <= Data[CSet][index][8];
+						flush_data[(SIZE*9)+(SIZE-1):(SIZE*9)] <= Data[CSet][index][9];
+						flush_data[(SIZE*10)+(SIZE-1):(SIZE*10)] <= Data[CSet][index][10];
+						flush_data[(SIZE*11)+(SIZE-1):(SIZE*11)] <= Data[CSet][index][11];
+						flush_data[(SIZE*12)+(SIZE-1):(SIZE*12)] <= Data[CSet][index][12];
+						flush_data[(SIZE*13)+(SIZE-1):(SIZE*13)] <= Data[CSet][index][13];
+						flush_data[(SIZE*14)+(SIZE-1):(SIZE*14)] <= Data[CSet][index][14];
+						flush_data[(SIZE*15)+(SIZE-1):(SIZE*15)] <= Data[CSet][index][15];
+					end
+					else begin
+						flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[CSet][index][0];
+						flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[CSet][index][1];
+						flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[CSet][index][2];
+						flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[CSet][index][3];
+						flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[CSet][index][4];
+						flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[CSet][index][5];
+						flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[CSet][index][6];
+						flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[CSet][index][7];
+					end
+					
+					Wait_fr_mem_write<=SET_WAIT;
+					ff_CSet<=CSet;
+					ff_Cache_block_invalidation<=Cache_block_invalidation;
+				end
+				else if(flush_before_replacment==WAIT_FOR_FLUSH_COMPLETION) begin
+					if(store_data_ready) begin
+						State[CSet][index][DIRTY_BIT]<=0;
+						Wait_fr_mem_write<=UNSET_WAIT;
+					end
+					else begin
+						Wait_fr_mem_write<=SET_WAIT;
+						ff_CSet<=CSet;
+						ff_Cache_block_invalidation<=Cache_block_invalidation;
+					end
+				end		
 			end
 		end
 	end
