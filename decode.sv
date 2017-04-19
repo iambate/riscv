@@ -1,9 +1,10 @@
 `include "RegisterFile.sv"
-
+`define DECODE_DEBUG
 module Decode
 #(
   ADDRESS_WIDTH = 64,
   REGISTER_WIDTH = 64,
+  IMMEDIATE_WIDTH = 32,
   REGISTERNO_WIDTH = 5,
   REGISTER_NAME_WIDTH = 4*8,
   INSTRUCTION_WIDTH = 32,
@@ -36,12 +37,12 @@ module Decode
   logic [REGISTER_NAME_WIDTH-1:0] n_rd_name;
   logic [REGISTER_WIDTH-1:0] n_rs1_value;
   logic [REGISTER_WIDTH-1:0] n_rs2_value;
-  logic [REGISTER_WIDTH-1:0] n_imm_value;
+  logic signed [IMMEDIATE_WIDTH-1:0] n_imm_value;
   logic [REGISTERNO_WIDTH-1:0] n_rs1_regno;
   logic [REGISTERNO_WIDTH-1:0] n_rs2_regno;
   logic [REGISTERNO_WIDTH-1:0] n_rd_regno;
   logic [INSTRUCTION_NAME_WIDTH-1:0] n_opcode_name;
-  logic [FLAG_WIDTH-1:0] n_flag;
+  logic unsigned [FLAG_WIDTH-1:0] n_flag;
 
   // Get the register no, instruction opcode name,immediate value
   // from process_instrcution module instantiation

@@ -26,12 +26,14 @@ module execute_instruction
   input [REGISTERNO_WIDTH-1:0] in_alu_rd_regno,
   input [REGISTERNO_WIDTH-1:0] in_mm_rd_regno,
   input [REGISTERNO_WIDTH-1:0] in_wb_rd_regno,
-  input [REGISTER_WIDTH-1:0] in_alu_result,
-  input [REGISTER_WIDTH-1:0] in_mm_mdate,
+  input [REGISTER_WIDTH-1:0] in_alu_alu_result,
+  input [REGISTER_WIDTH-1:0] in_mm_mdata,
+  input [REGISTER_WIDTH-1:0] in_mm_alu_result,
   input [REGISTER_WIDTH-1:0] in_wb_data,
   input [ADDRESS_WIDTH-1:0] in_pcplus1,
   input in_branch_taken_bool,
-  input in_mm_load_bool,
+  input in_alu_mm_load_bool,
+  input in_mm_mm_load_bool,
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTER_WIDTH-1:0] out_rs2_value,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
@@ -189,18 +191,22 @@ endfunction
     // i-2 will be in Memory and i-3 will be in WB. So we want
     // Value rd_value of latest instruction
     // For rs1
-    if (in_rs1_regno == in_alu_rd_regno && in_mm_load_bool) begin
+    if (in_rs1_regno == in_alu_rd_regno && in_alu_mm_load_bool) begin
       if (stall_cycs == 1) begin
-        assign n_value1 = in_mm_mdate;
+        assign n_value1 = in_mm_mdata;
       end else begin
         // Stall for memory and ALU (Pipeline slide 38)
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
     end else if (in_rs1_regno == in_alu_rd_regno) begin
-      assign n_value1 = in_alu_result;
+      assign n_value1 = in_alu_alu_result;
     end else if (in_rs1_regno == in_mm_rd_regno) begin
-      assign n_value1 = in_mm_mdate;
+      if(in_mm_mm_load_bool) begin
+        assign n_value1 = in_mm_mdata;
+      end else begin
+        assign n_value1 = in_mm_alu_result;
+      end
     end else if (in_rs1_regno == in_wb_rd_regno) begin
       assign n_value1 = in_wb_data;
     end else begin
@@ -208,18 +214,22 @@ endfunction
     end
 
     // For rs2
-    if (in_rs2_regno == in_alu_rd_regno && in_mm_load_bool) begin
+    if (in_rs2_regno == in_alu_rd_regno && in_mm_mm_load_bool) begin
       if (stall_cycs == 1) begin
-        assign n_value1 = in_mm_mdate;
+        assign n_value1 = in_mm_mdata;
       end else begin
         // Stall for memory and ALU (Pipeline slide 38)
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
     end else if (in_rs2_regno == in_alu_rd_regno) begin
-      assign n_value2 = in_alu_result;
+      assign n_value2 = in_alu_alu_result;
     end else if (in_rs2_regno == in_mm_rd_regno) begin
-      assign n_value2 = in_mm_mdate;
+      if(in_mm_mm_load_bool) begin
+        assign n_value2 = in_mm_mdata;
+      end else begin
+        assign n_value2 = in_mm_alu_result;
+      end
     end else if (in_rs2_regno == in_wb_rd_regno) begin
       assign n_value2 = in_wb_data;
     end else begin

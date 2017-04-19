@@ -65,7 +65,7 @@ module top
   logic [REGISTERNO_WIDTH-1:0] decode_rd_regno;
   logic [INSTRUCTION_NAME_WIDTH-1:0] decode_opcode_name;
   logic decode_ready;
-  logic [REGISTER_WIDTH-1:0] alu_result;
+  logic [REGISTER_WIDTH-1:0] alu_alu_result;
   logic [REGISTER_WIDTH-1:0] alu_rs2_value;
   logic [REGISTERNO_WIDTH-1:0] alu_rd_regno;
   logic [INSTRUCTION_NAME_WIDTH-1:0] alu_opcode_name;
@@ -75,6 +75,16 @@ module top
   logic alu_mm_load_bool;
   logic alu_ready;
   logic display_regs;
+  logic mm_update_rd_bool;
+  logic mm_mm_load_bool;
+  logic [REGISTER_WIDTH-1:0] mm_mdata;
+  logic [REGISTER_WIDTH-1:0] mm_alu_result;
+  logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
+  logic wb_ready;
+  logic [REGISTER_WIDTH-1:0] wb_wbdata;
+  logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
+  logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
+  logic [REGISTERNO_WIDTH-1:0] going2wb_rd_regno;
 
   enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
         STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
@@ -146,12 +156,9 @@ module top
                   .in_decode_enable(pipeline_enable),
                   .in_pcplus1(fetch_pc),
                   .in_instruction_bits(fetch_instruction_bits),
-                  // Change to actual wb values
-                  .in_wb_rd_value(alu_result),
-                  // Change to actual wb values
-                  .in_wb_rd_regno(alu_rd_regno),
-                  // Change to actual wb values
-                  .in_wb_enable(alu_update_rd_bool),
+                  .in_wb_rd_value(going2wb_wbdata),
+                  .in_wb_rd_regno(going2wb_rd_regno),
+                  .in_wb_enable(wb_ready),
                   .in_branch_taken_bool(),
                   .in_display_regs(display_regs),
                   .out_pcplus1(decode_pcplus1),
@@ -175,15 +182,17 @@ module top
                           .in_rs2_regno(decode_rs2_regno),
                           .in_opcode_name(decode_opcode_name),
                           .in_alu_rd_regno(alu_rd_regno),
-                          .in_mm_rd_regno(),
-                          .in_wb_rd_regno(),
-                          .in_alu_result(alu_result),
-                          .in_mm_mdate(),
-                          .in_wb_data(),
+                          .in_mm_rd_regno(mm_rd_regno),
+                          .in_wb_rd_regno(wb_rd_regno),
+                          .in_alu_alu_result(alu_alu_result),
+                          .in_mm_mdata(mm_mdata),
+                          .in_mm_alu_result(mm_alu_result),
+                          .in_wb_data(wb_wbdata),
                           .in_pcplus1(decode_pcplus1),
                           .in_branch_taken_bool(alu_branch_taken_bool),
-                          .in_mm_load_bool(alu_mm_load_bool),
-                          .out_alu_result(alu_result),
+                          .in_mm_mm_load_bool(mm_mm_load_bool),
+                          .in_alu_mm_load_bool(alu_mm_load_bool),
+                          .out_alu_result(alu_alu_result),
                           .out_rs2_value(alu_rs2_value),
                           .out_rd_regno(alu_rd_regno),
                           .out_opcode_name(alu_opcode_name),
@@ -193,6 +202,36 @@ module top
                           .out_mm_load_bool(alu_mm_load_bool),
                           .out_ready(alu_ready)
                           );
+
+  mm mm0 (.clk(clk),
+          .in_enable(pipeline_enable),
+          .in_alu_result(alu_alu_result),
+          .in_rs2_value(alu_rs2_value),
+          .in_rd_regno(alu_rd_regno),
+          .in_mm_load_bool(alu_mm_load_bool),
+          .in_update_rd_bool(alu_update_rd_bool),
+          .in_opcode_name(alu_opcode_name),
+          .out_update_rd_bool(mm_update_rd_bool),
+          .out_mm_load_bool(mm_mm_load_bool),
+          .out_mdata(mm_mdata),
+          .out_alu_result(mm_alu_result),
+          .out_rd_regno(mm_rd_regno)
+          );
+
+  writeback wb0(.clk(clk),
+                .reset(reset),
+                .in_enable(pipeline_enable),
+                .in_alu_result(mm_alu_result),
+                .in_mdata(mm_mdata),
+                .in_rd_regno(mm_rd_regno),
+                .in_mm_load_bool(mm_mm_load_bool),
+                .in_update_rd_bool(mm_update_rd_bool),
+                .out_ready(wb_ready),
+                .out_wbdata(wb_wbdata),
+                .out_rd_regno(wb_rd_regno),
+                .out2wb_wbdata(going2wb_wbdata),
+                .out2wb_rd_regno(going2wb_rd_regno)
+                );
     always_comb begin
         assign npc = pc + 64;
         case(state)
@@ -254,7 +293,7 @@ module top
         end
         STATEEXEC:
         begin
-            assign next_state = (counter==16)? STATEVAPABEGIN : STATEEXEC;
+            assign next_state = (counter==15)? STATEVAPABEGIN : STATEEXEC;
             assign ncounter = counter + 1;
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
