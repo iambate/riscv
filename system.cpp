@@ -14,7 +14,7 @@
 #include <syscall.h>
 #include "system.h"
 #include "Vtop.h"
-#define DEBUG
+//#define DEBUG
 using namespace std;
 
 /**

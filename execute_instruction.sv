@@ -1,27 +1,44 @@
+/*
+ * Think about branches and set n_out_branch_taken_bool
+ */
+
 
 //module type will have as input: inst name, type,inst
 module execute_instruction
 #(
-  BUS_DATA_WIDTH = 64,
-  REGISTER_NUMBER_WIDTH = 5,
+  ADDRESS_WIDTH = 64,
+  REGISTERNO_WIDTH = 5,
   REGISTER_NAME_WIDTH = 4,
   REGISTER_WIDTH = 64,
-  INSTRUCTION_NAME_WIDTH = 12
+  INSTRUCTION_NAME_WIDTH = 12*8
 )
 (
-  input decode_en,
-  input [REGISTER_NUMBER_WIDTH:0] stage2_rd,
-  input [REGISTER_WIDTH-1:0] stage2_rs1_val,
-  input [REGISTER_WIDTH-1:0] stage2_rs2_val,
-  input [REGISTER_WIDTH-1:0] stage2_immediate,
-  input [INSTRUCTION_NAME_WIDTH*8:0] stage2_opcode_name,
-  input [BUS_DATA_WIDTH-1:0] stage2_pc,
-  output [REGISTER_WIDTH-1:0] nstage3_alu_result,
-  output [REGISTER_WIDTH-1:0] nstage3_rs2_val,
-  output [REGISTER_NUMBER_WIDTH:0] nstage3_rd,
-  output [INSTRUCTION_NAME_WIDTH*8:0] nstage3_opcode_name,
-  output [BUS_DATA_WIDTH-1:0] nstage3_pc,
-  output wr_en
+  input in_enable,
+  input [REGISTER_WIDTH-1:0] in_rs1_val,
+  input [REGISTER_WIDTH-1:0] in_rs2_val,
+  input [REGISTER_WIDTH-1:0] in_imm_value,
+  input [REGISTERNO_WIDTH-1:0] in_rd_regno,
+  input [REGISTERNO_WIDTH-1:0] in_rs1_regno,
+  input [REGISTERNO_WIDTH-1:0] in_rs2_regno,
+  input [INSTRUCTION_NAME_WIDTH-1:0] in_opcode_name,
+  input [REGISTERNO_WIDTH-1:0] in_alu_rd_regno,
+  input [REGISTERNO_WIDTH-1:0] in_mm_rd_regno,
+  input [REGISTERNO_WIDTH-1:0] in_wb_rd_regno,
+  input [REGISTER_WIDTH-1:0] in_alu_result,
+  input [REGISTER_WIDTH-1:0] in_mm_mdate,
+  input [REGISTER_WIDTH-1:0] in_wb_data,
+  input [ADDRESS_WIDTH-1:0] in_pcplus1,
+  input in_branch_taken_bool,
+  input in_mm_load_bool,
+  output [REGISTER_WIDTH-1:0] out_alu_result,
+  output [REGISTER_WIDTH-1:0] out_rs2_val,
+  output [REGISTERNO_WIDTH-1:0] out_rd_regno,
+  output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
+  output [ADDRESS_WIDTH-1:0] out_pcplus1plusoffs,
+  output out_update_rd_bool,
+  output out_branch_taken_bool,
+  output out_mm_load_bool,
+  output out_ready
 );
 function [REGISTER_WIDTH-1:0] add_sub(
 input [REGISTER_WIDTH-1:0] num1,
@@ -144,385 +161,486 @@ input isU
 	div_rem = tmp_result;
 endfunction
 
-  	logic [INSTRUCTION_NAME_WIDTH*8:0] instruction_name;
-  always_comb begin
+  logic [INSTRUCTION_NAME_WIDTH-1:0] instruction_name;
+  logic [REGISTER_WIDTH-1:0] n_val1;
+  logic [REGISTER_WIDTH-1:0] n_val2;
+  logic [REGISTER_WIDTH-1:0] n_alu_result;
+  logic [ADDRESS_WIDTH-1:0] n_pc;
+  logic n_branch_taken_bool;
+  logic n_update_rd_bool;
+  logic n_mm_load_bool;
+  logic [REGISTER_WIDTH-1:0] stall_cycs;
+  logic [REGISTER_WIDTH-1:0] n_stall_cycs;
 
-    assign nstage3_opcode_name = stage2_opcode_name;
-    assign nstage3_rd = stage2_rd;
-    assign nstage3_rs2_val = stage2_rs2_val;
-    assign nstage3_pc = stage2_pc;
-    assign wr_en = 0;
-    if(decode_en) begin
-    casez (stage2_opcode_name)
-	"sd":
-	begin
-		assign instruction_name="sd";
-	end
-	"beq":
-	begin
-	    assign instruction_name="beq";
-        end
-	"bne":
-	begin
-	    assign instruction_name="bne";
-        end
-	"blt":
-	begin
-	    assign instruction_name="blt";
-        end
-	"bge":
-	begin
-	    assign instruction_name="bge";
-        end
-	"bltu":
-	begin
-	    assign instruction_name="bltu";
-        end
-	"bgue":
-	begin
-	    assign instruction_name="bgeu";
-        end
-	"sb":
-	begin
-	    assign instruction_name="sb";
-        end
-	"sh":
-	begin
-	    assign instruction_name="sh";
-        end
-	"sw":
-	begin
-	    assign instruction_name="sw";
-        end
-	"slli":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val << stage2_immediate[5:0];
-		assign wr_en = 1;
-        end
-	"srli":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val >> stage2_immediate[5:0];
-		assign wr_en = 1;
-        end
-	"srai":
-	begin
-		assign  nstage3_alu_result = $signed(stage2_rs1_val) >>> stage2_immediate[5:0];
-		assign wr_en = 1;
-        end
-	"add":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 1, 0);
-		assign wr_en = 1;
-        end
-	"sub":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 0, 0);
-		assign wr_en = 1;
-        end
-	"sll":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val << stage2_rs2_val[5:0];
-		assign wr_en = 1;
-        end
-	"slt":
-	begin
-		assign  nstage3_alu_result = $signed(stage2_rs1_val) < $signed(stage2_rs2_val);
-		assign wr_en = 1;
-        end
-	"sltu":
-	begin
-		assign  nstage3_alu_result = $unsigned(stage2_rs1_val) < $unsigned(stage2_rs2_val);
-		assign wr_en = 1;
-        end
-	"xor":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val ^ stage2_rs2_val;
-		assign wr_en = 1;
-        end
-	"srl":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val >> stage2_rs2_val[5:0];
-		assign wr_en = 1;
-        end
-	"sra":
-	begin
-		assign  nstage3_alu_result = $signed(stage2_rs1_val) >>> stage2_rs2_val[5:0];
-		assign wr_en = 1;
-        end
-	"or":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val | stage2_rs2_val;
-		assign wr_en = 1;
-        end
-	"and":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val & stage2_rs2_val;
-		assign wr_en = 1;
-        end 
-	"fence":
-	begin
-	    assign instruction_name="fence";
-        end
-	"fencei":
-	begin
-	    assign instruction_name="fencei";
-        end
-	"lui":
-	begin
-		assign  nstage3_alu_result = stage2_immediate;
-		assign wr_en = 1;
-        end
-	"auipc":
-	begin
-		assign  nstage3_pc = stage2_pc + stage2_immediate;
-		assign wr_en = 1;
-        end
-	"jal":
-	begin
-	    assign instruction_name="jal";
-        end
-	"ret":
-	begin
-	    assign instruction_name="ret";
-        end
-	"jalr":
-	begin
-	    assign instruction_name="jalr";
-        end
-	"lb":
-	begin
-	    assign instruction_name="lb";
-        end
-	"lh":
-	begin
-	    assign instruction_name="lh";
-        end
-	"lw":
-	begin
-	    assign instruction_name="lw";
-        end
-	"lbu":
-	begin
-	    assign instruction_name="lbu";
-        end
-	"lhu":
-	begin
-	    assign instruction_name="lhu";
-        end
-	"mv":
-	begin
-	    assign instruction_name="mv";
-        end
-	"addi":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_immediate, 1, 0);
-		assign wr_en = 1;
-        end
-	"slti":
-	begin
-		assign  nstage3_alu_result = $signed(stage2_rs1_val) < $signed(stage2_immediate);
-		assign wr_en = 1;
-        end
-	"sltiu":
-	begin
-		assign  nstage3_alu_result = $unsigned(stage2_rs1_val) < $unsigned(stage2_immediate);
-		assign wr_en = 1;
-        end
-	"xori":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val ^ stage2_immediate;
-		assign wr_en = 1;
-        end
-	"ori":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val | stage2_immediate;
-		assign wr_en = 1;
-        end
-	"andi":
-	begin
-		assign  nstage3_alu_result = stage2_rs1_val & stage2_immediate;
-		assign wr_en = 1;
-        end
-	"lwu":
-	begin
-	    assign instruction_name="lwu";
-        end
-	"ld":
-	begin
-	    assign instruction_name="ld";
-        end
-	"addiw":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_immediate, 1, 1);
-		assign wr_en = 1;
-        end
-	"scall":
-	begin
-	    assign instruction_name="scall";
-        end
-	"sbreak":
-	begin
-	    assign instruction_name="sbreak";
-        end
-	"rdcycle":
-	begin
-	    assign instruction_name="rdcycle";
-        end
-	"rdcycleh":
-	begin
-	    assign instruction_name="rdcycleh";
-        end
-	"rdtime":
-	begin
-	    assign instruction_name="rdtime";
-        end
-	"rdtimeh":
-	begin
-	    assign instruction_name="rdtimeh";
-        end
-	"rdinstreet":
-	begin
-	    assign instruction_name="rdinstreet";
-        end
-	"rdinstreth":
-	begin
-	    assign instruction_name="rdinstreth";
-        end 
-	"slliw":
-	begin
-		assign  nstage3_alu_result[31:0] = stage2_rs1_val[31:0] << stage2_immediate[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end
-	"srliw":
-	begin
-		assign  nstage3_alu_result[31:0] = stage2_rs1_val[31:0] >> stage2_immediate[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end
-	"sraiw":
-	begin
-		assign  nstage3_alu_result[31:0] = $signed(stage2_rs1_val[31:0]) >>> stage2_immediate[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end
-	"addw":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 1, 1);
-		assign wr_en = 1;
-        end
-	"subw":
-	begin
-		assign  nstage3_alu_result = add_sub(stage2_rs1_val, stage2_rs2_val, 0, 1);
-		assign wr_en = 1;
-        end
-	"sllw":
-	begin
-		assign  nstage3_alu_result[31:0] = stage2_rs1_val[31:0] << stage2_rs2_val[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end
-	"srlw":
-	begin
-		assign  nstage3_alu_result[31:0] = stage2_rs1_val[31:0] >> stage2_rs2_val[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end  
-	"sraw":
-	begin
-		assign  nstage3_alu_result[31:0] = $signed(stage2_rs1_val[31:0]) >>> stage2_rs2_val[4:0];
-		if(nstage3_alu_result[31])
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			assign  nstage3_alu_result[REGISTER_WIDTH-1:32] = 0;
-		assign wr_en = 1;
-        end
-	"mulw":
-	begin
-		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 1, 0, 0, 0);
-		assign wr_en = 1;
-        end     
-	"divw":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 1, 0);
-		assign wr_en = 1;
-        end 
-	"divuw":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 1, 1);
-		assign wr_en = 1;
-        end    
-	"remw":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 1, 0);
-		assign wr_en = 1;
-        end       
-	"remuw":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 1, 1);
-		assign wr_en = 1;
-        end
-	"mul":
-	begin
-		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 0, 0, 0);
-		assign wr_en = 1;
-        end
-	"mulh":
-	begin
-		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 0, 0, 1);
-		assign wr_en = 1;
-        end
-	"mulhsu":
-	begin
-		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 1, 1, 1);
-		assign wr_en = 1;
-        end
-	"mulhu":
-	begin
-		assign  nstage3_alu_result = mul(stage2_rs1_val, stage2_rs2_val, 0, 1, 0, 1);
-		assign wr_en = 1;
-        end
-	"div":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 0, 0);
-		assign wr_en = 1;
-        end
-	"divu":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 1, 0, 1);
-		assign wr_en = 1;
-        end
-	"rem":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 0, 0);
-		assign wr_en = 1;
-        end
-	"remu":
-	begin
-		assign  nstage3_alu_result = div_rem(stage2_rs1_val, stage2_rs2_val, 0, 0, 1);
-		assign wr_en = 1;
-        end
-	default:
-        begin
-	    assign instruction_name="unknown";
-        end
+  always_comb begin
+    assign n_update_rd_bool = 0;
+    assign n_branch_taken_bool = 0;
+    assign n_mm_load_bool = 0;
+    assign n_pc = in_pcplus1;
+    // Bydefault out_ready is True, Unset it whenever needed
+    assign out_ready = 1;
+    assign n_stall_cycs = 0;
+
+    // Forwarding path & stall
+    // Need the value of ALU first, then Memory and then WB
+    // Because the for ith instruction, i-1 will be in ALU
+    // i-2 will be in Memory and i-3 will be in WB. So we want
+    // Value rd_value of latest instruction
+    // For rs1
+    if (in_rs1_regno == in_alu_rd_regno && in_mm_load_bool) begin
+      if (stall_cycs == 1) begin
+        assign in_val1 = in_mm_rd_regno;
+      end else begin
+        // Stall for memory and ALU (Pipeline slide 38)
+        assign out_ready = 0;
+        assign n_stall_cycs = stall_cycs + 1;
+      end
+    end else if (in_rs1_regno == in_alu_rd_regno) begin
+      assign in_val1 = in_alu_rd_regno;
+    end else if (in_rs1_regno == in_mm_rd_regno) begin
+      assign in_val1 = in_mm_rd_regno;
+    end else if (in_rs1_regno == in_wb_rd_regno) begin
+      assign in_val1 = in_wb_data;
+    end else begin
+      assign in_val1 = in_rs1_val;
+    end
+
+    // For rs2
+    if (in_rs2_regno == in_alu_rd_regno && in_alu_mm_load_bool) begin
+      if (stall_cycs == 1) begin
+        assign in_val1 = in_mm_rd_regno;
+      end else begin
+        // Stall for memory and ALU (Pipeline slide 38)
+        assign out_ready = 0;
+        assign n_stall_cycs = stall_cycs + 1;
+      end
+    end else if (in_rs2_regno == in_alu_rd_regno) begin
+      assign in_val2 = in_alu_rd_regno;
+    end else if (in_rs2_regno == in_mm_rd_regno) begin
+      assign in_val2 = in_mm_rd_regno;
+    end else if (in_rs2_regno == in_wb_rd_regno) begin
+      assign in_val2 = in_wb_data;
+    end else begin
+      assign in_val2 = in_rs2_val;
+    end
+
+    // Case block
+    casez (in_opcode_name)
+    "sd":
+    begin
+      assign instruction_name="sd";
+    end
+    "beq":
+    begin
+        assign instruction_name="beq";
+    end
+    "bne":
+    begin
+        assign instruction_name="bne";
+    end
+    "blt":
+    begin
+        assign instruction_name="blt";
+    end
+    "bge":
+    begin
+        assign instruction_name="bge";
+    end
+    "bltu":
+    begin
+        assign instruction_name="bltu";
+    end
+    "bgue":
+    begin
+        assign instruction_name="bgeu";
+    end
+    "sb":
+    begin
+        assign instruction_name="sb";
+    end
+    "sh":
+    begin
+        assign instruction_name="sh";
+    end
+    "sw":
+    begin
+        assign instruction_name="sw";
+    end
+    "slli":
+    begin
+      assign  n_alu_result = n_val1 << in_imm_value[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "srli":
+    begin
+      assign  n_alu_result = n_val1 >> in_imm_value[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "srai":
+    begin
+      assign  n_alu_result = $signed(n_val1) >>> in_imm_value[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "add":
+    begin
+      assign  n_alu_result = add_sub(n_val1, n_val2, 1, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "sub":
+    begin
+      assign  n_alu_result = add_sub(n_val1, n_val2, 0, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "sll":
+    begin
+      assign  n_alu_result = n_val1 << n_val2[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "slt":
+    begin
+      assign  n_alu_result = $signed(n_val1) < $signed(n_val2);
+      assign out_update_rd_bool = 1;
+    end
+    "sltu":
+    begin
+      assign  n_alu_result = $unsigned(n_val1) < $unsigned(n_val2);
+      assign out_update_rd_bool = 1;
+    end
+    "xor":
+    begin
+      assign  n_alu_result = n_val1 ^ n_val2;
+      assign out_update_rd_bool = 1;
+    end
+    "srl":
+    begin
+      assign  n_alu_result = n_val1 >> n_val2[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "sra":
+    begin
+      assign  n_alu_result = $signed(n_val1) >>> n_val2[5:0];
+      assign out_update_rd_bool = 1;
+    end
+    "or":
+    begin
+      assign  n_alu_result = n_val1 | n_val2;
+      assign out_update_rd_bool = 1;
+    end
+    "and":
+    begin
+      assign  n_alu_result = n_val1 & n_val2;
+      assign out_update_rd_bool = 1;
+    end
+    "fence":
+    begin
+        assign instruction_name="fence";
+    end
+    "fencei":
+    begin
+        assign instruction_name="fencei";
+    end
+    "lui":
+    begin
+      assign  n_alu_result = in_imm_value;
+      assign out_update_rd_bool = 1;
+    end
+    "auipc":
+    begin
+      assign  n_pc = in_pcplus1 + in_imm_value;
+      // TODO: DO we update this variable?
+      // assign out_update_rd_bool = 1;
+    end
+    "jal":
+    begin
+        assign instruction_name="jal";
+    end
+    "ret":
+    begin
+        assign instruction_name="ret";
+    end
+    "jalr":
+    begin
+        assign instruction_name="jalr";
+    end
+    "lb":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lb";
+    end
+    "lh":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lh";
+    end
+    "lw":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lw";
+    end
+    "lbu":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lbu";
+    end
+    "lhu":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lhu";
+    end
+    "mv":
+    begin
+        assign instruction_name="mv";
+    end
+    "addi":
+    begin
+      assign  n_alu_result = add_sub(n_val1, in_imm_value, 1, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "slti":
+    begin
+      assign  n_alu_result = $signed(n_val1) < $signed(in_imm_value);
+      assign out_update_rd_bool = 1;
+    end
+    "sltiu":
+    begin
+      assign  n_alu_result = $unsigned(n_val1) < $unsigned(in_imm_value);
+      assign out_update_rd_bool = 1;
+    end
+    "xori":
+    begin
+      assign  n_alu_result = n_val1 ^ in_imm_value;
+      assign out_update_rd_bool = 1;
+    end
+    "ori":
+    begin
+      assign  n_alu_result = n_val1 | in_imm_value;
+      assign out_update_rd_bool = 1;
+    end
+    "andi":
+    begin
+      assign  n_alu_result = n_val1 & in_imm_value;
+      assign out_update_rd_bool = 1;
+    end
+    "lwu":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="lwu";
+    end
+    "ld":
+    begin
+        assign n_mm_load_bool = 1;
+        assign instruction_name="ld";
+    end
+    "addiw":
+    begin
+      assign  n_alu_result = add_sub(n_val1, in_imm_value, 1, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "scall":
+    begin
+        assign instruction_name="scall";
+    end
+    "sbreak":
+    begin
+        assign instruction_name="sbreak";
+    end
+    "rdcycle":
+    begin
+        assign instruction_name="rdcycle";
+    end
+    "rdcycleh":
+    begin
+        assign instruction_name="rdcycleh";
+    end
+    "rdtime":
+    begin
+        assign instruction_name="rdtime";
+    end
+    "rdtimeh":
+    begin
+        assign instruction_name="rdtimeh";
+    end
+    "rdinstreet":
+    begin
+        assign instruction_name="rdinstreet";
+    end
+    "rdinstreth":
+    begin
+        assign instruction_name="rdinstreth";
+    end
+    "slliw":
+    begin
+      assign  n_alu_result[31:0] = n_val1[31:0] << in_imm_value[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "srliw":
+    begin
+      assign  n_alu_result[31:0] = n_val1[31:0] >> in_imm_value[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "sraiw":
+    begin
+      assign  n_alu_result[31:0] = $signed(n_val1[31:0]) >>> in_imm_value[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "addw":
+    begin
+      assign  n_alu_result = add_sub(n_val1, n_val2, 1, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "subw":
+    begin
+      assign  n_alu_result = add_sub(n_val1, n_val2, 0, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "sllw":
+    begin
+      assign  n_alu_result[31:0] = n_val1[31:0] << n_val2[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "srlw":
+    begin
+      assign  n_alu_result[31:0] = n_val1[31:0] >> n_val2[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "sraw":
+    begin
+      assign  n_alu_result[31:0] = $signed(n_val1[31:0]) >>> n_val2[4:0];
+      if(n_alu_result[31])
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
+      else
+        assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
+      assign out_update_rd_bool = 1;
+    end
+    "mulw":
+    begin
+      assign  n_alu_result = mul(n_val1, n_val2, 1, 0, 0, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "divw":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 1, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "divuw":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 1, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "remw":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 1, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "remuw":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 1, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "mul":
+    begin
+      assign  n_alu_result = mul(n_val1, n_val2, 0, 0, 0, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "mulh":
+    begin
+      assign  n_alu_result = mul(n_val1, n_val2, 0, 0, 0, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "mulhsu":
+    begin
+      assign  n_alu_result = mul(n_val1, n_val2, 0, 1, 1, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "mulhu":
+    begin
+      assign  n_alu_result = mul(n_val1, n_val2, 0, 1, 0, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "div":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 0, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "divu":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 0, 1);
+      assign out_update_rd_bool = 1;
+    end
+    "rem":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 0, 0);
+      assign out_update_rd_bool = 1;
+    end
+    "remu":
+    begin
+      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 0, 1);
+      assign out_update_rd_bool = 1;
+    end
+    default:
+    begin
+        assign instruction_name="unknown";
+    end
     endcase
+  end
+
+  always_ff @(posedge clk) begin
+    if(reset) begin
+      // TODO: add reset things here
+      stall_cycs <= 0;
+    end else if (in_enable && out_ready) begin
+      if (in_alu_branch_taken) begin
+        // flush all register to zero i.e. nop
+        $display("ALU flushed");
+        stall_cycs <= 0;
+        out_alu_result <= 0;
+        out_branch_taken_bool <= 0;
+        out_pcplus1plusoffs <= 0;
+        out_rs2_val <= 0;
+        out_opcode_name <= 0;
+        out_rd_regno <= 0;
+        out_update_rd_bool <= 0;
+        out_mm_load_bool <= 0;
+      end else begin
+        $display("ALU stall_cycs %d", nstall_cycs);
+        $display("ALU alu_result %d", n_alu_result);
+        $display("ALU branch bool %d", n_branch_taken_bool);
+        $display("ALU pc %d", n_pc);
+        $display("ALU val2 %d", n_val2);
+        $display("ALU opcode %s", in_opcode_name);
+        $display("ALU rd_regno %d", in_rd_regno);
+        $display("ALU rd_update_bool %d", n_update_rd_bool);
+        $display("ALU mm_load Bool %d", n_mm_load_bool);
+        stall_cycs <= nstall_cycs;
+        out_alu_result <= n_alu_result;
+        out_branch_taken_bool <= n_branch_taken_bool;
+        out_pcplus1plusoffs <= n_pc;
+        out_rs2_val <= n_val2;
+        out_opcode_name <= in_opcode_name;
+        out_rd_regno <= in_rd_regno;
+        out_update_rd_bool <= n_update_rd_bool;
+        out_mm_load_bool <= n_mm_load_bool;
+      end
     end
   end
-//process inst to provide output in ans string
 endmodule

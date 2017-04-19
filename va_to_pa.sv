@@ -63,49 +63,59 @@ module va_to_pa
             state <= STATERESET;
             level <= 0;
             //request_addr[63:0] <= ptbr[63:0] + virt_addr[47:39];
+`ifdef VAPADEBUG
             $display("VP state resetted");
             $display("VP Virt Addr to: %d",virt_addr[47:39]);
+`endif
         end else begin
             state <= next_state;
             case(next_state)
                 STATEBEGIN:
                 begin
+`ifdef VAPADEBUG
 		    $display("VP Virt Addr to: %d",virt_addr[47:39]);
+`endif
                     level <= 0;
                     request_addr[63:0] <= ptbr[63:0] + virt_addr[47:39];
                 end
                 STATEREQ:
                 begin
-                    //$display("VP State req, going to wait, level: %d", nlevel);
-                    //$display("VP Main Bus Req: ", main_bus_req);
-                    //$display("VP Main Bus addr: ", request_addr);
-                    //$display("VP virt_addr: ", virt_addr);
+`ifdef VAPADEBUG
+                    $display("VP State req, going to wait, level: %d", nlevel);
+                    $display("VP Main Bus Req: ", main_bus_req);
+                    $display("VP Main Bus addr: ", request_addr);
+                    $display("VP virt_addr: ", virt_addr);
+`endif
                     level <= nlevel;
                     request_counter <= request_addr[5:3];
                 end
                 STATEWAIT:
                 begin
-                    //$display("State wait, going to resp");
                     level <= level;
                     counter <= 0;
                 end
                 STATERESP:
                 begin
+`ifdef VAPADEBUG
                     $display("VP State resp, going to ready, request_counter: %d", request_counter);
+`endif
                     level <= level;
                     counter <= ncounter;
                     if(counter == request_counter) begin
+`ifdef VAPADEBUG
                         $display("VP For next, pt_no: %d", pt_no);
                         $display("VP request addr: %d", (main_bus_resp[63:10] << 12) + pt_no[11:0]);
                         $display("VP phy addr: %d", (main_bus_resp[63:10] << 12) + virt_addr[11:0]);
+`endif
                         request_addr <= (main_bus_resp[63:10] << 12) + pt_no[11:0];
-                        //main_bus_req <= ((main_bus_resp[63:10] << 12) + pt_no[11:6]<<6);
                         phy_addr <= (main_bus_resp[63:10] << 12) + virt_addr[11:0];
                     end
                 end
                 STATEREADY:
                 begin
-                    //$display("VP State ready");
+`ifdef VAPADEBUG
+                    $display("VP State ready");
+`endif
                     level <= 0;
                     counter <= counter;
                 end
@@ -148,16 +158,7 @@ module va_to_pa
                 assign main_bus_reqcyc = 1;
                 assign main_bus_respack = 0;
                 assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
-                // TODO: Remove. Testing out.
                 main_bus_req = request_addr[63:6] << 6;
-                // TODO: uncommet the if else block. Testing out.
-                /*
-                if(level == 1) begin //forwarding path
-                    assign main_bus_req = ptbr[63:0] + virt_addr[47:39];
-                end else begin
-                    assign main_bus_req = request_addr[63:6] << 6;
-                end
-                */
             end
             STATEWAIT:
             begin

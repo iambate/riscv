@@ -19,6 +19,7 @@ module Decode
   input [REGISTER_WIDTH-1:0] in_wb_rd_value,
   input [REGISTERNO_WIDTH-1:0] in_wb_rd_regno,
   input in_wb_enable,
+  input in_branch_taken_bool,
   input in_display_regs,
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [REGISTER_WIDTH-1:0] out_rs1_value,
@@ -77,14 +78,40 @@ module Decode
   end
   always_ff @(posedge clk) begin
     if(in_decode_enable) begin
-      out_pcplus1 <= in_pcplus1;
-      out_rs1_value <= n_rs1_value;
-      out_rs2_value <= n_rs2_value;
-      out_rs1_regno <= n_rs1_regno;
-      out_rs2_regno <= n_rs2_regno;
-      out_rd_regno <= n_rd_regno;
-      out_imm_value <= n_imm_value;
-      out_opcode_name <= n_opcode_name;
+      if(in_branch_taken_bool) begin
+        // If branch taken then flush and send nop instruction
+        $display("DECODE flushed");
+        out_pcplus1 <= 0;
+        out_rs1_value <= 0;
+        out_rs2_value <= 0;
+        out_rs1_regno <= 0;
+        out_rs2_regno <= 0;
+        out_rd_regno <= 0;
+        out_imm_value <= 0;
+        out_opcode_name <= 0;
+      end else begin
+`ifdef DECODE_DEBUG
+        $display("DECODE pc %x", in_pcplus1);
+        $display("DECODE rs1 val %d", n_rs1_value);
+        $display("DECODE rs2 val %d", n_rs2_value);
+        $display("DECODE rs1 name %s", n_rs1_name);
+        $display("DECODE rs2 name %s", n_rs2_name);
+        $display("DECODE rd name %s", n_rd_name);
+        $display("DECODE rs1 regno %d", n_rs1_regno);
+        $display("DECODE rs2 regno %d", n_rs2_regno);
+        $display("DECODE rd regno %d", n_rd_regno);
+        $display("DECODE imm value %d", n_imm_value);
+        $display("DECODE opcode name %s", n_opcode_name);
+`endif
+        out_pcplus1 <= in_pcplus1;
+        out_rs1_value <= n_rs1_value;
+        out_rs2_value <= n_rs2_value;
+        out_rs1_regno <= n_rs1_regno;
+        out_rs2_regno <= n_rs2_regno;
+        out_rd_regno <= n_rd_regno;
+        out_imm_value <= n_imm_value;
+        out_opcode_name <= n_opcode_name;
+      end
     end
   end
 endmodule

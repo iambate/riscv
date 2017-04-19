@@ -1,9 +1,16 @@
 `include "Sysbus.defs"
+`include "decode.sv"
 
 module top
 #(
   BUS_DATA_WIDTH = 64,
-  BUS_TAG_WIDTH = 13
+  BUS_TAG_WIDTH = 13,
+  ADDRESS_WIDTH = 64,
+  REGISTER_WIDTH = 64,
+  REGISTERNO_WIDTH = 5,
+  INSTRUCTION_WIDTH = 32,
+  INSTRUCTION_NAME_WIDTH = 12*8,
+  SIZE = 32
 )
 (
   input  clk,
@@ -25,8 +32,10 @@ module top
 );
 
   logic [63:0] pc;
+  logic [63:0] old_pc;
   logic [63:0] npc;
   logic [8:0] counter;
+  logic [8:0] ncounter;
   logic [63:0] phy_addr;
   logic va_pa_abtr_grant;
   logic va_pa_abtr_reqcyc;
@@ -44,8 +53,20 @@ module top
   logic store_data_enable;
   logic store_data_ready;
   logic [BUS_DATA_WIDTH*8-1:0] data;
+  logic [INSTRUCTION_WIDTH-1:0] fetch_instruction_bits;
+  logic [ADDRESS_WIDTH-1:0] fetch_pc;
+  logic pipeline_enable;
+  logic [ADDRESS_WIDTH-1:0] decode_pcplus1;
+  logic [REGISTER_WIDTH-1:0] decode_rs1_value;
+  logic [REGISTER_WIDTH-1:0] decode_rs2_value;
+  logic [REGISTER_WIDTH-1:0] decode_imm_value;
+  logic [REGISTERNO_WIDTH-1:0] decode_rs1_regno;
+  logic [REGISTERNO_WIDTH-1:0] decode_rs2_regno;
+  logic [REGISTERNO_WIDTH-1:0] decode_rd_regno;
+  logic [INSTRUCTION_NAME_WIDTH-1:0] decode_opcode_name;
+  logic decode_ready;
   enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
-        STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111} state, next_state;
+        STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
 
   bus_controller bc    (.clk(clk),
             .bus_reqcyc1(va_pa_abtr_reqcyc),
@@ -109,6 +130,27 @@ module top
             .ready(store_data_ready)
                        );
 
+  Decode decode0 (.clk(clk),
+                  .reset(reset),
+                  .in_decode_enable(pipeline_enable),
+                  .in_pcplus1(fetch_pc),
+                  .in_instruction_bits(fetch_instruction_bits),
+                  .in_wb_rd_value(),
+                  .in_wb_rd_regno(),
+                  .in_wb_enable(),
+                  .in_branch_taken_bool(),
+                  .in_display_regs(),
+                  .out_pcplus1(decode_pcplus1),
+                  .out_rs1_value(decode_rs1_value),
+                  .out_rs2_value(decode_rs2_value),
+                  .out_imm_value(decode_imm_value),
+                  .out_rs1_regno(decode_rs1_regno),
+                  .out_rs2_regno(decode_rs2_regno),
+                  .out_rd_regno(decode_rd_regno),
+                  .out_opcode_name(decode_opcode_name),
+                  .out_ready(decode_ready)
+                  );
+
     always_comb begin
         assign npc = pc + 64;
         case(state)
@@ -118,6 +160,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
         end
         STATEVAPABEGIN:
         begin
@@ -125,6 +168,7 @@ module top
             assign va_pa_enable = 1;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
         end
         STATEVAPAWAIT:
         begin
@@ -132,6 +176,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
         end
         STATEADBEGIN:
         begin
@@ -139,13 +184,15 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 1;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
         end
         STATEADWAIT:
         begin
-            assign next_state = addr_data_ready? STATEWDBEGIN : STATEADWAIT;
+            assign next_state = addr_data_ready? STATEEXEC : STATEADWAIT;
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
         end
         STATEWDBEGIN:
         begin
@@ -153,13 +200,24 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 1;
+            assign pipeline_enable = 0;
         end
         STATEWDWAIT:
         begin
-            assign next_state = store_data_ready? STATEVAPABEGIN : STATEWDWAIT;
+            assign next_state = store_data_ready? STATEEXEC : STATEWDWAIT;
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
+            assign pipeline_enable = 0;
+        end
+        STATEEXEC:
+        begin
+            assign next_state = (counter==16)? STATEVAPABEGIN : STATEEXEC;
+            assign ncounter = counter + 1;
+            assign va_pa_enable = 0;
+            assign addr_data_enable = 0;
+            assign store_data_enable = 0;
+            assign pipeline_enable = 1;
         end
         endcase
     end
@@ -175,11 +233,115 @@ module top
             STATEADBEGIN:
             begin
                 $display("TOP virtual address: %d physical address: %d", pc, phy_addr);
+                old_pc <= pc;
                 pc <= npc;
+                counter <= 0;
             end
-            STATEWD:
+            STATEVAPABEGIN:
             begin
-                $display("TOP data: %x", data[63:0]);
+                //$display("TOP data: %x", data);
+            end
+            STATEEXEC:
+            begin
+                counter <= ncounter;
+                case(counter)
+                0:
+                begin
+                  fetch_pc <= old_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
+                  $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
+                end
+                1:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
+                  $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
+                end
+                2:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
+                  $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
+                end
+                3:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
+                  $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
+                end
+                4:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
+                  $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
+                end
+                5:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
+                  $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
+                end
+                6:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
+                  $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
+                end
+                7:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
+                  $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
+                end
+                8:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
+                  $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
+                end
+                9:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
+                  $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
+                end
+                10:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
+                  $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
+                end
+                11:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
+                  $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
+                end
+                12:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
+                  $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
+                end
+                13:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
+                  $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
+                end
+                14:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
+                  $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
+                end
+                15:
+                begin
+                  fetch_pc <= fetch_pc + 4;
+                  fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
+                  $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
+                end
+                endcase
             end
             endcase
         end

@@ -52,18 +52,24 @@ module addr_to_data
     always_ff @ (posedge clk) begin
         if(reset) begin
             state <= STATERESET;
+`ifdef ADD2DATA
             $display("AD State resetted");
+`endif
         end else begin
             state <= next_state;
             case(next_state)
                 STATEBEGIN:
                 begin
-                    //$display("State begin, going to req");
+`ifdef ADD2DATA
+                    $display("AD State begin, going to req");
+`endif
                 end
                 STATEREQ:
                 begin
                     //main_bus_req[63:0] <= addr[63:6] << 6;
+`ifdef ADD2DATA
                     $display("AD State req, going to wait");
+`endif
                 end
                 STATEWAIT:
                 begin
@@ -72,14 +78,18 @@ module addr_to_data
                 end
                 STATERESP:
                 begin
+`ifdef ADD2DATA
                     $display("AD State resp, going to ready");
+                    $display("AD data: %x", main_bus_resp[63:0]);
+`endif
                     counter <= ncounter;
                     response <= main_bus_resp;
-                    $display("AD data: %x", main_bus_resp[63:0]);
                 end
                 STATEREADY:
                 begin
-                    //$display("AD State ready");
+`ifdef ADD2DATA
+                    $display("AD State ready");
+`endif
                     counter <= counter;
                 end
             endcase

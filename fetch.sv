@@ -1,4 +1,7 @@
-
+/*
+ * TODO:
+ * Add instruction cache module and respective buslines
+ */
 module Fetch
 #(
   ADDRESS_WIDTH = 64,
@@ -8,6 +11,7 @@ module Fetch
 (
   input clk,
   input reset,
+  input in_branch_taken_taken,
   input [ADDRESS_WIDTH-1:0] in_target,
   input in_enable,
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
@@ -23,9 +27,8 @@ module Fetch
 
   always_comb begin
     // PC MUX
-    // TODO: check if target works or if(target[63:0])
-    if(target) begin
-      assign pc = target;
+    if(in_branch_taken_bool) begin
+      assign pc = in_target;
     end else begin
       assign pc = old_pc + 1;
     end
@@ -44,6 +47,8 @@ module Fetch
       out_instruction_bits <= 0;
       out_pcplus1 <= 0;
     end else if(out_ready && in_enable) begin
+      $display("instruction bits %d", cache_instruction_bits);
+      $display("this pc %d", pc);
       out_instruction_bits <= cache_instruction_bits;
       out_pcplus1 <= pc + 1;
       old_pc <= pc;
