@@ -39,6 +39,7 @@ module RegisterFile
       Registers[31:0]='{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     end
     else if(in_wr_enable) begin
+      $display("Writing Register: %d with content %d", in_rd_regno, in_rd_value);
       Registers[in_rd_regno] <= in_rd_value;
     end
     else if(display_regs) begin
@@ -46,7 +47,7 @@ module RegisterFile
       for(i=0;i<32;i++)
         $display("Register %0d:\t%0d",i, Registers[i]);
       $display("");
-      $finish;
+      //$finish;
     end
   end
 endmodule

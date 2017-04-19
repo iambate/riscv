@@ -65,6 +65,17 @@ module top
   logic [REGISTERNO_WIDTH-1:0] decode_rd_regno;
   logic [INSTRUCTION_NAME_WIDTH-1:0] decode_opcode_name;
   logic decode_ready;
+  logic [REGISTER_WIDTH-1:0] alu_result;
+  logic [REGISTER_WIDTH-1:0] alu_rs2_value;
+  logic [REGISTERNO_WIDTH-1:0] alu_rd_regno;
+  logic [INSTRUCTION_NAME_WIDTH-1:0] alu_opcode_name;
+  logic [ADDRESS_WIDTH-1:0] alu_pcplus1plusoffs;
+  logic alu_update_rd_bool;
+  logic alu_branch_taken_bool;
+  logic alu_mm_load_bool;
+  logic alu_ready;
+  logic display_regs;
+
   enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
         STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
 
@@ -135,11 +146,14 @@ module top
                   .in_decode_enable(pipeline_enable),
                   .in_pcplus1(fetch_pc),
                   .in_instruction_bits(fetch_instruction_bits),
-                  .in_wb_rd_value(),
-                  .in_wb_rd_regno(),
-                  .in_wb_enable(),
+                  // Change to actual wb values
+                  .in_wb_rd_value(alu_result),
+                  // Change to actual wb values
+                  .in_wb_rd_regno(alu_rd_regno),
+                  // Change to actual wb values
+                  .in_wb_enable(alu_update_rd_bool),
                   .in_branch_taken_bool(),
-                  .in_display_regs(),
+                  .in_display_regs(display_regs),
                   .out_pcplus1(decode_pcplus1),
                   .out_rs1_value(decode_rs1_value),
                   .out_rs2_value(decode_rs2_value),
@@ -151,6 +165,34 @@ module top
                   .out_ready(decode_ready)
                   );
 
+  execute_instruction ei0(.clk(clk),
+                          .in_enable(pipeline_enable & decode_ready),
+                          .in_rs1_value(decode_rs1_value),
+                          .in_rs2_value(decode_rs2_value),
+                          .in_imm_value(decode_imm_value),
+                          .in_rd_regno(decode_rd_regno),
+                          .in_rs1_regno(decode_rs1_regno),
+                          .in_rs2_regno(decode_rs2_regno),
+                          .in_opcode_name(decode_opcode_name),
+                          .in_alu_rd_regno(alu_rd_regno),
+                          .in_mm_rd_regno(),
+                          .in_wb_rd_regno(),
+                          .in_alu_result(alu_result),
+                          .in_mm_mdate(),
+                          .in_wb_data(),
+                          .in_pcplus1(decode_pcplus1),
+                          .in_branch_taken_bool(alu_branch_taken_bool),
+                          .in_mm_load_bool(alu_mm_load_bool),
+                          .out_alu_result(alu_result),
+                          .out_rs2_value(alu_rs2_value),
+                          .out_rd_regno(alu_rd_regno),
+                          .out_opcode_name(alu_opcode_name),
+                          .out_pcplus1plusoffs(alu_pcplus1plusoffs),
+                          .out_update_rd_bool(alu_update_rd_bool),
+                          .out_branch_taken_bool(alu_branch_taken_bool),
+                          .out_mm_load_bool(alu_mm_load_bool),
+                          .out_ready(alu_ready)
+                          );
     always_comb begin
         assign npc = pc + 64;
         case(state)
@@ -226,8 +268,11 @@ module top
             state <= STATERESET;
             pc <= entry[63:12]<<12;
         end else begin
-            if(addr_data_ready & !data)
+            if(addr_data_ready & !data && state == STATEEXEC) begin
+                display_regs <= 1;
+            end else if (addr_data_ready & !data && state == STATEVAPABEGIN) begin
                 $finish;
+            end
             state <= next_state;
             case(state)
             STATEADBEGIN:
@@ -244,6 +289,7 @@ module top
             STATEEXEC:
             begin
                 counter <= ncounter;
+                $display();
                 case(counter)
                 0:
                 begin

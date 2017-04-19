@@ -53,7 +53,9 @@ module store_data
     always_ff @ (posedge clk) begin
         if(reset) begin
             state <= STATERESET;
-            $display("AD State resetted");
+`ifdef WDDEBUG
+            $display("WD State resetted");
+`endif
         end else begin
             state <= next_state;
             case(next_state)

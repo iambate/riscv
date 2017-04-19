@@ -13,9 +13,11 @@ module execute_instruction
   INSTRUCTION_NAME_WIDTH = 12*8
 )
 (
+  input clk,
+  input reset,
   input in_enable,
-  input [REGISTER_WIDTH-1:0] in_rs1_val,
-  input [REGISTER_WIDTH-1:0] in_rs2_val,
+  input [REGISTER_WIDTH-1:0] in_rs1_value,
+  input [REGISTER_WIDTH-1:0] in_rs2_value,
   input [REGISTER_WIDTH-1:0] in_imm_value,
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input [REGISTERNO_WIDTH-1:0] in_rs1_regno,
@@ -31,7 +33,7 @@ module execute_instruction
   input in_branch_taken_bool,
   input in_mm_load_bool,
   output [REGISTER_WIDTH-1:0] out_alu_result,
-  output [REGISTER_WIDTH-1:0] out_rs2_val,
+  output [REGISTER_WIDTH-1:0] out_rs2_value,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
   output [ADDRESS_WIDTH-1:0] out_pcplus1plusoffs,
@@ -162,8 +164,8 @@ input isU
 endfunction
 
   logic [INSTRUCTION_NAME_WIDTH-1:0] instruction_name;
-  logic [REGISTER_WIDTH-1:0] n_val1;
-  logic [REGISTER_WIDTH-1:0] n_val2;
+  logic [REGISTER_WIDTH-1:0] n_value1;
+  logic [REGISTER_WIDTH-1:0] n_value2;
   logic [REGISTER_WIDTH-1:0] n_alu_result;
   logic [ADDRESS_WIDTH-1:0] n_pc;
   logic n_branch_taken_bool;
@@ -189,39 +191,39 @@ endfunction
     // For rs1
     if (in_rs1_regno == in_alu_rd_regno && in_mm_load_bool) begin
       if (stall_cycs == 1) begin
-        assign in_val1 = in_mm_rd_regno;
+        assign n_value1 = in_mm_mdate;
       end else begin
         // Stall for memory and ALU (Pipeline slide 38)
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
     end else if (in_rs1_regno == in_alu_rd_regno) begin
-      assign in_val1 = in_alu_rd_regno;
+      assign n_value1 = in_alu_result;
     end else if (in_rs1_regno == in_mm_rd_regno) begin
-      assign in_val1 = in_mm_rd_regno;
+      assign n_value1 = in_mm_mdate;
     end else if (in_rs1_regno == in_wb_rd_regno) begin
-      assign in_val1 = in_wb_data;
+      assign n_value1 = in_wb_data;
     end else begin
-      assign in_val1 = in_rs1_val;
+      assign n_value1 = in_rs1_value;
     end
 
     // For rs2
-    if (in_rs2_regno == in_alu_rd_regno && in_alu_mm_load_bool) begin
+    if (in_rs2_regno == in_alu_rd_regno && in_mm_load_bool) begin
       if (stall_cycs == 1) begin
-        assign in_val1 = in_mm_rd_regno;
+        assign n_value1 = in_mm_mdate;
       end else begin
         // Stall for memory and ALU (Pipeline slide 38)
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
     end else if (in_rs2_regno == in_alu_rd_regno) begin
-      assign in_val2 = in_alu_rd_regno;
+      assign n_value2 = in_alu_result;
     end else if (in_rs2_regno == in_mm_rd_regno) begin
-      assign in_val2 = in_mm_rd_regno;
+      assign n_value2 = in_mm_mdate;
     end else if (in_rs2_regno == in_wb_rd_regno) begin
-      assign in_val2 = in_wb_data;
+      assign n_value2 = in_wb_data;
     end else begin
-      assign in_val2 = in_rs2_val;
+      assign n_value2 = in_rs2_value;
     end
 
     // Case block
@@ -268,68 +270,68 @@ endfunction
     end
     "slli":
     begin
-      assign  n_alu_result = n_val1 << in_imm_value[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 << in_imm_value[5:0];
+      assign n_update_rd_bool = 1;
     end
     "srli":
     begin
-      assign  n_alu_result = n_val1 >> in_imm_value[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 >> in_imm_value[5:0];
+      assign n_update_rd_bool = 1;
     end
     "srai":
     begin
-      assign  n_alu_result = $signed(n_val1) >>> in_imm_value[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $signed(n_value1) >>> in_imm_value[5:0];
+      assign n_update_rd_bool = 1;
     end
     "add":
     begin
-      assign  n_alu_result = add_sub(n_val1, n_val2, 1, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, n_value2, 1, 0);
+      assign n_update_rd_bool = 1;
     end
     "sub":
     begin
-      assign  n_alu_result = add_sub(n_val1, n_val2, 0, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, n_value2, 0, 0);
+      assign n_update_rd_bool = 1;
     end
     "sll":
     begin
-      assign  n_alu_result = n_val1 << n_val2[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 << n_value2[5:0];
+      assign n_update_rd_bool = 1;
     end
     "slt":
     begin
-      assign  n_alu_result = $signed(n_val1) < $signed(n_val2);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $signed(n_value1) < $signed(n_value2);
+      assign n_update_rd_bool = 1;
     end
     "sltu":
     begin
-      assign  n_alu_result = $unsigned(n_val1) < $unsigned(n_val2);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $unsigned(n_value1) < $unsigned(n_value2);
+      assign n_update_rd_bool = 1;
     end
     "xor":
     begin
-      assign  n_alu_result = n_val1 ^ n_val2;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 ^ n_value2;
+      assign n_update_rd_bool = 1;
     end
     "srl":
     begin
-      assign  n_alu_result = n_val1 >> n_val2[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 >> n_value2[5:0];
+      assign n_update_rd_bool = 1;
     end
     "sra":
     begin
-      assign  n_alu_result = $signed(n_val1) >>> n_val2[5:0];
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $signed(n_value1) >>> n_value2[5:0];
+      assign n_update_rd_bool = 1;
     end
     "or":
     begin
-      assign  n_alu_result = n_val1 | n_val2;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 | n_value2;
+      assign n_update_rd_bool = 1;
     end
     "and":
     begin
-      assign  n_alu_result = n_val1 & n_val2;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 & n_value2;
+      assign n_update_rd_bool = 1;
     end
     "fence":
     begin
@@ -342,13 +344,13 @@ endfunction
     "lui":
     begin
       assign  n_alu_result = in_imm_value;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "auipc":
     begin
       assign  n_pc = in_pcplus1 + in_imm_value;
       // TODO: DO we update this variable?
-      // assign out_update_rd_bool = 1;
+      // assign n_update_rd_bool = 1;
     end
     "jal":
     begin
@@ -393,33 +395,33 @@ endfunction
     end
     "addi":
     begin
-      assign  n_alu_result = add_sub(n_val1, in_imm_value, 1, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, in_imm_value, 1, 0);
+      assign n_update_rd_bool = 1;
     end
     "slti":
     begin
-      assign  n_alu_result = $signed(n_val1) < $signed(in_imm_value);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $signed(n_value1) < $signed(in_imm_value);
+      assign n_update_rd_bool = 1;
     end
     "sltiu":
     begin
-      assign  n_alu_result = $unsigned(n_val1) < $unsigned(in_imm_value);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = $unsigned(n_value1) < $unsigned(in_imm_value);
+      assign n_update_rd_bool = 1;
     end
     "xori":
     begin
-      assign  n_alu_result = n_val1 ^ in_imm_value;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 ^ in_imm_value;
+      assign n_update_rd_bool = 1;
     end
     "ori":
     begin
-      assign  n_alu_result = n_val1 | in_imm_value;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 | in_imm_value;
+      assign n_update_rd_bool = 1;
     end
     "andi":
     begin
-      assign  n_alu_result = n_val1 & in_imm_value;
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = n_value1 & in_imm_value;
+      assign n_update_rd_bool = 1;
     end
     "lwu":
     begin
@@ -433,8 +435,8 @@ endfunction
     end
     "addiw":
     begin
-      assign  n_alu_result = add_sub(n_val1, in_imm_value, 1, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, in_imm_value, 1, 1);
+      assign n_update_rd_bool = 1;
     end
     "scall":
     begin
@@ -470,132 +472,132 @@ endfunction
     end
     "slliw":
     begin
-      assign  n_alu_result[31:0] = n_val1[31:0] << in_imm_value[4:0];
+      assign  n_alu_result[31:0] = n_value1[31:0] << in_imm_value[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "srliw":
     begin
-      assign  n_alu_result[31:0] = n_val1[31:0] >> in_imm_value[4:0];
+      assign  n_alu_result[31:0] = n_value1[31:0] >> in_imm_value[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "sraiw":
     begin
-      assign  n_alu_result[31:0] = $signed(n_val1[31:0]) >>> in_imm_value[4:0];
+      assign  n_alu_result[31:0] = $signed(n_value1[31:0]) >>> in_imm_value[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "addw":
     begin
-      assign  n_alu_result = add_sub(n_val1, n_val2, 1, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, n_value2, 1, 1);
+      assign n_update_rd_bool = 1;
     end
     "subw":
     begin
-      assign  n_alu_result = add_sub(n_val1, n_val2, 0, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = add_sub(n_value1, n_value2, 0, 1);
+      assign n_update_rd_bool = 1;
     end
     "sllw":
     begin
-      assign  n_alu_result[31:0] = n_val1[31:0] << n_val2[4:0];
+      assign  n_alu_result[31:0] = n_value1[31:0] << n_value2[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "srlw":
     begin
-      assign  n_alu_result[31:0] = n_val1[31:0] >> n_val2[4:0];
+      assign  n_alu_result[31:0] = n_value1[31:0] >> n_value2[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "sraw":
     begin
-      assign  n_alu_result[31:0] = $signed(n_val1[31:0]) >>> n_val2[4:0];
+      assign  n_alu_result[31:0] = $signed(n_value1[31:0]) >>> n_value2[4:0];
       if(n_alu_result[31])
         assign  n_alu_result[REGISTER_WIDTH-1:32] = -1;
       else
         assign  n_alu_result[REGISTER_WIDTH-1:32] = 0;
-      assign out_update_rd_bool = 1;
+      assign n_update_rd_bool = 1;
     end
     "mulw":
     begin
-      assign  n_alu_result = mul(n_val1, n_val2, 1, 0, 0, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = mul(n_value1, n_value2, 1, 0, 0, 0);
+      assign n_update_rd_bool = 1;
     end
     "divw":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 1, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 1, 1, 0);
+      assign n_update_rd_bool = 1;
     end
     "divuw":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 1, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 1, 1, 1);
+      assign n_update_rd_bool = 1;
     end
     "remw":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 1, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 0, 1, 0);
+      assign n_update_rd_bool = 1;
     end
     "remuw":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 1, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 0, 1, 1);
+      assign n_update_rd_bool = 1;
     end
     "mul":
     begin
-      assign  n_alu_result = mul(n_val1, n_val2, 0, 0, 0, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = mul(n_value1, n_value2, 0, 0, 0, 0);
+      assign n_update_rd_bool = 1;
     end
     "mulh":
     begin
-      assign  n_alu_result = mul(n_val1, n_val2, 0, 0, 0, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = mul(n_value1, n_value2, 0, 0, 0, 1);
+      assign n_update_rd_bool = 1;
     end
     "mulhsu":
     begin
-      assign  n_alu_result = mul(n_val1, n_val2, 0, 1, 1, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = mul(n_value1, n_value2, 0, 1, 1, 1);
+      assign n_update_rd_bool = 1;
     end
     "mulhu":
     begin
-      assign  n_alu_result = mul(n_val1, n_val2, 0, 1, 0, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = mul(n_value1, n_value2, 0, 1, 0, 1);
+      assign n_update_rd_bool = 1;
     end
     "div":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 0, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 1, 0, 0);
+      assign n_update_rd_bool = 1;
     end
     "divu":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 1, 0, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 1, 0, 1);
+      assign n_update_rd_bool = 1;
     end
     "rem":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 0, 0);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 0, 0, 0);
+      assign n_update_rd_bool = 1;
     end
     "remu":
     begin
-      assign  n_alu_result = div_rem(n_val1, n_val2, 0, 0, 1);
-      assign out_update_rd_bool = 1;
+      assign  n_alu_result = div_rem(n_value1, n_value2, 0, 0, 1);
+      assign n_update_rd_bool = 1;
     end
     default:
     begin
@@ -605,37 +607,44 @@ endfunction
   end
 
   always_ff @(posedge clk) begin
+`ifdef ALUDEBUGEX
+    $display("ALU in_enable %d", in_enable);
+    $display("ALU out_ready %d", out_ready);
+`endif
     if(reset) begin
       // TODO: add reset things here
       stall_cycs <= 0;
-    end else if (in_enable && out_ready) begin
-      if (in_alu_branch_taken) begin
+    end else if (in_enable & out_ready) begin
+      if (in_branch_taken_bool) begin
         // flush all register to zero i.e. nop
         $display("ALU flushed");
         stall_cycs <= 0;
         out_alu_result <= 0;
         out_branch_taken_bool <= 0;
         out_pcplus1plusoffs <= 0;
-        out_rs2_val <= 0;
+        out_rs2_value <= 0;
         out_opcode_name <= 0;
         out_rd_regno <= 0;
         out_update_rd_bool <= 0;
         out_mm_load_bool <= 0;
       end else begin
-        $display("ALU stall_cycs %d", nstall_cycs);
+        $display("ALU stall_cycs %d", n_stall_cycs);
         $display("ALU alu_result %d", n_alu_result);
         $display("ALU branch bool %d", n_branch_taken_bool);
         $display("ALU pc %d", n_pc);
-        $display("ALU val2 %d", n_val2);
+        $display("ALU given val1 %d", in_rs1_value);
+        $display("ALU given val2 %d", in_rs2_value);
+        $display("ALU actual val1 %d", n_value1);
+        $display("ALU actual val2 %d", n_value2);
         $display("ALU opcode %s", in_opcode_name);
         $display("ALU rd_regno %d", in_rd_regno);
         $display("ALU rd_update_bool %d", n_update_rd_bool);
         $display("ALU mm_load Bool %d", n_mm_load_bool);
-        stall_cycs <= nstall_cycs;
+        stall_cycs <= n_stall_cycs;
         out_alu_result <= n_alu_result;
         out_branch_taken_bool <= n_branch_taken_bool;
         out_pcplus1plusoffs <= n_pc;
-        out_rs2_val <= n_val2;
+        out_rs2_value <= n_value2;
         out_opcode_name <= in_opcode_name;
         out_rd_regno <= in_rd_regno;
         out_update_rd_bool <= n_update_rd_bool;
