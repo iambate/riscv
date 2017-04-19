@@ -404,7 +404,7 @@ module Set_Associative_Cache
 //----------------------------------------------------------------------------------------------------------------
                         //invalidation signal
 
-			else if(rd_wr_evict_flag == EVICT_SIGNAL) begin//cache eviction
+			else if(rd_wr_evict_flag == INVALIDATE_SIGNAL) begin//cache eviction
 				if(flush_before_replacement ==FLUSHING_NOT_NEEDED) begin
 					State[CSet][index][VALID_BIT]<=0;
 				end
@@ -448,9 +448,12 @@ module Set_Associative_Cache
 				else if(flush_before_replacment==WAIT_FOR_FLUSH_COMPLETION) begin
 					if(store_data_ready) begin
 						State[CSet][index][DIRTY_BIT]<=0;
+						State[CSet][index][VALID_BIT]<=0;
 						Wait_fr_mem_write<=UNSET_WAIT;
+						
 					end
 					else begin
+						store_data_enable <=0;
 						Wait_fr_mem_write<=SET_WAIT;
 						ff_CSet<=CSet;
 						ff_Cache_block_invalidation<=Cache_block_invalidation;
