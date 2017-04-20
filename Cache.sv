@@ -1,43 +1,32 @@
 module Set_Associative_Cache
 #(
-	SIZE=32,
-	READ_SIGNAL = 1,
-	WRITE_SIGNAL = 2,
-	EVICT_SIGNAL = 3,
-	STARTING_INDEX = 0,
-	SET1=0,
-	SET2=1,
+	STARTING_INDEX=0,
+	INVALIDATE_SIGNAL=3,
 	SET_WAIT=1,
-	UNSET_WAIT=2,
-	FLUSHING_NEEDED = 1,
-	FLUSHING_NOT_NEEDED = 0,
-
-	WAITING_FOR_MEM_WRITE = 2,
-	CACHE_HIT = 1,
-	CACHE_MISS = 0,
-	WAITING_FOR_MEM_READ = 2,
-	VALID='b100,
-	LRU='b010,
+	UNSET_WAIT=0,
+	WAIT_FOR_FLUSH_COMPLETION=1,
+	SET1=0,
 	DIRTY='b001,
-	VALID_BIT=2,
+	FLUSHING_NOT_NEEDED=2,
+	SET2=1,
+	FLUSHING_NEEDED=3,
+	WAITING_FOR_MEM_READ=1,
+	CACHE_HIT=2,
+	VALID='b100,
+	SIZE=32,
+	CACHE_MISS=3,
+	LRU='b010,
+	READ_SIGNAL=1,
+	WRITE_SIGNAL=2,
+	DIRTY_BIT=0,
 	LRU_BIT=1,
-	DIRTY_BIT=0
+	VALID_BIT=2
 )
 (	
-	input [1:0] rd_wr_evict_flag,
-	input[63:0]  addr,
-	output [SIZE-1:0] read_data,
 );
-	logic [8:0] index;
-	logic [48:0] tag;
-	logic [5:0] block_offset;
-	logic WSet;
-	logic RSet;
 	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
 	logic [48:0] Tag[2][512];
 	logic [2:0] State[2][512];
-	logic [1:0] canWrite;
-	logic [1:0] flush_before_replacement;
 	//TODO:data_available,store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
