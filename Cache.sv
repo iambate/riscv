@@ -23,11 +23,46 @@ module Set_Associative_Cache
 	VALID_BIT=2
 )
 (	
+	input clk,//F
+	input reset,//F
+	input [63:0] addr,//F
+	input [1:0] rd_wr_evict_flag,//F
+	output [1:0] Cache_block_invalidation,
+	output [1:0] canWrite,
+	output [SIZE-1:0] read_data,//F
+	output [1:0] data_available,//F
+	output store_data_enable,//F
+	output [63:0] store_data_at_addr,//F
+	output [4095:0] flush_data,//F
+	output addr_data_enable,//F
+	output [63:0] phy_addr,//F
+	input [4095:0] data,//F
+	input store_data_ready,//F
+	input addr_data_ready//F
 );
+	logic [1:0] ff_data_available;
+	logic [SIZE-1:0] ff_read_data;
+	logic [1:0] flush_before_replacement;
+	logic [1:0] ff_Cache_block_invalidation;
 	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
 	logic [48:0] Tag[2][512];
 	logic [2:0] State[2][512];
-	//TODO:data_available,store_data_enable,store_data_at_addr,phy_addr,
+	logic [48:0] tag;
+	logic [8:0] index;
+	logic [5:0] block_offset;
+	logic [63:0] starting_addr_of_block;
+	logic Wait_fr_mem_write;
+	logic [1:0] CSet;
+	logic [1:0] ff_CSet;
+	logic [1:0] RSet;
+        logic [1:0] ff_RSet;
+	logic [1:0] WSet;
+        logic [1:0] ff_WSet;
+	logic Wait_fr_mem_read;
+	logic [1:0] ff_canWrite;
+	int i;
+
+	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
 
@@ -133,6 +168,10 @@ module Set_Associative_Cache
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 			Wait_fr_mem_write <= UNSET_WAIT;
+			for(i=0;i<512;i++) begin
+				State[SET1][i][VALID_BIT]<=0;
+				State[SET2][i][VALID_BIT]<=0;
+			end
 		end
 		else begin
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read

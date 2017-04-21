@@ -16,7 +16,16 @@ module fetch
   input in_enable,
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
-  output out_ready
+  output out_ready,
+
+  output store_data_enable,
+  output [63:0] store_data_at_addr,
+  output [4095:0] flush_data,
+  input store_data_ready,
+  output addr_data_enable,
+  output [63:0] phy_addr,
+  input [4095:0] data,
+  input addr_data_ready
 );
   logic [ADDRESS_WIDTH-1:0] old_pc;
   logic [ADDRESS_WIDTH-1:0] pc;
@@ -24,7 +33,20 @@ module fetch
   logic cache_ready;
 
   // TODO: Instantiate Instruction Cache module
-
+  Set_Associative_Cache ICache(	.clk(clk),
+				.reset(reset),
+				.addr(pc),
+				.rd_wr_evict_flag(1),
+				.read_data(cache_instruction_bits),
+				.data_available(out_ready),//signal which fetch needs to wait on
+				.store_data_enable(store_data_enable),//just wired to the bus
+				.store_data_at_addr(store_data_at_addr),
+				.flush_data(flush_data),
+				.addr_data_enable(addr_data_enable),
+				.phy_addr(phy_addr),
+				.data(data),
+				.store_data_ready(store_data_ready),
+				.addr_data_ready(addr_data_ready));
   always_comb begin
     // PC MUX
     if(in_branch_taken_bool) begin
