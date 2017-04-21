@@ -72,6 +72,7 @@ module Set_Associative_Cache
 	logic Wait_fr_mem_read;
 	logic [1:0] ff_canWrite;
 	int i;
+	logic [4095:0] flush_data;
 
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
