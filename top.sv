@@ -161,7 +161,7 @@ module top
                   .in_wb_rd_value(going2wb_wbdata),
                   .in_wb_rd_regno(going2wb_rd_regno),
                   .in_wb_enable(wb_ready),
-                  .in_branch_taken_bool(),
+                  .in_branch_taken_bool(alu_branch_taken_bool),
                   .in_display_regs(display_regs),
                   .out_pcplus1(decode_pcplus1),
                   .out_rs1_value(decode_rs1_value),
