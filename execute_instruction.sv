@@ -240,7 +240,7 @@ endfunction
     casez (in_opcode_name)
     "sd":
     begin
-      assign instruction_name="sd";
+      assign n_alu_result = n_value1 + in_imm_value;
     end
     "beq":
     begin
@@ -268,15 +268,15 @@ endfunction
     end
     "sb":
     begin
-        assign instruction_name="sb";
+      assign n_alu_result = n_value1 + in_imm_value;
     end
     "sh":
     begin
-        assign instruction_name="sh";
+      assign n_alu_result = n_value1 + in_imm_value;
     end
     "sw":
     begin
-        assign instruction_name="sw";
+      assign n_alu_result = n_value1 + in_imm_value;
     end
     "slli":
     begin
@@ -377,27 +377,27 @@ endfunction
     "lb":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lb";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "lh":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lh";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "lw":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lw";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "lbu":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lbu";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "lhu":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lhu";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "mv":
     begin
@@ -436,12 +436,12 @@ endfunction
     "lwu":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="lwu";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "ld":
     begin
         assign n_mm_load_bool = 1;
-        assign instruction_name="ld";
+        assign n_alu_result = n_value1 + in_imm_value;
     end
     "addiw":
     begin

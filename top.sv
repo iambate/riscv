@@ -55,7 +55,7 @@ module top
   logic [BUS_DATA_WIDTH*8-1:0] data;
   logic [INSTRUCTION_WIDTH-1:0] fetch_instruction_bits;
   logic [ADDRESS_WIDTH-1:0] fetch_pc;
-  logic pipeline_enable;
+  logic fetch_ready;
   logic [ADDRESS_WIDTH-1:0] decode_pcplus1;
   logic [REGISTER_WIDTH-1:0] decode_rs1_value;
   logic [REGISTER_WIDTH-1:0] decode_rs2_value;
@@ -80,6 +80,7 @@ module top
   logic [REGISTER_WIDTH-1:0] mm_mdata;
   logic [REGISTER_WIDTH-1:0] mm_alu_result;
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
+  logic mm_ready;
   logic wb_ready;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
@@ -153,7 +154,8 @@ module top
 
   decode decode0 (.clk(clk),
                   .reset(reset),
-                  .in_decode_enable(pipeline_enable),
+                  // alu_ready is for stall against alu->mm data hazard
+                  .in_decode_enable(fetch_ready & mm_ready & alu_ready),
                   .in_pcplus1(fetch_pc),
                   .in_instruction_bits(fetch_instruction_bits),
                   .in_wb_rd_value(going2wb_wbdata),
@@ -173,7 +175,7 @@ module top
                   );
 
   execute_instruction ei0(.clk(clk),
-                          .in_enable(pipeline_enable & decode_ready),
+                          .in_enable(fetch_ready & mm_ready),
                           .in_rs1_value(decode_rs1_value),
                           .in_rs2_value(decode_rs2_value),
                           .in_imm_value(decode_imm_value),
@@ -204,7 +206,7 @@ module top
                           );
 
   mm mm0 (.clk(clk),
-          .in_enable(pipeline_enable),
+          .in_enable(fetch_ready),
           .in_alu_result(alu_alu_result),
           .in_rs2_value(alu_rs2_value),
           .in_rd_regno(alu_rd_regno),
@@ -215,12 +217,13 @@ module top
           .out_mm_load_bool(mm_mm_load_bool),
           .out_mdata(mm_mdata),
           .out_alu_result(mm_alu_result),
-          .out_rd_regno(mm_rd_regno)
+          .out_rd_regno(mm_rd_regno),
+          .out_ready(mm_ready)
           );
 
   writeback wb0(.clk(clk),
                 .reset(reset),
-                .in_enable(pipeline_enable),
+                .in_enable(fetch_ready & mm_ready),
                 .in_alu_result(mm_alu_result),
                 .in_mdata(mm_mdata),
                 .in_rd_regno(mm_rd_regno),
@@ -241,7 +244,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEVAPABEGIN:
         begin
@@ -249,7 +252,7 @@ module top
             assign va_pa_enable = 1;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEVAPAWAIT:
         begin
@@ -257,7 +260,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEADBEGIN:
         begin
@@ -265,7 +268,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 1;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEADWAIT:
         begin
@@ -273,7 +276,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEWDBEGIN:
         begin
@@ -281,7 +284,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 1;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEWDWAIT:
         begin
@@ -289,7 +292,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 0;
+            assign fetch_ready = 0;
         end
         STATEEXEC:
         begin
@@ -298,7 +301,7 @@ module top
             assign va_pa_enable = 0;
             assign addr_data_enable = 0;
             assign store_data_enable = 0;
-            assign pipeline_enable = 1;
+            assign fetch_ready = 1;
         end
         endcase
     end
@@ -327,106 +330,108 @@ module top
             end
             STATEEXEC:
             begin
-                counter <= ncounter;
-                $display();
-                case(counter)
-                0:
-                begin
-                  fetch_pc <= old_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
-                  $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
+                if(alu_ready) begin
+                  counter <= ncounter;
+                  $display();
+                  case(counter)
+                  0:
+                  begin
+                    fetch_pc <= old_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
+                    $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
+                  end
+                  1:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
+                    $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
+                  end
+                  2:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
+                    $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
+                  end
+                  3:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
+                    $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
+                  end
+                  4:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
+                    $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
+                  end
+                  5:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
+                    $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
+                  end
+                  6:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
+                    $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
+                  end
+                  7:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
+                    $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
+                  end
+                  8:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
+                    $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
+                  end
+                  9:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
+                    $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
+                  end
+                  10:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
+                    $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
+                  end
+                  11:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
+                    $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
+                  end
+                  12:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
+                    $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
+                  end
+                  13:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
+                    $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
+                  end
+                  14:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
+                    $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
+                  end
+                  15:
+                  begin
+                    fetch_pc <= fetch_pc + 4;
+                    fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
+                    $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
+                  end
+                  endcase
                 end
-                1:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
-                  $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
-                end
-                2:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
-                  $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
-                end
-                3:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
-                  $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
-                end
-                4:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
-                  $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
-                end
-                5:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
-                  $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
-                end
-                6:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
-                  $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
-                end
-                7:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
-                  $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
-                end
-                8:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
-                  $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
-                end
-                9:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
-                  $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
-                end
-                10:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
-                  $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
-                end
-                11:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
-                  $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
-                end
-                12:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
-                  $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
-                end
-                13:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
-                  $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
-                end
-                14:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
-                  $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
-                end
-                15:
-                begin
-                  fetch_pc <= fetch_pc + 4;
-                  fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
-                  $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
-                end
-                endcase
             end
             endcase
         end
