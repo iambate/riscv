@@ -1,5 +1,7 @@
 module Set_Associative_Cache
 #(
+	BUS_DATA_WIDTH = 64,
+  	BUS_TAG_WIDTH = 13,
 	STARTING_INDEX=0,
 	INVALIDATE_SIGNAL=3,
 	SET_WAIT=1,
@@ -31,7 +33,7 @@ module Set_Associative_Cache
 	output [1:0] canWrite,
 	output [SIZE-1:0] read_data,//F
 	output [1:0] data_available,//F
-
+	input [SIZE-1:0] write_data,
 	output bus_reqcyc,
   	output bus_respack,
   	output [BUS_DATA_WIDTH-1:0] bus_req,
@@ -51,10 +53,11 @@ module Set_Associative_Cache
 	logic [1:0] ff_data_available;
 	logic [SIZE-1:0] ff_read_data;
 	logic [1:0] flush_before_replacement;
+	logic [1:0] ff_flush_before_replacement;
 	logic [1:0] ff_Cache_block_invalidation;
-	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
-	logic [48:0] Tag[2][512];
-	logic [2:0] State[2][512];
+	logic Data[2][512][64/(SIZE/8)][SIZE-1:0];
+	logic Tag[2][512][48:0];
+	logic State[2][512][2:0];
 	logic [48:0] tag;
 	logic [8:0] index;
 	logic [5:0] block_offset;
@@ -151,7 +154,7 @@ module Set_Associative_Cache
 				end
 			end
 		end
-		else if(Wait_fr_mem_write=SET_WAIT) begin
+		else if(Wait_fr_mem_write==SET_WAIT) begin
 			
 			assign WSet=ff_WSet;
                         assign canWrite=ff_canWrite;
@@ -224,8 +227,8 @@ module Set_Associative_Cache
 		else begin
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 				if(data_available == CACHE_HIT) begin//not a miss
-					State[Rset][index][LRU_BIT]<= 0;
-					State[~Rset][index][LRU_BIT]<= 1;
+					State[RSet][index][LRU_BIT]<= 0;
+					State[~RSet][index][LRU_BIT]<= 1;
 				end
 				else if(data_available == CACHE_MISS) begin//miss
 					if(flush_before_replacement == FLUSHING_NEEDED) begin
@@ -242,7 +245,7 @@ module Set_Associative_Cache
 						//TODO:move to always_comb
 						store_data_at_addr <= ((Tag[RSet][index]<<15)+(index<<6));
 						if(SIZE == 32) begin
-                                                        flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[RSet][index][0];
+                                                        flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[RSet][index][0][31:0];
                                                         flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[RSet][index][1];
                                                         flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[RSet][index][2];
                                                         flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[RSet][index][3];
@@ -521,7 +524,7 @@ module Set_Associative_Cache
 					ff_CSet<=CSet;
 					ff_Cache_block_invalidation<=Cache_block_invalidation;
 				end
-				else if(flush_before_replacment==WAIT_FOR_FLUSH_COMPLETION) begin
+				else if(flush_before_replacement==WAIT_FOR_FLUSH_COMPLETION) begin
 					if(store_data_ready) begin
 						State[CSet][index][DIRTY_BIT]<=0;
 						State[CSet][index][VALID_BIT]<=0;

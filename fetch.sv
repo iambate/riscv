@@ -2,8 +2,11 @@
  * TODO:
  * Add instruction cache module and respective buslines
  */
+`include "Cache.sv"
 module fetch
 #(
+  BUS_DATA_WIDTH = 64,
+  BUS_TAG_WIDTH = 13,
   ADDRESS_WIDTH = 64,
   REGISTER_WIDTH = 64,
   INSTRUCTION_WIDTH = 32
@@ -77,6 +80,7 @@ module fetch
     end
   end
 */
+  end
   always_ff @ (posedge clk) begin
     if(reset) begin
       old_pc <= -1;
