@@ -166,6 +166,7 @@ input isU
 endfunction
 
   logic [INSTRUCTION_NAME_WIDTH-1:0] instruction_name;
+  logic [REGISTER_WIDTH-1:0] tmp;
   logic [REGISTER_WIDTH-1:0] n_value1;
   logic [REGISTER_WIDTH-1:0] n_value2;
   logic [REGISTER_WIDTH-1:0] n_alu_result;
@@ -244,27 +245,45 @@ endfunction
     end
     "beq":
     begin
-        assign instruction_name="beq";
+      if(n_value1 == n_value2) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "bne":
     begin
-        assign instruction_name="bne";
+      if(n_value1 != n_value2) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "blt":
     begin
-        assign instruction_name="blt";
+      if($signed(n_value1) < $signed(n_value2)) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "bge":
     begin
-        assign instruction_name="bge";
+      if($signed(n_value1) >= $signed(n_value2)) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "bltu":
     begin
-        assign instruction_name="bltu";
+      if($unsigned(n_value1) < $unsigned(n_value2)) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "bgue":
     begin
-        assign instruction_name="bgeu";
+      if($unsigned(n_value1) >= $unsigned(n_value2)) begin
+        assign n_branch_taken_bool = 1;
+	assign n_pc = in_pcplus1 + in_imm_value;
+      end
     end
     "sb":
     begin
@@ -358,13 +377,15 @@ endfunction
     end
     "auipc":
     begin
-      assign  n_pc = in_pcplus1 + in_imm_value;
-      // TODO: DO we update this variable?
-      // assign n_update_rd_bool = 1;
+      assign  n_pc = in_pcplus1 + in_imm_value - 4;
+      assign n_update_rd_bool = 1;
     end
     "jal":
     begin
-        assign instruction_name="jal";
+      assign n_alu_result = in_pcplus1;
+      assign n_branch_taken_bool = 1;
+      assign n_update_rd_bool = 1;
+      assign n_pc = in_pcplus1 - 4 + in_imm_value;
     end
     "ret":
     begin
@@ -372,7 +393,11 @@ endfunction
     end
     "jalr":
     begin
-        assign instruction_name="jalr";
+      assign n_alu_result = in_pcplus1;
+      assign n_branch_taken_bool = 1;
+      assign n_update_rd_bool = 1;
+      assign tmp = n_value1 + in_imm_value;
+      assign n_pc = tmp[REGISTER_WIDTH-1:1] << 1;
     end
     "lb":
     begin

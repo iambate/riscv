@@ -338,96 +338,112 @@ module top
                   begin
                     fetch_pc <= old_pc + 4;
                     fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
+                    $display("PC : %d", old_pc + 4);
                     $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
                   end
                   1:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
                   end
                   2:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
                   end
                   3:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
                   end
                   4:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
                   end
                   5:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
                   end
                   6:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
                   end
                   7:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
                   end
                   8:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
                   end
                   9:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
                   end
                   10:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
                   end
                   11:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
                   end
                   12:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
                   end
                   13:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
                   end
                   14:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
                   end
                   15:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
+                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
                   end
                   endcase
