@@ -31,14 +31,22 @@ module Set_Associative_Cache
 	output [1:0] canWrite,
 	output [SIZE-1:0] read_data,//F
 	output [1:0] data_available,//F
-	output store_data_enable,//F
-	output [63:0] store_data_at_addr,//F
-	output [4095:0] flush_data,//F
-	output addr_data_enable,//F
-	output [63:0] phy_addr,//F
-	input [4095:0] data,//F
-	input store_data_ready,//F
-	input addr_data_ready//F
+
+	output bus_reqcyc,
+  	output bus_respack,
+  	output [BUS_DATA_WIDTH-1:0] bus_req,
+  	output [BUS_TAG_WIDTH-1:0] bus_reqtag,
+  	input  bus_respcyc,
+  	input  bus_reqack,
+  	input  [BUS_DATA_WIDTH-1:0] bus_resp,
+  	input  [BUS_TAG_WIDTH-1:0] bus_resptag,
+	
+	input addr_data_abtr_grant,
+	output addr_data_abtr_reqcyc,
+	input store_data_abtr_grant,
+	output store_data_abtr_reqcyc,
+	output store_data_bus_busy,
+	output addr_data_bus_busy
 );
 	logic [1:0] ff_data_available;
 	logic [SIZE-1:0] ff_read_data;
@@ -65,6 +73,46 @@ module Set_Associative_Cache
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
+	addr_to_data addr_data(
+            .clk(clk),
+            .reset(reset),
+
+            .enable(addr_data_enable),
+
+            .abtr_grant(addr_data_abtr_grant),
+            .abtr_reqcyc(addr_data_abtr_reqcyc),
+            .main_bus_respcyc(bus_respcyc),
+            .main_bus_respack(bus_respack),
+            .main_bus_resp(bus_resp),
+            .main_bus_req(bus_req),
+            .main_bus_reqcyc(bus_reqcyc),
+            .main_bus_reqtag(bus_reqtag),
+
+            .addr(phy_addr),
+            .data(data),
+            .ready(addr_data_ready)
+                       );
+
+	store_data store_data_0(
+            .clk(clk),
+            .reset(reset),
+
+            .enable(store_data_enable),
+
+            .abtr_grant(store_data_abtr_grant),
+            .abtr_reqcyc(store_data_abtr_reqcyc),
+            .main_bus_respcyc(bus_respcyc),
+            .main_bus_respack(bus_respack),
+            .main_bus_resp(bus_resp),
+            .main_bus_req(bus_req),
+            .main_bus_reqcyc(bus_reqcyc),
+            .main_bus_reqack(bus_reqack),
+            .main_bus_reqtag(bus_reqtag),
+
+            .addr(store_data_at_addr),
+            .data(flush_data),
+            .ready(store_data_ready)
+                       );
 
 	always_comb begin
 		assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];

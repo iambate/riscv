@@ -11,21 +11,28 @@ module fetch
 (
   input clk,
   input reset,
-  input in_branch_taken_taken,
+  input in_branch_taken_bool,
   input [ADDRESS_WIDTH-1:0] in_target,
   input in_enable,
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
   output out_ready,
 
-  output store_data_enable,
-  output [63:0] store_data_at_addr,
-  output [4095:0] flush_data,
-  input store_data_ready,
-  output addr_data_enable,
-  output [63:0] phy_addr,
-  input [4095:0] data,
-  input addr_data_ready
+  output bus_reqcyc,
+  output bus_respack,
+  output [BUS_DATA_WIDTH-1:0] bus_req,
+  output [BUS_TAG_WIDTH-1:0] bus_reqtag,
+  input  bus_respcyc,
+  input  bus_reqack,
+  input  [BUS_DATA_WIDTH-1:0] bus_resp,
+  input  [BUS_TAG_WIDTH-1:0] bus_resptag,
+
+  input addr_data_abtr_grant,
+  output addr_data_abtr_reqcyc,
+  input store_data_abtr_grant,
+  output store_data_abtr_reqcyc,
+  output store_data_bus_busy,
+  output addr_data_bus_busy
 );
   logic [ADDRESS_WIDTH-1:0] old_pc;
   logic [ADDRESS_WIDTH-1:0] pc;
@@ -39,20 +46,27 @@ module fetch
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(out_ready),//signal which fetch needs to wait on
-				.store_data_enable(store_data_enable),//just wired to the bus
-				.store_data_at_addr(store_data_at_addr),
-				.flush_data(flush_data),
-				.addr_data_enable(addr_data_enable),
-				.phy_addr(phy_addr),
-				.data(data),
-				.store_data_ready(store_data_ready),
-				.addr_data_ready(addr_data_ready));
+        			.bus_reqcyc(bus_reqcyc),
+        			.bus_respack(bus_respack),
+        			.bus_req(bus_req),
+        			.bus_reqtag(bus_reqtag),
+        			.bus_respcyc(bus_respcyc),
+        			.bus_reqack(bus_reqack),
+        			.bus_resp(bus_resp),
+        			.bus_resptag(bus_resptag),
+        			.addr_data_abtr_grant(addr_data_abtr_grant),
+        			.addr_data_abtr_reqcyc(addr_data_abtr_reqcyc),
+        			.store_data_abtr_grant(store_data_abtr_grant),
+        			.store_data_abtr_reqcyc(store_data_abtr_reqcyc),
+        			.store_data_bus_busy(store_data_bus_busy),
+        			.addr_data_bus_busy(addr_data_bus_busy)
+				);
   always_comb begin
     // PC MUX
     if(in_branch_taken_bool) begin
       assign pc = in_target;
     end else begin
-      assign pc = old_pc + 1;
+      assign pc = old_pc + 4;
     end
 
     // Decide to stall or not
@@ -72,7 +86,7 @@ module fetch
       $display("instruction bits %d", cache_instruction_bits);
       $display("this pc %d", pc);
       out_instruction_bits <= cache_instruction_bits;
-      out_pcplus1 <= pc + 1;
+      out_pcplus1 <= pc + 4;
       old_pc <= pc;
     end
   end
