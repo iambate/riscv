@@ -68,7 +68,7 @@ module fetch
     end else begin
       assign pc = old_pc + 4;
     end
-
+/*
     // Decide to stall or not
     if(cache_ready) begin
       assign out_ready = 1;
@@ -76,7 +76,7 @@ module fetch
       assign out_ready = 0;
     end
   end
-
+*/
   always_ff @ (posedge clk) begin
     if(reset) begin
       old_pc <= -1;

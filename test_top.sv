@@ -82,6 +82,7 @@ module top
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
   logic mm_ready;
   logic wb_ready;
+  logic out_ready;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
   logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
@@ -105,9 +106,9 @@ module top
 		//	.in_branch_taken_bool(in_branch_taken_bool),
 		//	.in_target(in_target),
 			.in_enable(1),
-			.out_pcplus1(),
+//			.out_pcplus1(),
 			.out_instruction_bits(fetch_instruction_bits),
-			.out_ready(),
+			.out_ready(out_ready),
 			.bus_reqcyc(bus_reqcyc),
 			.bus_respack(bus_respack),
 			.bus_req(bus_req),
