@@ -103,7 +103,7 @@ module top
 
   fetch fetch_stage(	.clk(clk),
 			.reset(reset),
-		//	.in_branch_taken_bool(in_branch_taken_bool),
+			.in_branch_taken_bool(0),
 		//	.in_target(in_target),
 			.in_enable(1),
 //			.out_pcplus1(),

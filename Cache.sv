@@ -55,9 +55,9 @@ module Set_Associative_Cache
 	logic [1:0] flush_before_replacement;
 	logic [1:0] ff_flush_before_replacement;
 	logic [1:0] ff_Cache_block_invalidation;
-	logic Data[2][512][64/(SIZE/8)][SIZE-1:0];
-	logic Tag[2][512][48:0];
-	logic State[2][512][2:0];
+	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
+	logic [48:0] Tag[2][512];
+	logic [2:0] State[2][512];
 	logic [48:0] tag;
 	logic [8:0] index;
 	logic [5:0] block_offset;
@@ -73,7 +73,7 @@ module Set_Associative_Cache
 	logic [1:0] ff_canWrite;
 	int i;
 	logic [4095:0] flush_data;
-
+	 logic [4095:0] data;
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
@@ -220,10 +220,12 @@ module Set_Associative_Cache
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 			Wait_fr_mem_write <= UNSET_WAIT;
-			for(i=0;i<512;i++) begin
-				State[SET1][i][VALID_BIT]<=0;
-				State[SET2][i][VALID_BIT]<=0;
-			end
+//			for(i=0;i<512;i++) begin
+			//	State[SET1][i][VALID_BIT]<=0;
+			//	State[SET2][i][VALID_BIT]<=0;
+//				$display("valid bit %d %d\n",State[SET1][i][VALID_BIT],State[SET2][i][VALID_BIT]);
+//			end
+			//TODO:init valid bit
 		end
 		else begin
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
@@ -307,13 +309,15 @@ module Set_Associative_Cache
 				end
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
+						$display("GSAHA data is ready\n");
+						$display("data arrived %x\n",data[(SIZE*0)+(SIZE-1):(SIZE*0)]);
 						Wait_fr_mem_read <= UNSET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 						if(SIZE == 32) begin
-							Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-                                                        Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-                                                        Data[RSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-                                                        Data[RSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
+							Data[RSet][index][0][31:0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
+                                                        Data[RSet][index][1][31:0] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
+                                                        Data[RSet][index][2][31:0] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
+                                                        Data[RSet][index][3][31:0] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
                                                         Data[RSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
                                                         Data[RSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
                                                         Data[RSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
