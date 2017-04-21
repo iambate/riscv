@@ -11,16 +11,14 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <ncurses.h>
-#include <syscall.h>
+#include <set>
 #include "system.h"
 #include "Vtop.h"
-//#define DEBUG
+
 using namespace std;
 
-/**
- * Bus request tag fields
- */
 enum {
+    INVAL  = 0b100,
     READ   = 0b1,
     WRITE  = 0b0,
     MEMORY = 0b0001,
@@ -35,45 +33,47 @@ enum {
 
 static __inline__ u_int64_t cse502_be64toh(u_int64_t __x) { return (((u_int64_t)be32toh(__x & (u_int64_t)0xFFFFFFFFULL)) << 32) | ((u_int64_t)be32toh((__x & (u_int64_t)0xFFFFFFFF00000000ULL) >> 32)); }
 
-/** Current simulation time */
-uint64_t main_time = 0;
-const int ps_per_clock = 500;
-double sc_time_stamp() {
-    return main_time;
-}
-
-static long ecall_ram = NULL;
-static long ecall_brk = NULL;
-static unsigned ecall_ramsize = 0;
+System* System::sys;
 
 System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, char* argv[], int ps_per_clock)
-    : top(top), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0)
+    : top(top), ps_per_clock(ps_per_clock), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0), ticks(0), ecall_brk(0)
 {
-    ptbr = 4096;
-    ram = (char*)malloc(ramsize);
-    assert(ram);
-    vector< bitset<1> >memmap(ramsize/PAGE_SIZE);
-    memmap[ptbr/PAGE_SIZE] = true;
-    init_page_table(ptbr);
-    top->stackptr = (uint64_t)ram + ramsize - 4*MEGA;
+    sys = this;
 
-    uint64_t* argvp = (uint64_t*)top->stackptr + 1;
-    argvp[-1] = argc;
-    char* argvtgt = (char*)&argvp[argc];
+    char* HAVETLB = getenv("HAVETLB");
+    use_virtual_memory = HAVETLB && (toupper(*HAVETLB) == 'Y');
+
+    string ram_fn = string("/vtop-system-")+to_string(getpid());
+    ram_fd = shm_open(ram_fn.c_str(), O_RDWR|O_CREAT|O_EXCL, 0600);
+    assert(ram_fd != -1);
+    assert(shm_unlink(ram_fn.c_str()) == 0);
+    assert(ftruncate(ram_fd, ramsize) == 0);
+    ram = (char*)mmap(NULL, ramsize, PROT_READ|PROT_WRITE, MAP_SHARED, ram_fd, 0);
+    assert(ram != MAP_FAILED);
+    if (!use_virtual_memory) ram_virt = ram;
+    else ram_virt = (char*)mmap(NULL, ramsize, PROT_NONE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    assert(ram_virt != MAP_FAILED);
+    top->satp = get_phys_page();
+    top->stackptr = ramsize - 4*MEGA;
+    virt_to_phy(top->stackptr - PAGE_SIZE); // allocate stack page
+
+    uint64_t* argvp = (uint64_t*)(ram+virt_to_phy(top->stackptr));
+    argvp[0] = argc;
+    uint64_t dst = top->stackptr + 8/*argc*/ + 8*argc;
     for(int arg = 0; arg < argc; ++arg) {
-#ifdef DEBUG
-	cout << "argvtgt: " << argvtgt << endl;
-#endif
-        argvp[arg] = argvtgt - ram;
-        argvtgt = 1+stpcpy(argvtgt, argv[arg]);
+        argvp[arg+1] = dst;
+        char* src = argv[arg];
+        do {
+            virt_to_phy(dst); // make sure phys page is allocated
+            ram_virt[dst] = *src;
+            dst++;
+        } while(*(src++));
     }
 
     // load the program image
     if (ramelf) top->entry = load_elf(ramelf);
 
-    ecall_ram = (long)ram;
-    ecall_ramsize = ramsize;
-    ecall_brk = (long)ram + max_elf_addr;
+    ecall_brk = (long long)ram + max_elf_addr;
 
     // create the dram simulator
     dramsim = DRAMSim::getMemorySystemInstance("DDR2_micron_16M_8b_x8_sg3E.ini", "system.ini", "../dramsim2", "dram_result", ramsize / MEGA);
@@ -84,7 +84,8 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
 }
 
 System::~System() {
-    free(ram);
+    assert(munmap(ram, ramsize) == 0);
+    assert(close(ram_fd) == 0);
 
     if (show_console) {
         sleep(2);
@@ -120,7 +121,7 @@ void System::tick(int clk) {
         return;
     }
 
-    if (main_time % (ps_per_clock * 1000) == 0) {
+    if (ticks % (ps_per_clock * 1000) == 0) {
         int ch = getch();
         if (ch != ERR) {
             if (!(interrupts & (1<<IRQ_KBD))) {
@@ -150,7 +151,6 @@ void System::tick(int clk) {
             switch(cmd) {
             case MEMORY:
                 *((uint64_t*)(&ram[xfer_addr + (8-rx_count)*8])) = top->bus_req;
-                cout << "Write data to memory location " << std::dec << xfer_addr + (8-rx_count)*8 << " and data is " << std::hex <<  top->bus_req << endl;
                 break;
             case MMIO:
                 assert(xfer_addr < ramsize);
@@ -162,7 +162,7 @@ void System::tick(int clk) {
                             int val = (cse502_be64toh(top->bus_req) >> (8*shift)) & 0xffff;
                             //cerr << "val=" << std::hex << val << endl;
                             attron(val & ~0xff);
-                            mvaddch(screenpos / 160, screenpos % 160 + shift/2, val & 0xff );
+                            mvaddch(screenpos / 160, screenpos % 160 + shift/2, val & 0xff);
                         }
                         refresh();
                     }
@@ -184,7 +184,10 @@ void System::tick(int clk) {
         case MEMORY:
             xfer_addr = top->bus_req & ~0x3fULL;
             //assert(!(xfer_addr & 7));
-            if (addr_to_tag.find(xfer_addr)!=addr_to_tag.end()) {
+            if (xfer_addr > (ramsize - 64)) {
+                cerr << "Invalid 64-byte access, address " << std::hex << xfer_addr << " is beyond end of memory at " << ramsize << endl;
+                assert(0);
+            } else if (addr_to_tag.find(xfer_addr)!=addr_to_tag.end()) {
                 cerr << "Access for " << std::hex << xfer_addr << " already outstanding. Ignoring..." << endl;
             } else {
                 assert(
@@ -215,10 +218,6 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
     assert(tag != addr_to_tag.end());
     uint64_t orig_addr = tag->second.first;
     for(int i = 0; i < 64; i += 8) {
-#ifdef DEBUG
-        //cerr << "fill data from " << std::hex << (address+(i&63)) <<  ": " << tx_queue.rbegin()->first << " on tag " << tag->second << endl;
-        cerr << "fill data from " << std::dec << ((orig_addr&(~63))+((orig_addr+i)&63)) <<  ": " << std::hex << *((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])) << " on tag " << tag->second.second << endl;
-#endif
         tx_queue.push_back(make_pair(*((uint64_t*)(&ram[((orig_addr&(~63))+((orig_addr+i)&63))])),tag->second.second));
     }
     addr_to_tag.erase(tag);
@@ -227,149 +226,91 @@ void System::dram_read_complete(unsigned id, uint64_t address, uint64_t clock_cy
 void System::dram_write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
 }
 
-uint64_t System::get_random_page(){
-	int page_no;
-	// This logic could be improved but then we (GIGA/PAGE_SIZE) space
-	// Hence sticking to this logic since the number of pages used will be less for us
-	do{
-		page_no = rand()%(ramsize/PAGE_SIZE);
-	}while(memmap[page_no]);
-	memmap[page_no] = true;
-	return page_no;
+void System::invalidate(const uint64_t phy_addr) {
+    System::sys->tx_queue.push_front(make_pair(phy_addr, INVAL << 13));
 }
 
-void System::init_page_table(uint64_t table_addr){
-	for(int i=0;i<1024;i++) {
-		*((__uint64_t*)(&ram[table_addr+i*8])) = 0;
-	}
-#ifdef DEBUG
-	cout << "Initialize page table addr: " << std::dec << table_addr << endl;
-#endif
+uint64_t System::get_phys_page() {
+    int page_no;
+    do {
+        page_no = rand()%(ramsize/PAGE_SIZE);
+    } while(phys_page_used[page_no]);
+    phys_page_used[page_no] = true;
+    return page_no;
 }
 
-uint64_t System::get_new_pte(uint64_t base_addr, int vpn, bool isleaf){
-	__uint64_t addr = base_addr + vpn*8;
-	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
-	__uint64_t page_no=0;
-	if(!(pte&VALID_PAGE)){
-		page_no = get_random_page();
-		if(isleaf)
-			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE;
-		else
-			(*(__uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
-		pte = (*(__uint64_t*)&ram[addr]);
-#ifdef DEBUG
-		cout << "Addr:" << std::dec << addr << endl;
-		cout << "Initialized page no" << std::dec << page_no << endl;
-#endif
-		init_page_table(page_no<<12);
-	} else {
-		page_no = pte >> 10;
-	}
-#ifdef DEBUG
-	cout << "vpn: " << vpn <<endl;
-	cout << "page_no: " << page_no << endl;
-	cout << "PTE: " << pte << endl;
-#endif
-	if(page_no>=262144)
-		exit(-1);
-	return pte;
+#define VM_DEBUG 0
+
+uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocated) {
+    uint64_t addr = base_addr + vpn*8;
+    uint64_t pte = *(uint64_t*) & ram[addr];
+    uint64_t page_no = pte >> 10;
+    if(!(pte & VALID_PAGE)) {
+        page_no = get_phys_page();
+        if (isleaf)
+            (*(uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE;
+        else
+            (*(uint64_t*)&ram[addr]) = (page_no<<10) | VALID_PAGE_DIR;
+        pte = *(uint64_t*) & ram[addr];
+        if (VM_DEBUG) {
+            cout << "Addr:" << std::dec << addr << endl;
+            cout << "Initialized page no " << std::dec << page_no << endl;
+        }
+        allocated = isleaf;
+    } else {
+        allocated = false;
+    }
+    assert(page_no < ramsize/PAGE_SIZE);
+    return pte;
 }
 
-// function for testing
-uint64_t System::get_old_pte(uint64_t base_addr, int vpn){
-	__uint64_t addr = base_addr + vpn*8;
-	__uint64_t pte = (*(__uint64_t*)&ram[addr]);
-	if(!(pte&VALID_PAGE)){
-		cerr << pte <<" invalid pte" <<endl;
-		return 0;
-	}
-	return pte;
+uint64_t System::virt_to_phy(const uint64_t virt_addr) {
+
+    if (!use_virtual_memory) return virt_addr;
+
+    uint64_t phy_offset, tmp_virt_addr;
+    uint64_t pt_base_addr = top->satp;
+    bool allocated;
+    phy_offset = virt_addr & (PAGE_SIZE-1);
+    tmp_virt_addr = virt_addr >> 12;
+    for(int i = 0; i < 4; i++) {
+        int vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
+        uint64_t pte = get_pte(pt_base_addr, vpn, i == 3, allocated);
+        pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
+    }
+    if (use_virtual_memory && allocated) {
+        void* new_virt = ram_virt + (virt_addr & ~(PAGE_SIZE-1));
+        assert(mmap(new_virt, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, ram_fd, pt_base_addr) == new_virt);
+    }
+    return (pt_base_addr | phy_offset);
 }
 
-uint64_t System::virt_to_new_phy(uint64_t virt_addr) {
-	int vpn;
-	__uint64_t pte, phy_offset, tmp_virt_addr;
-	__uint64_t pt_base_addr = ptbr;
-	assert(ptbr==4096);
-	phy_offset = virt_addr & 0x0fff;
-	tmp_virt_addr = virt_addr >> 12;
-	for(int i=0;i<4;i++) {
-		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
-		pte = get_new_pte(pt_base_addr, vpn, i == 3);
-		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
-	}
-	return (pt_base_addr) | phy_offset;
+uint64_t System::load_elf_parts(int fd, size_t part_size, const uint64_t virt_addr) {
+    uint64_t phy_addr = virt_to_phy(virt_addr);
+    if (VM_DEBUG) cout << "Virtual addr: " << std::hex << virt_addr << " Physical addr: " << phy_addr << endl;
+    size_t len = read(fd, (void*)(ram + phy_addr/* addr */), part_size);
+    assert(len == part_size);
+    return (virt_addr + part_size);
 }
 
-// function for testing
-uint64_t System::virt_to_old_phy(uint64_t virt_addr) {
-	int vpn;
-	__uint64_t pte, phy_offset, tmp_virt_addr;
-	__uint64_t pt_base_addr = ptbr;
-	phy_offset = virt_addr & 0x0fff;
-	tmp_virt_addr = virt_addr >> 12;
-	for(int i=0;i<4;i++) {
-		vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
-		pte = get_old_pte(pt_base_addr, vpn);
-		pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
-	}
-	return (pt_base_addr) | phy_offset;
+void System::load_segment(const int fd, const size_t header_size, uint64_t virt_addr) {
+    int total_full_pages = header_size/PAGE_SIZE;
+    size_t part_size = part_size = (((virt_addr >> 12) + 1) << 12) - virt_addr;
+    size_t last_page_len = header_size % PAGE_SIZE;
+    if (VM_DEBUG) {
+        cout << "Total full pages: " << total_full_pages << endl;
+        cout << "Total size: " << header_size << endl;
+        cout << "Total last page size: " << last_page_len << endl;
+    }
+    for(int i = 0; i < total_full_pages; i++) {
+      virt_addr = load_elf_parts(fd, part_size, virt_addr);
+      part_size = 4096;
+      assert(virt_addr%4096 == 0);
+    }
+    if(last_page_len > 0) {
+      virt_addr = load_elf_parts(fd, last_page_len, virt_addr);
+    }
 }
-
-
-uint64_t System::load_elf_parts(int fileDescriptor, size_t part_size, uint64_t virt_addr){
-	uint64_t phy_addr, tmp_phy_addr;
-	size_t len;
-	phy_addr = virt_to_new_phy(virt_addr);
-	// initialize the memory segment to zero
-	memset(ram + phy_addr, 0, part_size);
-	tmp_phy_addr = virt_to_old_phy(virt_addr);
-	assert(phy_addr == tmp_phy_addr);
-#ifdef DEBUG
-	cout << "part size: " << std::dec << part_size << endl;
-	cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << std::dec << phy_addr << endl;
-#endif
-	len = read(fileDescriptor, (void*)(ram + phy_addr/* addr */), part_size);
-#ifdef DEBUG
-	cout << "part size: " << std::dec << part_size << endl;
-	//TODO: remove
-	int j =0;
-	for(int i=phy_addr; j< part_size; i+=4){
-		cout << std::dec << virt_addr+j << ": " << std::hex <<*((uint32_t*)&ram[i]) << endl;
-		j+=4;
-	}
-#endif
-	assert(len == part_size);
-	virt_addr += part_size;
-	return virt_addr;
-}
-
-
-void System::load_segment(int fileDescriptor, size_t header_size, uint64_t start_addr){
-	int total_full_pages = header_size/PAGE_SIZE;
-	uint64_t virt_addr=start_addr;
-	size_t part_size=PAGE_SIZE;
-	if(virt_addr%PAGE_SIZE!=0){
-		part_size = (((virt_addr >> 12) + 1) << 12)-virt_addr;
-	}
-	size_t last_page_len = header_size % PAGE_SIZE;
-#ifdef DEBUG
-	cout << "part size: " << std::dec << part_size << endl;
-	cout << "Total full pages: " << total_full_pages << endl;
-	cout << "Total size: " << header_size << endl;
-	cout << "Total last page size: " << last_page_len << endl;
-#endif
-	for(int i = 0; i < total_full_pages; i++) {
-	  virt_addr = load_elf_parts(fileDescriptor, part_size, virt_addr);
-	  part_size = 4096;
-	  assert(virt_addr%4096==0);
-	}
-	if(last_page_len > 0) {
-	  virt_addr = load_elf_parts(fileDescriptor, last_page_len, virt_addr);
-	}
-}
-
 
 uint64_t System::load_elf(const char* filename) {
 
@@ -380,11 +321,11 @@ uint64_t System::load_elf(const char* filename) {
     }
 
     // open the elf file
-    int fileDescriptor = open(filename, O_RDONLY);
-    assert(fileDescriptor != -1);
+    int fd = open(filename, O_RDONLY);
+    assert(fd != -1);
 
     // start reading the file
-    Elf* elf = elf_begin(fileDescriptor, ELF_C_READ, NULL);
+    Elf* elf = elf_begin(fd, ELF_C_READ, NULL);
     if (NULL == elf) {
         cerr << "Could not initialize the ELF data structures" << endl;
         exit(-1);
@@ -400,19 +341,19 @@ uint64_t System::load_elf(const char* filename) {
 
     if (!elf_header.e_phnum) { // loading simple object file
         Elf_Scn* scn = NULL;
-        while ((scn = elf_nextscn(elf, scn)) != NULL) {
+        while((scn = elf_nextscn(elf, scn)) != NULL) {
             GElf_Shdr shdr;
             gelf_getshdr(scn, &shdr);
             if (shdr.sh_type != SHT_PROGBITS) continue;
             if (!(shdr.sh_flags & SHF_EXECINSTR)) continue;
 
             // copy segment content from file to memory
-            assert(-1 != lseek(fileDescriptor, shdr.sh_offset, SEEK_SET));
-	    load_segment(fileDescriptor, shdr.sh_size, 0);
+            assert(-1 != lseek(fd, shdr.sh_offset, SEEK_SET));
+            load_segment(fd, shdr.sh_size, 0);
             break; // just load the first one
         }
     } else {
-        for (unsigned phn = 0; phn < elf_header.e_phnum; phn++) {
+        for(unsigned phn = 0; phn < elf_header.e_phnum; phn++) {
             GElf_Phdr phdr;
             gelf_getphdr(elf, phn, &phdr);
 
@@ -432,20 +373,11 @@ uint64_t System::load_elf(const char* filename) {
                     << endl;
 
                 // copy segment content from file to memory
-                assert(-1 != lseek(fileDescriptor, phdr.p_offset, SEEK_SET));
-		load_segment(fileDescriptor, phdr.p_memsz, phdr.p_vaddr);
+                assert(-1 != lseek(fd, phdr.p_offset, SEEK_SET));
+                load_segment(fd, phdr.p_memsz, phdr.p_vaddr);
 
                 if (max_elf_addr < (phdr.p_vaddr + phdr.p_filesz))
                     max_elf_addr = (phdr.p_vaddr + phdr.p_filesz);
-
-                cerr << "Loaded ELF header #" << phn << "."
-                    << " offset: "   << phdr.p_offset
-                    << " filesize: " << phdr.p_filesz
-                    << " memsize: "  << phdr.p_memsz
-                    << " vaddr: "    << std::hex << phdr.p_vaddr << std::dec
-                    << " paddr: "    << std::hex << phdr.p_paddr << std::dec
-                    << " align: "    << phdr.p_align
-                    << endl;
                 break;
             }
             case PT_NOTE:
@@ -464,302 +396,6 @@ uint64_t System::load_elf(const char* filename) {
         max_elf_addr = ((max_elf_addr + 4095) / 4096) * 4096;
     }
     // finalize
-    close(fileDescriptor);
+    close(fd);
     return elf_header.e_entry /* entry point */;
-}
-
-extern "C" {
-
-#define ECALL_DEBUG 0
-
-    void do_ecall(long long a7, long long a0, long long a1, long long a2, long long a3, long long a4, long long a5, long long a6, long long* a0ret) {
-        switch(a7) {
-
-        case __NR_munmap:
-            *a0ret = 0; // don't bother unmapping
-            return;
-        case __NR_brk:
-            if (ECALL_DEBUG) cerr << "Allocate " << a0 << " bytes at 0x" << std::hex << ecall_brk << std::dec << endl;
-            *a0ret = ecall_brk;
-            ecall_brk += a0;
-            return;
-
-        case __NR_mmap:
-            assert(a0 == 0 && (a3 & MAP_ANONYMOUS)); // only support ANONYMOUS mmap with NULL argument
-            return do_ecall(__NR_brk,a1,0,0,0,0,0,0,a0ret);
-
-#define ECALL_OFFSET(v) do { (v) += ecall_ram; assert((v) < (ecall_ram + ecall_ramsize)); } while(0)
-        case __NR_open:
-        case __NR_poll:
-        case __NR_access:
-        case __NR_pipe:
-        case __NR_uname:
-        case __NR_shmdt:
-        case __NR_truncate:
-        case __NR_getcwd:
-        case __NR_chdir:
-        case __NR_mkdir:
-        case __NR_rmdir:
-        case __NR_creat:
-        case __NR_unlink:
-        case __NR_chmod:
-        case __NR_chown:
-        case __NR_lchown:
-        case __NR_sysinfo:
-        case __NR_times:
-        case __NR_rt_sigpending:
-        case __NR_rt_sigsuspend:
-        case __NR_mknod:
-        case __NR__sysctl:
-        case __NR_adjtimex:
-        case __NR_chroot:
-        case __NR_acct:
-        case __NR_umount2:
-        case __NR_swapon:
-        case __NR_swapoff:
-        case __NR_sethostname:
-        case __NR_setdomainname:
-        case __NR_delete_module:
-        case __NR_time:
-        case __NR_set_tid_address:
-        case __NR_mq_unlink:
-        case __NR_set_robust_list:
-        case __NR_pipe2:
-        case __NR_perf_event_open:
-        case __NR_getrandom:
-        case __NR_memfd_create:
-            ECALL_OFFSET(a0);
-            break;
-
-        case __NR_read:
-        case __NR_write:
-        case __NR_fstat:
-        case __NR_pread64:
-        case __NR_pwrite64:
-        case __NR_readv:
-        case __NR_writev:
-        case __NR_shmat:
-        case __NR_getitimer:
-        case __NR_connect:
-        case __NR_sendmsg:
-        case __NR_recvmsg:
-        case __NR_bind:
-        case __NR_semop:
-        case __NR_msgsnd:
-        case __NR_msgrcv:
-        case __NR_getdents:
-        case __NR_getrlimit:
-        case __NR_getrusage:
-        case __NR_syslog:
-        case __NR_getgroups:
-        case __NR_setgroups:
-        case __NR_ustat:
-        case __NR_fstatfs:
-        case __NR_sched_setparam:
-        case __NR_sched_getparam:
-        case __NR_sched_rr_get_interval:
-        case __NR_modify_ldt:
-        case __NR_setrlimit:
-        case __NR_iopl:
-        case __NR_flistxattr:
-        case __NR_fremovexattr:
-        case __NR_io_setup:
-        case __NR_getdents64:
-        case __NR_timer_gettime:
-        case __NR_clock_settime:
-        case __NR_clock_gettime:
-        case __NR_clock_getres:
-        case __NR_epoll_wait:
-        case __NR_set_mempolicy:
-        case __NR_mq_notify:
-        case __NR_inotify_add_watch:
-        case __NR_openat:
-        case __NR_mkdirat:
-        case __NR_mknodat:
-        case __NR_fchownat:
-        case __NR_unlinkat:
-        case __NR_fchmodat:
-        case __NR_faccessat:
-        case __NR_vmsplice:
-        case __NR_signalfd:
-        case __NR_timerfd_gettime:
-        case __NR_signalfd4:
-        case __NR_preadv:
-        case __NR_pwritev:
-        case __NR_clock_adjtime:
-        case __NR_sendmmsg:
-        case __NR_finit_module:
-        case __NR_sched_setattr:
-        case __NR_sched_getattr:
-        case __NR_bpf:
-            ECALL_OFFSET(a1);
-            break;
-
-        case __NR_stat:
-        case __NR_lstat:
-        case __NR_nanosleep:
-        case __NR_rename:
-        case __NR_link:
-        case __NR_symlink:
-        case __NR_readlink:
-        case __NR_gettimeofday:
-        case __NR_sigaltstack:
-        case __NR_utime:
-        case __NR_statfs:
-        case __NR_pivot_root:
-        case __NR_settimeofday:
-        case __NR_listxattr:
-        case __NR_llistxattr:
-        case __NR_removexattr:
-        case __NR_lremovexattr:
-        case __NR_utimes:
-        case __NR_get_mempolicy:
-            ECALL_OFFSET(a0);
-            ECALL_OFFSET(a1);
-            break;
-
-        case __NR_rt_sigaction:
-        case __NR_rt_sigprocmask:
-        case __NR_setitimer:
-        case __NR_accept:
-        case __NR_getsockname:
-        case __NR_getpeername:
-        case __NR_fsetxattr:
-        case __NR_fgetxattr:
-        case __NR_io_cancel:
-        case __NR_timer_create:
-        case __NR_mq_getsetattr:
-        case __NR_futimesat:
-        case __NR_newfstatat:
-        case __NR_readlinkat:
-        case __NR_utimensat:
-        case __NR_accept4:
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a2);
-            break;
-
-        case __NR_setresuid:
-        case __NR_getresuid:
-        case __NR_getresgid:
-        case __NR_rt_sigtimedwait:
-        case __NR_setxattr:
-        case __NR_lsetxattr:
-        case __NR_getxattr:
-        case __NR_lgetxattr:
-        case __NR_add_key:
-        case __NR_request_key:
-        case __NR_getcpu:
-            ECALL_OFFSET(a0);
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a2);
-            break;
-
-        case __NR_symlinkat:
-            ECALL_OFFSET(a0);
-            ECALL_OFFSET(a2);
-            break;
-
-        case __NR_futex:
-            ECALL_OFFSET(a0);
-            ECALL_OFFSET(a3);
-            ECALL_OFFSET(a4);
-            break;
-
-        case __NR_select:
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a2);
-            ECALL_OFFSET(a3);
-            ECALL_OFFSET(a4);
-            break;
-
-        case __NR_renameat:
-        case __NR_linkat:
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a3);
-            break;
-
-        case __NR_recvmmsg:
-        case __NR_sendto:
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a4);
-            break;
-
-        case __NR_recvfrom:
-            ECALL_OFFSET(a1);
-            ECALL_OFFSET(a4);
-            ECALL_OFFSET(a5);
-            break;
-
-        case __NR_sendfile:
-            ECALL_OFFSET(a2);
-            break;
-
-        case __NR_socketpair:
-            ECALL_OFFSET(a3);
-            break;
-
-        case __NR_setsockopt:
-            ECALL_OFFSET(a3);
-            break;
-
-        case __NR_getsockopt:
-            ECALL_OFFSET(a3);
-            ECALL_OFFSET(a4);
-            break;
-
-        case __NR_clone:
-        case __NR_get_robust_list:
-        case __NR_execve:
-        case __NR_mincore:
-        case __NR_shmctl:
-        case __NR_wait4:
-        case __NR_msgctl:
-        case __NR_rt_sigqueueinfo:
-        case __NR_sched_setscheduler:
-        case __NR_arch_prctl:
-        case __NR_mount:
-        case __NR_reboot:
-        case __NR_init_module:
-        case __NR_quotactl:
-        case __NR_sched_setaffinity:
-        case __NR_sched_getaffinity:
-        case __NR_io_getevents:
-        case __NR_io_submit:
-        case __NR_semtimedop:
-        case __NR_timer_settime:
-        case __NR_clock_nanosleep:
-        case __NR_epoll_ctl:
-        case __NR_mbind:
-        case __NR_mq_open:
-        case __NR_mq_timedsend:
-        case __NR_mq_timedreceive:
-        case __NR_kexec_load:
-        case __NR_waitid:
-        case __NR_migrate_pages:
-        case __NR_pselect6:
-        case __NR_ppoll:
-        case __NR_splice:
-        case __NR_move_pages:
-        case __NR_epoll_pwait:
-        case __NR_timerfd_settime:
-        case __NR_rt_tgsigqueueinfo:
-        case __NR_prlimit64:
-        case __NR_name_to_handle_at:
-        case __NR_open_by_handle_at:
-        case __NR_process_vm_readv:
-        case __NR_process_vm_writev:
-        case __NR_renameat2:
-        case __NR_seccomp:
-        case __NR_kexec_file_load:
-            cerr << "Unsupported syscall " << a7 << endl;
-            assert(0);
-
-        default:
-            if (ECALL_DEBUG) cerr << "Default syscall " << a7 << endl;
-            break;
-        }
-        if (ECALL_DEBUG) cerr << "Calling syscall " << a7 << endl;
-        *a0ret = syscall(a7, a0, a1, a2, a3, a4, a5, a6);
-    }
-
 }

@@ -279,6 +279,7 @@ module Set_Associative_Cache
 						Wait_fr_mem_read <=UNSET_WAIT;
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
+						$display("Requesting %d: ", starting_addr_of_block);
 						addr_data_enable <= 1;
 						phy_addr <= starting_addr_of_block;
 						Wait_fr_mem_read <= SET_WAIT;

@@ -19,6 +19,7 @@ module top
   // 64-bit address of the program entry point
   input  [63:0] entry,
   input  [63:0] stackptr,
+  input  [63:0] satp,
   
   // interface to connect to the bus
   output bus_reqcyc,

@@ -83,7 +83,7 @@ module fetch
   end
   always_ff @ (posedge clk) begin
     if(reset) begin
-      old_pc <= -1;
+      old_pc <= -4;
       out_instruction_bits <= 0;
       out_pcplus1 <= 0;
     end else if(out_ready && in_enable) begin

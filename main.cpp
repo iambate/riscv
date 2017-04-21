@@ -11,6 +11,11 @@
 #define INIT_STACK_OFFSET         (4*MEGA)
 #define INIT_STACK_POINTER        (RAM_SIZE - INIT_STACK_OFFSET)
 
+/** Current simulation time */
+double sc_time_stamp() {
+    return System::sys->ticks;
+}
+
 int main(int argc, char* argv[]) {
 	Verilated::commandArgs(argc, argv);
 
@@ -18,21 +23,18 @@ int main(int argc, char* argv[]) {
 	if (argc > 0) ramelf = argv[1];
 
 	Vtop top;
-	System sys(&top, RAM_SIZE, ramelf, argc-1, argv+1, ps_per_clock);
+	System sys(&top, RAM_SIZE, ramelf, argc-1, argv+1, 500);
 
-	// build the system and load the image
-	char *ram = (char *)sys.get_ram_address();
-	
 	// (argc, argv) sanity check
 	cerr << "===== Printing arguments of the program..." << endl;
 	for (int j = 0; j <= argc-1; j++) {
-		unsigned long guest_addr = INIT_STACK_POINTER + j * sizeof(uint64_t);
-		uint64_t val = *(uint64_t *)(ram + guest_addr);
+		unsigned long guest_addr = top.stackptr + j * sizeof(uint64_t);
+		uint64_t val = *(uint64_t *)(sys.ram_virt + guest_addr);
 
 		if (0 == j) {
 			cerr << dec << "== argc: " << val << endl;
 		} else {
-			char *arg_ptr = (char *)(ram + val);
+			char *arg_ptr = sys.ram_virt + val;
 			char *arg_ptr1 = arg_ptr;
 			while (*arg_ptr++);
 			unsigned len = arg_ptr - arg_ptr1;
@@ -60,31 +62,26 @@ int main(int argc, char* argv[]) {
 #define TICK() do {                    \
 		top.clk = !top.clk;                \
 		top.eval();                        \
-		if (tfp) tfp->dump(main_time);     \
-		main_time += ps_per_clock/4;       \
+		if (tfp) tfp->dump(sys.ticks);     \
+		sys.ticks += sys.ps_per_clock/4;   \
 		sys.tick(top.clk);                 \
 		top.eval();                        \
-		if (tfp) tfp->dump(main_time);     \
-		main_time += ps_per_clock/4;       \
+		if (tfp) tfp->dump(sys.ticks);     \
+		sys.ticks += sys.ps_per_clock/4;   \
 	} while(0)
 
 	top.reset = 1;
 	top.clk = 0;
-	int i =1;
 	TICK(); // 1
-//	cout<< "tick num "<<i++<<endl;
 	TICK(); // 0
-//	cout<< "tick num "<<i++<<endl;
 	TICK(); // 1
-//	cout<< "tick num "<<i++<<endl;
 	top.reset = 0;
 
 	const char* SHOWCONSOLE = getenv("SHOWCONSOLE");
 	if (SHOWCONSOLE?(atoi(SHOWCONSOLE)!=0):0) sys.console();
 
-	while (main_time/ps_per_clock < 32000*KILO && !Verilated::gotFinish()) {
+	while (sys.ticks/sys.ps_per_clock < 2000*KILO && !Verilated::gotFinish()) {
 		TICK();
-//		cout<< "tick num "<<i++<<endl;
 	}
 
 	top.final();
