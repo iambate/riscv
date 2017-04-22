@@ -17,7 +17,7 @@ module fetch
   input in_branch_taken_bool,
   input [ADDRESS_WIDTH-1:0] in_target,
   input in_enable,
-  output [ADDRESS_WIDTH-1:0] out_pcplus1,
+ // output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
   output out_ready,
 
@@ -85,13 +85,18 @@ module fetch
     if(reset) begin
       old_pc <= -4;
       out_instruction_bits <= 0;
-      out_pcplus1 <= 0;
-    end else if(out_ready && in_enable) begin
-      $display("instruction bits %d", cache_instruction_bits);
-      $display("this pc %d", pc);
-      out_instruction_bits <= cache_instruction_bits;
-      out_pcplus1 <= pc + 4;
-      old_pc <= pc;
+//      out_pcplus1 <= 0;
+    end else if(out_ready==2 && in_enable) begin
+	if(cache_instruction_bits) begin
+      		$display("instruction bits %d", cache_instruction_bits);
+      		$display("this pc %d", pc);
+      		out_instruction_bits <= cache_instruction_bits;
+  //    out_pcplus1 <= pc + 4;
+      		old_pc <= pc;
+	end
+	else begin
+		$finish;
+	end
     end
   end
 endmodule

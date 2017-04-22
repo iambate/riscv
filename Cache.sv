@@ -228,8 +228,11 @@ module Set_Associative_Cache
 			//TODO:init valid bit
 		end
 		else begin
+			$display("new cycle\n");
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
+			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss
+					$display("cache hit\n");
 					State[RSet][index][LRU_BIT]<= 0;
 					State[~RSet][index][LRU_BIT]<= 1;
 				end
@@ -279,7 +282,7 @@ module Set_Associative_Cache
 						Wait_fr_mem_read <=UNSET_WAIT;
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
-						$display("Requesting %d: ", starting_addr_of_block);
+						$display("FLUSHING_NOT_NEEDED Requesting %d:\n ", starting_addr_of_block);
 						addr_data_enable <= 1;
 						phy_addr <= starting_addr_of_block;
 						Wait_fr_mem_read <= SET_WAIT;
@@ -310,8 +313,9 @@ module Set_Associative_Cache
 				end
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
-						$display("GSAHA data is ready\n");
-						$display("data arrived %x\n",data[(SIZE*0)+(SIZE-1):(SIZE*0)]);
+						$display("GSAHA data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
+						$display("GSAHA %x %x\n",addr, Tag[RSet][index]);
+					//	$display("data arrived %x\n",Data[RSet][index][1][31:0]);
 						Wait_fr_mem_read <= UNSET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 						if(SIZE == 32) begin
@@ -350,6 +354,7 @@ module Set_Associative_Cache
 					end
 					else begin
 						addr_data_enable <= 0;
+						$display("setting wait 1\n");
 						Wait_fr_mem_read <= SET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 					end
@@ -413,6 +418,7 @@ module Set_Associative_Cache
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 						addr_data_enable <= 1;
                                                 phy_addr <= starting_addr_of_block;
+						$display("setting wait 2\n");
                                                 Wait_fr_mem_read <= SET_WAIT;
                                                 Wait_fr_mem_write <=UNSET_WAIT;
 

@@ -124,145 +124,9 @@ module top
 			.store_data_abtr_reqcyc(store_data_abtr_reqcyc),
 			.store_data_bus_busy(addr_data_abtr_reqcyc),
 			.addr_data_bus_busy(addr_data_bus_busy));
-/*
-  va_to_pa va_to_pa1   (.clk(clk),
-            .reset(reset),
-            .ptbr(4096),
-            .enable(va_pa_enable),
-            .abtr_grant(va_pa_abtr_grant),
-            .abtr_reqcyc(va_pa_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .virt_addr(pc),
-            .phy_addr(phy_addr),
-            .ready(va_pa_ready)
-                       );
-
-  addr_to_data addr_data(
-            .clk(clk),
-            .reset(reset),
-            .enable(addr_data_enable),
-            .abtr_grant(addr_data_abtr_grant),
-            .abtr_reqcyc(addr_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .addr(phy_addr),
-            .data(data),
-            .ready(addr_data_ready)
-                       );
-
-  store_data store_data_0(
-            .clk(clk),
-            .reset(reset),
-            .enable(store_data_enable),
-            .abtr_grant(store_data_abtr_grant),
-            .abtr_reqcyc(store_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqack(bus_reqack),
-            .main_bus_reqtag(bus_reqtag),
-            .addr(phy_addr),
-            .data(data),
-            .ready(store_data_ready)
-                       );
-
-  decode decode0 (.clk(clk),
-                  .reset(reset),
-                  // alu_ready is for stall against alu->mm data hazard
-                  .in_decode_enable(fetch_ready & mm_ready & alu_ready),
-                  .in_pcplus1(fetch_pc),
-                  .in_instruction_bits(fetch_instruction_bits),
-                  .in_wb_rd_value(going2wb_wbdata),
-                  .in_wb_rd_regno(going2wb_rd_regno),
-                  .in_wb_enable(wb_ready),
-                  .in_branch_taken_bool(),
-                  .in_display_regs(display_regs),
-                  .out_pcplus1(decode_pcplus1),
-                  .out_rs1_value(decode_rs1_value),
-                  .out_rs2_value(decode_rs2_value),
-                  .out_imm_value(decode_imm_value),
-                  .out_rs1_regno(decode_rs1_regno),
-                  .out_rs2_regno(decode_rs2_regno),
-                  .out_rd_regno(decode_rd_regno),
-                  .out_opcode_name(decode_opcode_name),
-                  .out_ready(decode_ready)
-                  );
-
-  execute_instruction ei0(.clk(clk),
-                          .in_enable(fetch_ready & mm_ready),
-                          .in_rs1_value(decode_rs1_value),
-                          .in_rs2_value(decode_rs2_value),
-                          .in_imm_value(decode_imm_value),
-                          .in_rd_regno(decode_rd_regno),
-                          .in_rs1_regno(decode_rs1_regno),
-                          .in_rs2_regno(decode_rs2_regno),
-                          .in_opcode_name(decode_opcode_name),
-                          .in_alu_rd_regno(alu_rd_regno),
-                          .in_mm_rd_regno(mm_rd_regno),
-                          .in_wb_rd_regno(wb_rd_regno),
-                          .in_alu_alu_result(alu_alu_result),
-                          .in_mm_mdata(mm_mdata),
-                          .in_mm_alu_result(mm_alu_result),
-                          .in_wb_data(wb_wbdata),
-                          .in_pcplus1(decode_pcplus1),
-                          .in_branch_taken_bool(alu_branch_taken_bool),
-                          .in_mm_mm_load_bool(mm_mm_load_bool),
-                          .in_alu_mm_load_bool(alu_mm_load_bool),
-                          .out_alu_result(alu_alu_result),
-                          .out_rs2_value(alu_rs2_value),
-                          .out_rd_regno(alu_rd_regno),
-                          .out_opcode_name(alu_opcode_name),
-                          .out_pcplus1plusoffs(alu_pcplus1plusoffs),
-                          .out_update_rd_bool(alu_update_rd_bool),
-                          .out_branch_taken_bool(alu_branch_taken_bool),
-                          .out_mm_load_bool(alu_mm_load_bool),
-                          .out_ready(alu_ready)
-                          );
-
-  mm mm0 (.clk(clk),
-          .in_enable(fetch_ready),
-          .in_alu_result(alu_alu_result),
-          .in_rs2_value(alu_rs2_value),
-          .in_rd_regno(alu_rd_regno),
-          .in_mm_load_bool(alu_mm_load_bool),
-          .in_update_rd_bool(alu_update_rd_bool),
-          .in_opcode_name(alu_opcode_name),
-          .out_update_rd_bool(mm_update_rd_bool),
-          .out_mm_load_bool(mm_mm_load_bool),
-          .out_mdata(mm_mdata),
-          .out_alu_result(mm_alu_result),
-          .out_rd_regno(mm_rd_regno),
-          .out_ready(mm_ready)
-          );
-
-  writeback wb0(.clk(clk),
-                .reset(reset),
-                .in_enable(fetch_ready & mm_ready),
-                .in_alu_result(mm_alu_result),
-                .in_mdata(mm_mdata),
-                .in_rd_regno(mm_rd_regno),
-                .in_mm_load_bool(mm_mm_load_bool),
-                .in_update_rd_bool(mm_update_rd_bool),
-                .out_ready(wb_ready),
-                .out_wbdata(wb_wbdata),
-                .out_rd_regno(wb_rd_regno),
-                .out2wb_wbdata(going2wb_wbdata),
-                .out2wb_rd_regno(going2wb_rd_regno)
-                );
-*/
     always_comb begin
-        assign npc = pc + 64;
+    //    assign npc = pc + 64;
+/*
         case(state)
         STATERESET:
         begin
@@ -329,13 +193,14 @@ module top
             assign store_data_enable = 0;
             assign fetch_ready = 1;
         end
-        endcase
+        endcase*/
     end
     always @ (posedge clk) begin
         if (reset) begin
-            state <= STATERESET;
-            pc <= entry[63:12]<<12;
+   //         state <= STATERESET;
+            pc <= 0;
         end else begin
+/*
             if(addr_data_ready & !data && state == STATEEXEC) begin
                 display_regs <= 1;
             end else if (addr_data_ready & !data && state == STATEVAPABEGIN) begin
@@ -460,6 +325,7 @@ module top
                 end
             end
             endcase
+*/
         end
     end
   initial begin
