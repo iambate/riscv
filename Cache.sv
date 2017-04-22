@@ -173,14 +173,14 @@ module Set_Associative_Cache
 			assign canWrite=WAITING_FOR_MEM_READ;	
 			assign data_available = WAITING_FOR_MEM_READ;
 		end
-		else if((Tag[SET1][index] == tag) && (State[SET1][index]&VALID == 1)) begin
+		else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
 			assign WSet=SET1;//write
 			assign canWrite=CACHE_HIT;//write
 			assign RSet=SET1;
 			assign read_data = Data[RSet][index][block_offset/(SIZE/8)];
 			assign data_available = CACHE_HIT;
 		end
-		else if((Tag[SET2][index] == tag) && (State[SET2][index]&VALID == 1)) begin
+		else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
 			assign WSet=SET2;//write
 			assign canWrite=CACHE_HIT;//write
                         assign RSet=SET2;
@@ -188,9 +188,15 @@ module Set_Associative_Cache
 			assign data_available = CACHE_HIT;
                 end
 		else begin//pick least recently used set to be replaced
+`ifdef CACHEDEBUGXTRA
+			$display("CACHE Tag1 %b", Tag[SET1][index]);
+			$display("CACHE Tag1 %b", Tag[SET2][index]);
+			$display("CACHE State1 %b",State[SET1][index]);
+			$display("CACHE State2 %b",State[SET2][index]);
+`endif
 			assign canWrite=CACHE_MISS;//write
 			assign data_available = CACHE_MISS;
-			if(Tag[SET1][index]&LRU == 1) begin
+			if(Tag[SET1][index]&LRU) begin
 				assign WSet= SET1;//write
 				assign RSet = SET1;
 				assign read_data = 0;
@@ -354,7 +360,9 @@ module Set_Associative_Cache
 					end
 					else begin
 						addr_data_enable <= 0;
+`ifdef CACHEDEBUGXTRA
 						$display("setting wait 1\n");
+`endif
 						Wait_fr_mem_read <= SET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 					end
@@ -418,7 +426,9 @@ module Set_Associative_Cache
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 						addr_data_enable <= 1;
                                                 phy_addr <= starting_addr_of_block;
+`ifdef CACHEDEBUGXTRA
 						$display("setting wait 2\n");
+`endif
                                                 Wait_fr_mem_read <= SET_WAIT;
                                                 Wait_fr_mem_write <=UNSET_WAIT;
 
