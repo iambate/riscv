@@ -1,3 +1,4 @@
+`define CACHEDEBUGXTRA
 module Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -174,6 +175,14 @@ module Set_Associative_Cache
 			assign data_available = WAITING_FOR_MEM_READ;
 		end
 		else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
+`ifdef CACHEDEBUGXTRA
+			$display("CACHE addr %d", addr);
+			$display("CACHE index %d", index);
+			$display("CACHE Tag1 %b", Tag[SET1][index]);
+			$display("CACHE Tag1 %b", Tag[SET2][index]);
+			$display("CACHE State1 %b",State[SET1][index]);
+			$display("CACHE State2 %b",State[SET2][index]);
+`endif
 			assign WSet=SET1;//write
 			assign canWrite=CACHE_HIT;//write
 			assign RSet=SET1;
@@ -181,6 +190,14 @@ module Set_Associative_Cache
 			assign data_available = CACHE_HIT;
 		end
 		else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
+`ifdef CACHEDEBUGXTRA
+			$display("CACHE addr %d", addr);
+			$display("CACHE index %d", index);
+			$display("CACHE Tag1 %b", Tag[SET1][index]);
+			$display("CACHE Tag1 %b", Tag[SET2][index]);
+			$display("CACHE State1 %b",State[SET1][index]);
+			$display("CACHE State2 %b",State[SET2][index]);
+`endif
 			assign WSet=SET2;//write
 			assign canWrite=CACHE_HIT;//write
                         assign RSet=SET2;
@@ -189,6 +206,8 @@ module Set_Associative_Cache
                 end
 		else begin//pick least recently used set to be replaced
 `ifdef CACHEDEBUGXTRA
+			$display("CACHE addr %d", addr);
+			$display("CACHE index %d", index);
 			$display("CACHE Tag1 %b", Tag[SET1][index]);
 			$display("CACHE Tag1 %b", Tag[SET2][index]);
 			$display("CACHE State1 %b",State[SET1][index]);
