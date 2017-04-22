@@ -86,7 +86,11 @@ module fetch
       old_pc <= -4;
       out_instruction_bits <= 0;
 //      out_pcplus1 <= 0;
-    end else if(out_ready==2 && in_enable) begin
+//    end else if(out_ready==2 && in_enable) begin
+    end else if(out_ready & in_enable) begin
+      		$display("instruction bits %d", cache_instruction_bits);
+		$display("out_ready %d ", out_ready);
+      		$display("this pc %d", pc);
 	if(cache_instruction_bits) begin
       		$display("instruction bits %d", cache_instruction_bits);
       		$display("this pc %d", pc);
@@ -95,7 +99,7 @@ module fetch
       		old_pc <= pc;
 	end
 	else begin
-		$finish;
+		//$finish;
 	end
     end
   end

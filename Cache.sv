@@ -73,7 +73,7 @@ module Set_Associative_Cache
 	logic [1:0] ff_canWrite;
 	int i;
 	logic [4095:0] flush_data;
-	 logic [4095:0] data;
+	logic [511:0] data;
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
@@ -315,7 +315,7 @@ module Set_Associative_Cache
 					if(addr_data_ready) begin
 						$display("GSAHA data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
 						$display("GSAHA %x %x\n",addr, Tag[RSet][index]);
-					//	$display("data arrived %x\n",Data[RSet][index][1][31:0]);
+						$display("data arrived %x\n",data);
 						Wait_fr_mem_read <= UNSET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 						if(SIZE == 32) begin
