@@ -254,6 +254,7 @@ module Set_Associative_Cache
 		end
 		else begin
 			$display("new cycle\n");
+			$display("addr ready", addr_data_ready);
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss

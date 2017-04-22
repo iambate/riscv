@@ -98,15 +98,39 @@ module addr_to_data
 
     always_comb begin
         assign ncounter = counter + 1;
-        case(state)
+        case(next_state)
             STATERESET:
             begin
                 assign ready = 0;
-                assign abtr_reqcyc = 0;
             end
             STATEBEGIN:
             begin
                 assign ready = 0;
+            end
+            STATEREQ:
+            begin
+                assign ready = 0;
+            end
+            STATEWAIT:
+            begin
+                assign ready = 0;
+            end
+            STATERESP:
+            begin
+                assign ready = 0;
+            end
+            STATEREADY:
+            begin
+                assign ready = 1;
+            end
+        endcase
+        case(state)
+            STATERESET:
+            begin
+                assign abtr_reqcyc = 0;
+            end
+            STATEBEGIN:
+            begin
                 assign abtr_reqcyc = 1;
             end
             STATEREQ:
@@ -146,7 +170,6 @@ module addr_to_data
             end
             STATEREADY:
             begin
-                assign ready = 1;
                 assign bus_busy = 0;
                 assign abtr_reqcyc = 0;
             end
