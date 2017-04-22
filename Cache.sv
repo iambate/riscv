@@ -340,6 +340,7 @@ module Set_Associative_Cache
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
 						$display("GSAHA data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
+						$display("GSAHA %x", phy_addr);
 						$display("GSAHA %x %x\n",addr, Tag[RSet][index]);
 						$display("data arrived %x\n",data);
 						Wait_fr_mem_read <= UNSET_WAIT;

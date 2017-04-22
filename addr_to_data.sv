@@ -78,24 +78,6 @@ module addr_to_data
             begin
                 assign main_bus_respack = 1;
                 assign ready = 0;
-                case(counter)
-                    1:
-                        assign data[63:0] = response[63:0];
-                    2:
-                        assign data[127:64] = response[63:0];
-                    3:
-                        assign data[191:128] = response[63:0];
-                    4:
-                        assign data[255:192] = response[63:0];
-                    5:
-                        assign data[319:256] = response[63:0];
-                    6:
-                        assign data[383:320] = response[63:0];
-                    7:
-                        assign data[447:384] = response[63:0];
-                    8:
-                        assign data[511:448] = response[63:0];
-                endcase
             end
             STATEREADY:
             begin
@@ -114,6 +96,7 @@ module addr_to_data
 `endif
         end else begin
             state <= next_state;
+                    $display("AD State req, addr: %d", addr);
             case(next_state)
                 STATEBEGIN:
                 begin
@@ -141,7 +124,24 @@ module addr_to_data
                     $display("AD data: %x", main_bus_resp[63:0]);
 `endif
                     counter <= ncounter;
-                    response <= main_bus_resp;
+                    case(counter)
+                        0:
+                            data[63:0] <= main_bus_resp[63:0];
+                        1:
+                            data[127:64] <= main_bus_resp[63:0];
+                        2:
+                            data[191:128] <= main_bus_resp[63:0];
+                        3:
+                            data[255:192] <= main_bus_resp[63:0];
+                        4:
+                            data[319:256] <= main_bus_resp[63:0];
+                        5:
+                            data[383:320] <= main_bus_resp[63:0];
+                        6:
+                            data[447:384] <= main_bus_resp[63:0];
+                        7:
+                            data[511:448] <= main_bus_resp[63:0];
+                    endcase
                 end
                 STATEREADY:
                 begin
