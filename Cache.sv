@@ -75,6 +75,7 @@ module Set_Associative_Cache
 	int i;
 	logic [4095:0] flush_data;
 	logic [511:0] data;
+	logic [63:0] phy_addr;
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
@@ -175,14 +176,6 @@ module Set_Associative_Cache
 			assign data_available = WAITING_FOR_MEM_READ;
 		end
 		else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
-`ifdef CACHEDEBUGXTRA
-			$display("CACHE addr %d", addr);
-			$display("CACHE index %d", index);
-			$display("CACHE Tag1 %b", Tag[SET1][index]);
-			$display("CACHE Tag1 %b", Tag[SET2][index]);
-			$display("CACHE State1 %b",State[SET1][index]);
-			$display("CACHE State2 %b",State[SET2][index]);
-`endif
 			assign WSet=SET1;//write
 			assign canWrite=CACHE_HIT;//write
 			assign RSet=SET1;
@@ -190,14 +183,6 @@ module Set_Associative_Cache
 			assign data_available = CACHE_HIT;
 		end
 		else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
-`ifdef CACHEDEBUGXTRA
-			$display("CACHE addr %d", addr);
-			$display("CACHE index %d", index);
-			$display("CACHE Tag1 %b", Tag[SET1][index]);
-			$display("CACHE Tag1 %b", Tag[SET2][index]);
-			$display("CACHE State1 %b",State[SET1][index]);
-			$display("CACHE State2 %b",State[SET2][index]);
-`endif
 			assign WSet=SET2;//write
 			assign canWrite=CACHE_HIT;//write
                         assign RSet=SET2;
@@ -205,14 +190,6 @@ module Set_Associative_Cache
 			assign data_available = CACHE_HIT;
                 end
 		else begin//pick least recently used set to be replaced
-`ifdef CACHEDEBUGXTRA
-			$display("CACHE addr %d", addr);
-			$display("CACHE index %d", index);
-			$display("CACHE Tag1 %b", Tag[SET1][index]);
-			$display("CACHE Tag1 %b", Tag[SET2][index]);
-			$display("CACHE State1 %b",State[SET1][index]);
-			$display("CACHE State2 %b",State[SET2][index]);
-`endif
 			assign canWrite=CACHE_MISS;//write
 			assign data_available = CACHE_MISS;
 			if(Tag[SET1][index]&LRU) begin
@@ -253,12 +230,21 @@ module Set_Associative_Cache
 			//TODO:init valid bit
 		end
 		else begin
-			$display("new cycle\n");
+			$display("\nnew cycle");
 			$display("addr ready", addr_data_ready);
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss
-					$display("cache hit\n");
+`ifdef CACHEDEBUGXTRA
+					$display("cache hit");
+					$display("CACHE addr %d", addr);
+					$display("CACHE phy_addr %d", phy_addr);
+					$display("CACHE index %d", index);
+					$display("CACHE Tag1 %b", Tag[SET1][index]);
+					$display("CACHE Tag1 %b", Tag[SET2][index]);
+					$display("CACHE State1 %b",State[SET1][index]);
+					$display("CACHE State2 %b",State[SET2][index]);
+`endif
 					State[RSet][index][LRU_BIT]<= 0;
 					State[~RSet][index][LRU_BIT]<= 1;
 				end
@@ -340,7 +326,8 @@ module Set_Associative_Cache
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
 						$display("GSAHA data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
-						$display("GSAHA %x", phy_addr);
+						$display("GSAHA phy_addr %d", phy_addr);
+						$display("GSAHA start block addr %d", starting_addr_of_block);
 						$display("GSAHA %x %x\n",addr, Tag[RSet][index]);
 						$display("data arrived %x\n",data);
 						Wait_fr_mem_read <= UNSET_WAIT;

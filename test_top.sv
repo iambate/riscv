@@ -1,7 +1,7 @@
 `include "Sysbus.defs"
 `include "decode.sv"
 
-module test_top
+module top
 #(
   BUS_DATA_WIDTH = 64,
   BUS_TAG_WIDTH = 13,
