@@ -33,6 +33,7 @@ module addr_to_data
     enum {STATERESET=3'b000, STATEBEGIN=3'b001, STATEREQ=3'b010, STATEWAIT=3'b011,
           STATERESP=3'b100, STATEREADY=3'b101} state, next_state;
     always_comb begin
+        assign ncounter = counter + 1;
         case(state)
             STATERESET: next_state = enable? STATEBEGIN : STATERESET;
             STATEBEGIN: next_state = abtr_grant? STATEREQ : STATEBEGIN;
@@ -46,6 +47,62 @@ module addr_to_data
                 end
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
+        endcase
+        case(next_state)
+            STATERESET:
+            begin
+                assign abtr_reqcyc = 0;
+                assign ready = 0;
+            end
+            STATEBEGIN:
+            begin
+                assign abtr_reqcyc = 1;
+                assign ready = 0;
+            end
+            STATEREQ:
+            begin
+                assign bus_busy = 1;
+                assign main_bus_reqcyc = 1;
+                assign main_bus_respack = 0;
+                assign main_bus_req[63:0] = (addr[63:6] << 6);
+                assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
+                assign ready = 0;
+            end
+            STATEWAIT:
+            begin
+                assign main_bus_reqcyc = 0;
+                assign main_bus_respack = 0;
+                assign ready = 0;
+            end
+            STATERESP:
+            begin
+                assign main_bus_respack = 1;
+                assign ready = 0;
+                case(counter)
+                    1:
+                        assign data[63:0] = response[63:0];
+                    2:
+                        assign data[127:64] = response[63:0];
+                    3:
+                        assign data[191:128] = response[63:0];
+                    4:
+                        assign data[255:192] = response[63:0];
+                    5:
+                        assign data[319:256] = response[63:0];
+                    6:
+                        assign data[383:320] = response[63:0];
+                    7:
+                        assign data[447:384] = response[63:0];
+                    8:
+                        assign data[511:448] = response[63:0];
+                endcase
+            end
+            STATEREADY:
+            begin
+                assign bus_busy = 0;
+                assign abtr_reqcyc = 0;
+                assign ready = 1;
+            end
         endcase
     end
 
@@ -69,6 +126,7 @@ module addr_to_data
                     //main_bus_req[63:0] <= addr[63:6] << 6;
 `ifdef ADD2DATA
                     $display("AD State req, going to wait");
+                    $display("AD State req, req: %d", main_bus_req);
 `endif
                 end
                 STATEWAIT:
@@ -97,82 +155,5 @@ module addr_to_data
     end
 
     always_comb begin
-        assign ncounter = counter + 1;
-        case(next_state)
-            STATERESET:
-            begin
-                assign ready = 0;
-            end
-            STATEBEGIN:
-            begin
-                assign ready = 0;
-            end
-            STATEREQ:
-            begin
-                assign ready = 0;
-            end
-            STATEWAIT:
-            begin
-                assign ready = 0;
-            end
-            STATERESP:
-            begin
-                assign ready = 0;
-            end
-            STATEREADY:
-            begin
-                assign ready = 1;
-            end
-        endcase
-        case(state)
-            STATERESET:
-            begin
-                assign abtr_reqcyc = 0;
-            end
-            STATEBEGIN:
-            begin
-                assign abtr_reqcyc = 1;
-            end
-            STATEREQ:
-            begin
-                assign bus_busy = 1;
-                assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 0;
-                assign main_bus_req[63:0] = (addr[63:6] << 6);
-                assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
-            end
-            STATEWAIT:
-            begin
-                assign main_bus_reqcyc = 0;
-                assign main_bus_respack = 0;
-            end
-            STATERESP:
-            begin
-                assign main_bus_respack = 1;
-                case(counter)
-                    1:
-                        assign data[63:0] = response[63:0];
-                    2:
-                        assign data[127:64] = response[63:0];
-                    3:
-                        assign data[191:128] = response[63:0];
-                    4:
-                        assign data[255:192] = response[63:0];
-                    5:
-                        assign data[319:256] = response[63:0];
-                    6:
-                        assign data[383:320] = response[63:0];
-                    7:
-                        assign data[447:384] = response[63:0];
-                    8:
-                        assign data[511:448] = response[63:0];
-                endcase
-            end
-            STATEREADY:
-            begin
-                assign bus_busy = 0;
-                assign abtr_reqcyc = 0;
-            end
-        endcase
     end
 endmodule

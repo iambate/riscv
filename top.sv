@@ -130,7 +130,7 @@ module top
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqtag(bus_reqtag),
-            .addr(phy_addr),
+            .addr(old_pc),
             .data(data),
             .ready(addr_data_ready)
                        );
@@ -241,72 +241,49 @@ module top
         case(state)
         STATERESET:
         begin
-            assign next_state = STATEVAPABEGIN;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
+            assign next_state = STATEADBEGIN;
             assign fetch_ready = 0;
         end
         STATEVAPABEGIN:
         begin
             assign next_state = STATEVAPAWAIT;
-            assign va_pa_enable = 1;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
             assign fetch_ready = 0;
         end
         STATEVAPAWAIT:
         begin
             assign next_state = va_pa_ready? STATEADBEGIN : STATEVAPAWAIT;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
             assign fetch_ready = 0;
         end
         STATEADBEGIN:
         begin
             assign next_state = STATEADWAIT;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 1;
-            assign store_data_enable = 0;
             assign fetch_ready = 0;
         end
         STATEADWAIT:
         begin
             assign next_state = addr_data_ready? STATEEXEC : STATEADWAIT;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
             assign fetch_ready = 0;
         end
         STATEWDBEGIN:
         begin
             assign next_state = STATEWDWAIT;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 1;
             assign fetch_ready = 0;
         end
         STATEWDWAIT:
         begin
             assign next_state = store_data_ready? STATEEXEC : STATEWDWAIT;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
             assign fetch_ready = 0;
         end
         STATEEXEC:
         begin
-            assign next_state = (counter==15)? STATEVAPABEGIN : STATEEXEC;
+            assign next_state = (counter==16)? STATEADBEGIN : STATEEXEC;
             assign ncounter = counter + 1;
-            assign va_pa_enable = 0;
-            assign addr_data_enable = 0;
-            assign store_data_enable = 0;
-            assign fetch_ready = 1;
+            assign fetch_ready = 0;
         end
         endcase
     end
     always @ (posedge clk) begin
+        $display("new cycle pc : %d", old_pc);
         if (reset) begin
             state <= STATERESET;
             pc <= entry[63:12]<<12;
@@ -317,17 +294,28 @@ module top
                 $finish;
             end
             state <= next_state;
-            case(state)
+            case(next_state)
             STATEADBEGIN:
             begin
                 $display("TOP virtual address: %d physical address: %d", pc, phy_addr);
                 old_pc <= pc;
                 pc <= npc;
                 counter <= 0;
+                addr_data_enable <= 1;
+            end
+            STATEADWAIT:
+            begin
+                addr_data_enable <= 0;
             end
             STATEVAPABEGIN:
             begin
-                //$display("TOP data: %x", data);
+                va_pa_enable <= 1;
+                $display("TOP data: %x", data);
+                $display("TOP pc: %x", pc);
+            end
+            STATEVAPAWAIT:
+            begin
+                va_pa_enable <= 0;
             end
             STATEEXEC:
             begin
