@@ -23,32 +23,48 @@ module bus_controller
     output bus_grant5,
     input bus_busy
 );
-    always_ff @(posedge clk) begin
+    logic [2:0] n_bus_grant;
+    always_comb  begin
         if(!bus_busy & bus_reqcyc1) begin
+            n_bus_grant = 1;
+        end else if(!bus_busy & bus_reqcyc2) begin
+            n_bus_grant = 2;
+        end else if(!bus_busy & bus_reqcyc3) begin
+            n_bus_grant = 3;
+        end else if(!bus_busy & bus_reqcyc4) begin
+            n_bus_grant = 4;
+        end else if(!bus_busy & bus_reqcyc5) begin
+            n_bus_grant = 5;
+        end else begin
+            n_bus_grant = 0;
+        end
+    end
+    always_ff @(posedge clk) begin
+        if(n_bus_grant == 1) begin
             bus_grant1 <= 1;
             bus_grant2 <= 0;
             bus_grant3 <= 0;
             bus_grant4 <= 0;
             bus_grant5 <= 0;
-        end else if(!bus_busy & bus_reqcyc2) begin
+        end else if(n_bus_grant == 2) begin
             bus_grant1 <= 0;
             bus_grant2 <= 1;
             bus_grant3 <= 0;
             bus_grant4 <= 0;
             bus_grant5 <= 0;
-        end else if(!bus_busy & bus_reqcyc3) begin
+        end else if(n_bus_grant == 3) begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 1;
             bus_grant4 <= 0;
             bus_grant5 <= 0;
-        end else if(!bus_busy & bus_reqcyc4) begin
+        end else if(n_bus_grant == 4) begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 0;
             bus_grant4 <= 1;
             bus_grant5 <= 0;
-        end else if(!bus_busy & bus_reqcyc5) begin
+        end else if(n_bus_grant == 5) begin
             bus_grant1 <= 0;
             bus_grant2 <= 0;
             bus_grant3 <= 0;

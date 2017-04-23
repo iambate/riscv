@@ -104,17 +104,19 @@ module top
 //TODO:add bus_busy as op to respective modules
   va_to_pa va_to_pa1   (.clk(clk),
             .reset(reset),
-            .ptbr(4096),
+            .ptbr(satp),
             .enable(va_pa_enable),
             .abtr_grant(va_pa_abtr_grant),
             .abtr_reqcyc(va_pa_abtr_reqcyc),
             .main_bus_respcyc(bus_respcyc),
+            .main_bus_resptag(bus_resptag),
             .main_bus_respack(bus_respack),
             .main_bus_resp(bus_resp),
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqtag(bus_reqtag),
-            .virt_addr(pc),
+            .virt_addr(old_pc),
+            .bus_busy(va_pa_bus_busy),
             .phy_addr(phy_addr),
             .ready(va_pa_ready)
                        );
@@ -126,11 +128,13 @@ module top
             .abtr_grant(addr_data_abtr_grant),
             .abtr_reqcyc(addr_data_abtr_reqcyc),
             .main_bus_respcyc(bus_respcyc),
+            .main_bus_resptag(bus_resptag),
             .main_bus_respack(bus_respack),
             .main_bus_resp(bus_resp),
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqtag(bus_reqtag),
+            .bus_busy(addr_data_bus_busy),
             .addr(old_pc),
             .data(data),
             .ready(addr_data_ready)
@@ -143,12 +147,14 @@ module top
             .abtr_grant(store_data_abtr_grant),
             .abtr_reqcyc(store_data_abtr_reqcyc),
             .main_bus_respcyc(bus_respcyc),
+            .main_bus_resptag(bus_resptag),
             .main_bus_respack(bus_respack),
             .main_bus_resp(bus_resp),
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqack(bus_reqack),
             .main_bus_reqtag(bus_reqtag),
+            .bus_busy(store_data_bus_busy),
             .addr(phy_addr),
             .data(data),
             .ready(store_data_ready)
@@ -238,11 +244,11 @@ module top
                 .out2wb_rd_regno(going2wb_rd_regno)
                 );
     always_comb begin
-        assign npc = pc + 64;
+        assign npc = pc + 4096;
         case(state)
         STATERESET:
         begin
-            assign next_state = STATEADBEGIN;
+            assign next_state = STATEVAPABEGIN;
             assign fetch_ready = 0;
         end
         STATEVAPABEGIN:
@@ -252,7 +258,7 @@ module top
         end
         STATEVAPAWAIT:
         begin
-            assign next_state = va_pa_ready? STATEADBEGIN : STATEVAPAWAIT;
+            assign next_state = va_pa_ready? STATEVAPABEGIN : STATEVAPAWAIT;
             assign fetch_ready = 0;
         end
         STATEADBEGIN:
@@ -288,6 +294,7 @@ module top
         if (reset) begin
             state <= STATERESET;
             pc <= entry[63:12]<<12;
+            old_pc <= entry[63:12]<<12;
         end else begin
             if(addr_data_ready & !data && state == STATEEXEC) begin
                 display_regs <= 1;
@@ -298,9 +305,6 @@ module top
             case(next_state)
             STATEADBEGIN:
             begin
-                $display("TOP virtual address: %d physical address: %d", pc, phy_addr);
-                old_pc <= pc;
-                pc <= npc;
                 counter <= 0;
                 addr_data_enable <= 1;
             end
@@ -310,9 +314,11 @@ module top
             end
             STATEVAPABEGIN:
             begin
+                $display("TOP virtual address: %d physical address: %d", old_pc, phy_addr);
+		$display("TOP PTBR: %d", satp);
+                old_pc <= pc;
+                pc <= npc;
                 va_pa_enable <= 1;
-                $display("TOP data: %x", data);
-                $display("TOP pc: %x", pc);
             end
             STATEVAPAWAIT:
             begin

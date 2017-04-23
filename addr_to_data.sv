@@ -1,4 +1,3 @@
-`define ADD2DATA
 module addr_to_data
 #(
     BUS_DATA_WIDTH = 64,
@@ -25,6 +24,7 @@ module addr_to_data
     output ready,
     input [BUS_DATA_WIDTH-1:0] addr,
     output [BUS_DATA_WIDTH*8-1:0] data,
+    input [BUS_TAG_WIDTH-1:0] main_bus_resptag,
     output [BUS_TAG_WIDTH-1:0] main_bus_reqtag
 );
     logic[3:0] counter;
@@ -96,7 +96,6 @@ module addr_to_data
 `endif
         end else begin
             state <= next_state;
-                    $display("AD State req, addr: %d", addr);
             case(next_state)
                 STATEBEGIN:
                 begin
@@ -119,29 +118,36 @@ module addr_to_data
                 end
                 STATERESP:
                 begin
+                    if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
 `ifdef ADD2DATA
-                    $display("AD State resp, going to ready");
-                    $display("AD data: %x", main_bus_resp[63:0]);
+                      $display("AD State resp, going to ready");
+                      $display("AD data: %x", main_bus_resp[63:0]);
 `endif
-                    counter <= ncounter;
-                    case(counter)
-                        0:
-                            data[63:0] <= main_bus_resp[63:0];
-                        1:
-                            data[127:64] <= main_bus_resp[63:0];
-                        2:
-                            data[191:128] <= main_bus_resp[63:0];
-                        3:
-                            data[255:192] <= main_bus_resp[63:0];
-                        4:
-                            data[319:256] <= main_bus_resp[63:0];
-                        5:
-                            data[383:320] <= main_bus_resp[63:0];
-                        6:
-                            data[447:384] <= main_bus_resp[63:0];
-                        7:
-                            data[511:448] <= main_bus_resp[63:0];
-                    endcase
+                      counter <= ncounter;
+                      case(counter)
+                          0:
+                              data[63:0] <= main_bus_resp[63:0];
+                          1:
+                              data[127:64] <= main_bus_resp[63:0];
+                          2:
+                              data[191:128] <= main_bus_resp[63:0];
+                          3:
+                              data[255:192] <= main_bus_resp[63:0];
+                          4:
+                              data[319:256] <= main_bus_resp[63:0];
+                          5:
+                              data[383:320] <= main_bus_resp[63:0];
+                          6:
+                              data[447:384] <= main_bus_resp[63:0];
+                          7:
+                              data[511:448] <= main_bus_resp[63:0];
+                      endcase
+                    end else begin
+`ifdef ADD2DATA
+                      $display("AD State resp, going to ready");
+                      $display("AD other response tag: %x", main_bus_respack);
+`endif
+                    end
                 end
                 STATEREADY:
                 begin

@@ -20,3 +20,5 @@ All States:
 	3. Implement branches in alu and test nops logic(control hazard)
 	4. Implement FLUSH pipeline and think about how to preserve the PC value
 	(Increment a separately kept PC value only when instruction writebacks)
+
+Handle memory instructions like lb, lw
