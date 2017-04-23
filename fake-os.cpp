@@ -8,7 +8,7 @@ using namespace std;
 
 extern "C" {
 
-#define ECALL_DEBUG 0
+#define ECALL_DEBUG 1
 #define ECALL_MEMGUARD (10*1024)
 
     map<long long, char> pending_writes;
@@ -29,7 +29,7 @@ extern "C" {
             *a0ret = 0; // don't bother unmapping
             return;
         case __NR_brk:
-            if (ECALL_DEBUG) cerr << "Allocate " << a0 << " bytes at 0x" << std::hex << System::sys->ecall_brk << std::dec << endl;
+            if (ECALL_DEBUG) cerr << "Allocate " << std::dec << a0 << " bytes at 0x" << std::hex << System::sys->ecall_brk << std::dec << endl;
             *a0ret = System::sys->ecall_brk;
             System::sys->ecall_brk += a0;
             return;
@@ -341,17 +341,17 @@ extern "C" {
         case __NR_renameat2:
         case __NR_seccomp:
         case __NR_kexec_file_load:
-            cerr << "Unsupported syscall " << a7 << endl;
+            cerr << "Unsupported syscall " << std::dec << a7 << endl;
             assert(0);
 
         default:
-            if (ECALL_DEBUG) cerr << "Default syscall " << a7 << endl;
+            if (ECALL_DEBUG) cerr << "Default syscall " << std::dec << a7 << endl;
             break;
         }
-        if (ECALL_DEBUG) cerr << "Calling syscall " << a7 << endl;
+        if (ECALL_DEBUG) cerr << "Calling syscall " << std::dec << a7 << endl;
         for(auto& m : memargs)
-            for(int ofs = 0; ofs < ECALL_MEMGUARD && (m.first & ~63)+ofs < System::sys->ramsize; ++ofs) {
-                auto pw = pending_writes.find((m.first & ~63)+ofs);
+            for(int i = 0; i < ECALL_MEMGUARD && (m.first & ~63)+i < System::sys->ramsize; ++i) {
+                auto pw = pending_writes.find((m.first & ~63)+i);
                 if (pw == pending_writes.end()) continue;
                 System::sys->ram[m.first] = pw->second;
                 pending_writes.erase(pw);
@@ -359,11 +359,13 @@ extern "C" {
         *a0ret = syscall(a7, a0, a1, a2, a3, a4, a5, a6);
         set<long long> invalidations;
         for(auto& m : memargs)
-            for(int ofs = 0; ofs < ECALL_MEMGUARD && (m.first & ~63)+ofs < System::sys->ramsize; ++ofs)
-                if (m.second[ofs] != System::sys->ram[(m.first & ~63) + ofs]) {
-                    if (ECALL_DEBUG) cerr << "Invalidating " << ofs << " on argument " << m.first << endl;
+            for(int i = 0; i < ECALL_MEMGUARD && (m.first & ~63)+i < System::sys->ramsize; ++i) {
+                long long srcptr = System::sys->virt_to_phy((m.first & ~63) + i);
+                if (m.second[i] != System::sys->ram[srcptr]) {
+                    if (ECALL_DEBUG) cerr << "Invalidating " << std::dec << i << " on argument " << std::hex << m.first << endl;
                     invalidations.insert(m.first & ~63);
                 }
+            }
         for(auto& i : invalidations)
             System::sys->invalidate(i);
     }

@@ -53,7 +53,7 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
     if (!use_virtual_memory) ram_virt = ram;
     else ram_virt = (char*)mmap(NULL, ramsize, PROT_NONE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     assert(ram_virt != MAP_FAILED);
-    top->satp = (get_phys_page()<<12);
+    top->satp = get_phys_page() << 12;
     top->stackptr = ramsize - 4*MEGA;
     virt_to_phy(top->stackptr - PAGE_SIZE); // allocate stack page
 
@@ -138,7 +138,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        cerr << "responding data " << std::dec << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        //cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -193,7 +193,7 @@ void System::tick(int clk) {
                 assert(
                         dramsim->addTransaction(isWrite, xfer_addr)
                       );
-                cerr << "add transaction " << std::hex << xfer_addr << " on tag " << top->bus_reqtag << endl;
+                //cerr << "add transaction " << std::hex << xfer_addr << " on tag " << top->bus_reqtag << endl;
                 if (!isWrite) addr_to_tag[xfer_addr] = make_pair(top->bus_req, top->bus_reqtag);
             }
             break;
@@ -255,7 +255,6 @@ uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocat
         if (VM_DEBUG) {
             cout << "Addr:" << std::dec << addr << endl;
             cout << "Initialized page no " << std::dec << page_no << endl;
-            cout << "Initialized page " << std::dec << (page_no<<12) << endl;
         }
         allocated = isleaf;
     } else {
@@ -288,7 +287,7 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
 
 uint64_t System::load_elf_parts(int fd, size_t part_size, const uint64_t virt_addr) {
     uint64_t phy_addr = virt_to_phy(virt_addr);
-    if (VM_DEBUG) cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << phy_addr << endl;
+    if (VM_DEBUG) cout << "Virtual addr: " << std::hex << virt_addr << " Physical addr: " << phy_addr << endl;
     size_t len = read(fd, (void*)(ram + phy_addr/* addr */), part_size);
     assert(len == part_size);
     return (virt_addr + part_size);
