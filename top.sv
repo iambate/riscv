@@ -39,6 +39,7 @@ module top
   logic [8:0] counter;
   logic [8:0] ncounter;
   logic [63:0] phy_addr;
+  logic [64*8-1:0] phy_addr_array;
   logic va_pa_abtr_grant;
   logic va_pa_abtr_reqcyc;
   logic va_pa_bus_busy;
@@ -117,7 +118,7 @@ module top
             .main_bus_reqtag(bus_reqtag),
             .virt_addr(old_pc),
             .bus_busy(va_pa_bus_busy),
-            .phy_addr(phy_addr),
+            .phy_addr_array(phy_addr_array),
             .ready(va_pa_ready)
                        );
 
@@ -244,7 +245,7 @@ module top
                 .out2wb_rd_regno(going2wb_rd_regno)
                 );
     always_comb begin
-        assign npc = pc + 4096;
+        assign npc = pc + 4096*8;
         case(state)
         STATERESET:
         begin
@@ -314,7 +315,7 @@ module top
             end
             STATEVAPABEGIN:
             begin
-                $display("TOP virtual address: %d physical address: %d", old_pc, phy_addr);
+                $display("TOP virtual address: %d physical address: %x", old_pc, phy_addr_array);
 		$display("TOP PTBR: %d", satp);
                 old_pc <= pc;
                 pc <= npc;

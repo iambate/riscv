@@ -1,3 +1,4 @@
+`define VAPADEBUG
 module va_to_pa
 #(
     BUS_DATA_WIDTH = 64,
@@ -24,7 +25,7 @@ module va_to_pa
     output [BUS_DATA_WIDTH-1:0] main_bus_req,
     output ready,
     input [BUS_DATA_WIDTH-1:0] virt_addr,
-    output [BUS_DATA_WIDTH-1:0] phy_addr,
+    output [BUS_DATA_WIDTH*8-1:0] phy_addr_array,
     input [BUS_TAG_WIDTH-1:0] main_bus_resptag,
     output [BUS_TAG_WIDTH-1:0] main_bus_reqtag
 );
@@ -147,7 +148,7 @@ module va_to_pa
                     $display("VP virt_addr: %d", virt_addr);
 `endif
                     level <= nlevel;
-                    request_counter <= request_addr[5:3];
+	                    request_counter <= request_addr[5:3];
                 end
                 STATEWAIT:
                 begin
@@ -162,14 +163,53 @@ module va_to_pa
 `endif
                       level <= level;
                       counter <= ncounter;
-                      if(counter == request_counter) begin
+                      if(level == 4) begin
 `ifdef VAPADEBUG
-                          $display("VP For next, pt_no: %d", pt_no);
-                          $display("VP request addr: %d", (main_bus_resp[63:10] << 12) + pt_no[11:0]);
-                          $display("VP phy addr: %d", (main_bus_resp[63:10] << 12) + virt_addr[11:0]);
+                        $display("VP PTEs: %d", main_bus_resp[63:0]);
+                        $display("VP Physical address: %d", main_bus_resp[63:10]<<12);
 `endif
-                          request_addr <= (main_bus_resp[63:10] << 12) + pt_no[11:0];
-                          phy_addr <= (main_bus_resp[63:10] << 12) + virt_addr[11:0];
+                        case(counter)
+                        0:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*0+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*0] <= main_bus_resp[63:0];
+                        end
+                        1:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*1+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*1] <= main_bus_resp[63:0];
+                        end
+                        2:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*2+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*2] <= main_bus_resp[63:0];
+                        end
+                        3:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*3+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*3] <= main_bus_resp[63:0];
+                        end
+                        4:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*4+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*4] <= main_bus_resp[63:0];
+                        end
+                        5:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*5+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*5] <= main_bus_resp[63:0];
+                        end
+                        6:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*6+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*6] <= main_bus_resp[63:0];
+                        end
+                        7:
+                        begin
+                          phy_addr_array[BUS_DATA_WIDTH*7+BUS_DATA_WIDTH-1:BUS_DATA_WIDTH*7] <= main_bus_resp[63:0];
+                        end
+                        endcase
+                      end else begin
+                        if(counter == request_counter) begin
+`ifdef VAPADEBUG
+                            $display("VP For next, pt_no: %d", pt_no);
+                            $display("VP request addr: %d", (main_bus_resp[63:10] << 12) + pt_no[11:0]);
+`endif
+                            request_addr <= (main_bus_resp[63:10] << 12) + pt_no[11:0];
+                        end
                       end
                     end
                 end
