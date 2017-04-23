@@ -233,17 +233,11 @@ module Set_Associative_Cache
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 			Wait_fr_mem_write <= UNSET_WAIT;
-//			for(i=0;i<512;i++) begin
-			//	State[SET1][i][VALID_BIT]<=0;
-			//	State[SET2][i][VALID_BIT]<=0;
-//				$display("valid bit %d %d\n",State[SET1][i][VALID_BIT],State[SET2][i][VALID_BIT]);
-//			end
 			//TODO:init valid bit
 		end
 		else begin
-			$display("\nnew cycle");
-			$display("addr ready", addr_data_ready);
 			if(enable==2) begin
+			$display("CACHE: new cycle");
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss

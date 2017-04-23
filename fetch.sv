@@ -15,6 +15,7 @@ module fetch
 (
   input clk,
   input reset,
+  input [63:0] ptbr,
   input in_branch_taken_bool,
   input [ADDRESS_WIDTH-1:0] in_target,
   input in_enable,
@@ -39,7 +40,7 @@ module fetch
   output addr_data_bus_busy,
   input va_pa_abtr_grant,
   output va_pa_abtr_reqcyc,
-  output va_pa_bus_busy,
+  output va_pa_bus_busy
 );
   logic [ADDRESS_WIDTH-1:0] old_pc;
   logic [ADDRESS_WIDTH-1:0] pc;
@@ -50,11 +51,10 @@ module fetch
 
   Trans_Lookaside_Buff tlb(     .clk(clk),
                                 .reset(reset),
- 
                                 .v_addr(pc),
                                 .p_addr(p_addr),
                                 .addr_available(tlb_ready),//signal which fetch needs to wait on
-				.ptbr(4096), 
+				.ptbr(ptbr), 
                                 .bus_reqcyc(bus_reqcyc),
                                 .bus_respack(bus_respack),
                                 .bus_req(bus_req),
@@ -113,8 +113,8 @@ module fetch
       out_pcplus1 <= 0;
     end else if(cache_ready==2 & in_enable) begin
 	if(cache_instruction_bits) begin
-      		$display("instruction bits %x", cache_instruction_bits);
-      		$display("this pc %d", pc);
+      		$display("FETCH :instruction bits %x", cache_instruction_bits);
+      		$display("FETCH :this pc %d", pc);
       		out_instruction_bits <= cache_instruction_bits;
 		out_pcplus1 <= pc + 4;
       		old_pc <= pc;
