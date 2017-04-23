@@ -89,6 +89,8 @@ module top
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
   logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] going2wb_rd_regno;
+  logic [REGISTER_WIDTH-1:0] vapacounter;
+  logic [REGISTER_WIDTH-1:0] vapacountercase;
 
   enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
         STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
@@ -136,7 +138,7 @@ module top
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqtag(bus_reqtag),
             .bus_busy(addr_data_bus_busy),
-            .addr(old_pc),
+            .addr(phy_addr),
             .data(data),
             .ready(addr_data_ready)
                        );
@@ -245,53 +247,80 @@ module top
                 .out2wb_rd_regno(going2wb_rd_regno)
                 );
     always_comb begin
-        assign npc = pc + 4096*8;
+        assign npc = pc + 64;
         case(state)
         STATERESET:
         begin
             assign next_state = STATEVAPABEGIN;
-            assign fetch_ready = 0;
         end
         STATEVAPABEGIN:
         begin
             assign next_state = STATEVAPAWAIT;
-            assign fetch_ready = 0;
         end
         STATEVAPAWAIT:
         begin
-            assign next_state = va_pa_ready? STATEVAPABEGIN : STATEVAPAWAIT;
-            assign fetch_ready = 0;
+            assign next_state = va_pa_ready? STATEADBEGIN : STATEVAPAWAIT;
         end
         STATEADBEGIN:
         begin
             assign next_state = STATEADWAIT;
-            assign fetch_ready = 0;
         end
         STATEADWAIT:
         begin
             assign next_state = addr_data_ready? STATEEXEC : STATEADWAIT;
-            assign fetch_ready = 0;
         end
         STATEWDBEGIN:
         begin
             assign next_state = STATEWDWAIT;
-            assign fetch_ready = 0;
         end
         STATEWDWAIT:
         begin
             assign next_state = store_data_ready? STATEEXEC : STATEWDWAIT;
+        end
+        STATEEXEC:
+        begin
+            assign next_state = (counter==16)? STATEVAPABEGIN : STATEEXEC;
+        end
+        endcase
+        case(next_state)
+        STATERESET:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEVAPABEGIN:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEVAPAWAIT:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEADBEGIN:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEADWAIT:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEWDBEGIN:
+        begin
+            assign fetch_ready = 0;
+        end
+        STATEWDWAIT:
+        begin
             assign fetch_ready = 0;
         end
         STATEEXEC:
         begin
-            assign next_state = (counter==16)? STATEADBEGIN : STATEEXEC;
             assign ncounter = counter + 1;
             assign fetch_ready = 0;
         end
         endcase
+        assign vapacountercase = vapacounter >> 12;
     end
     always @ (posedge clk) begin
-        $display("new cycle pc : %d", old_pc);
+        $display("new cycle pc : %d, vapacountercase: %d", old_pc, vapacountercase);
         if (reset) begin
             state <= STATERESET;
             pc <= entry[63:12]<<12;
@@ -306,8 +335,46 @@ module top
             case(next_state)
             STATEADBEGIN:
             begin
+                $display("phy_addr_array %x", phy_addr_array);
+                $display("vapacounter %d", vapacounter);
+                $display("should_req: %d", (phy_addr_array[REGISTER_WIDTH*0+REGISTER_WIDTH-1:REGISTER_WIDTH*0+10]<<12) + vapacounter[11:0]);
                 counter <= 0;
                 addr_data_enable <= 1;
+                vapacounter <= vapacounter + 64;
+                case(vapacountercase)
+                0:
+                begin
+                    phy_addr <= (phy_addr_array[REGISTER_WIDTH*0+REGISTER_WIDTH-1:REGISTER_WIDTH*0+10]<<12) + vapacounter[11:0];
+                end
+                1:
+                begin
+                    phy_addr <= (phy_addr_array[REGISTER_WIDTH*1+REGISTER_WIDTH-1:REGISTER_WIDTH*1+10]<<12) + vapacounter[11:0];
+                end
+                2:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*2+REGISTER_WIDTH-1:REGISTER_WIDTH*2+10]<<12 + vapacounter[11:0];
+                end
+                3:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*3+REGISTER_WIDTH-1:REGISTER_WIDTH*3+10]<<12 + vapacounter[11:0];
+                end
+                4:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*4+REGISTER_WIDTH-1:REGISTER_WIDTH*4+10]<<12 + vapacounter[11:0];
+                end
+                5:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*5+REGISTER_WIDTH-1:REGISTER_WIDTH*5+10]<<12 + vapacounter[11:0];
+                end
+                6:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*6+REGISTER_WIDTH-1:REGISTER_WIDTH*6+10]<<12 + vapacounter[11:0];
+                end
+                7:
+                begin
+                    phy_addr <= phy_addr_array[REGISTER_WIDTH*7+REGISTER_WIDTH-1:REGISTER_WIDTH*7+10]<<12 + vapacounter[11:0];
+                end
+                endcase
             end
             STATEADWAIT:
             begin
@@ -317,7 +384,10 @@ module top
             begin
                 $display("TOP virtual address: %d physical address: %x", old_pc, phy_addr_array);
 		$display("TOP PTBR: %d", satp);
-                old_pc <= pc;
+                if(vapacounter == 4096*8) begin
+			old_pc <= pc;
+			vapacounter <= 0;
+                end
                 pc <= npc;
                 va_pa_enable <= 1;
             end
@@ -335,112 +405,96 @@ module top
                   begin
                     fetch_pc <= old_pc + 4;
                     fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
-                    $display("PC : %d", old_pc + 4);
                     $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
                   end
                   1:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
                   end
                   2:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
                   end
                   3:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
                   end
                   4:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
                   end
                   5:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
                   end
                   6:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
                   end
                   7:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
                   end
                   8:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
                   end
                   9:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
                   end
                   10:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
                   end
                   11:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
                   end
                   12:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
                   end
                   13:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
                   end
                   14:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
                   end
                   15:
                   begin
                     fetch_pc <= fetch_pc + 4;
                     fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
-                    $display("PC : %d", fetch_pc + 4);
                     $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
                   end
                   endcase

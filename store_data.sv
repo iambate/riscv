@@ -42,12 +42,72 @@ module store_data
                 if (counter < 8) begin
                     next_state = STATEREQ;
                 end else begin
-                    next_state = STATEREQEND;
+                    next_state = STATEREADY;
                 end
             STATEREQEND:
                 next_state = STATEREADY;
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
+        endcase
+        assign ncounter = counter + 1;
+        case(next_state)
+            STATERESET:
+            begin
+                assign ready = 0;
+                assign abtr_reqcyc = 0;
+            end
+            STATEBEGIN:
+            begin
+                assign ready = 0;
+                assign abtr_reqcyc = 1;
+            end
+            STATEADDRREQ:
+            begin
+                assign bus_busy = 1;
+                assign main_bus_reqcyc = 1;
+                assign main_bus_respack = 0;
+                assign main_bus_req[63:0] = (addr[63:6] << 6);
+                assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
+                assign ready = 0;
+            end
+            STATEREQ:
+            begin
+                assign bus_busy = 1;
+                assign main_bus_reqcyc = 1;
+                assign main_bus_respack = 1;
+                assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
+                case(counter)
+                    0:
+                        assign main_bus_req[63:0] = data[63:0];
+                    1:
+                        assign main_bus_req[63:0] = data[127:64];
+                    2:
+                        assign main_bus_req[63:0] = data[191:128];
+                    3:
+                        assign main_bus_req[63:0] = data[255:192];
+                    4:
+                        assign main_bus_req[63:0] = data[319:256];
+                    5:
+                        assign main_bus_req[63:0] = data[383:320];
+                    6:
+                        assign main_bus_req[63:0] = data[447:384]; 
+                    7:
+                        assign main_bus_req[63:0] = data[511:448]; 
+                endcase
+            end
+            STATEREQEND:
+            begin
+                assign ready = 0;
+                assign bus_busy = 1;
+                assign abtr_reqcyc = 1;
+                assign main_bus_reqcyc = 0;
+            end
+            STATEREADY:
+            begin
+                assign ready = 1;
+                assign bus_busy = 0;
+                assign abtr_reqcyc = 0;
+            end
         endcase
     end
 
@@ -84,67 +144,5 @@ module store_data
                 end
             endcase
         end
-    end
-
-    always_comb begin
-        assign ncounter = counter + 1;
-        case(state)
-            STATERESET:
-            begin
-                assign ready = 0;
-                assign abtr_reqcyc = 0;
-            end
-            STATEBEGIN:
-            begin
-                assign ready = 0;
-                assign abtr_reqcyc = 1;
-            end
-            STATEADDRREQ:
-            begin
-                assign bus_busy = 1;
-                assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 0;
-                assign main_bus_req[63:0] = (addr[63:6] << 6);
-                assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
-            end
-            STATEREQ:
-            begin
-                assign bus_busy = 1;
-                assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 1;
-                assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
-                case(counter)
-                    1:
-                        assign main_bus_req[63:0] = data[63:0];
-                    2:
-                        assign main_bus_req[63:0] = data[127:64];
-                    3:
-                        assign main_bus_req[63:0] = data[191:128];
-                    4:
-                        assign main_bus_req[63:0] = data[255:192];
-                    5:
-                        assign main_bus_req[63:0] = data[319:256];
-                    6:
-                        assign main_bus_req[63:0] = data[383:320];
-                    7:
-                        assign main_bus_req[63:0] = data[447:384]; 
-                    8:
-                        assign main_bus_req[63:0] = data[511:448]; 
-                endcase
-            end
-            STATEREQEND:
-            begin
-                assign ready = 0;
-                assign bus_busy = 1;
-                assign abtr_reqcyc = 1;
-                assign main_bus_reqcyc = 0;
-            end
-            STATEREADY:
-            begin
-                assign ready = 1;
-                assign bus_busy = 0;
-                assign abtr_reqcyc = 0;
-            end
-        endcase
     end
 endmodule
