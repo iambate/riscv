@@ -35,6 +35,7 @@ module Set_Associative_Cache
 	output [SIZE-1:0] read_data,//F
 	output [1:0] data_available,//F
 	input [SIZE-1:0] write_data,
+	input [1:0] enable,
 	output bus_reqcyc,
   	output bus_respack,
   	output [BUS_DATA_WIDTH-1:0] bus_req,
@@ -76,13 +77,18 @@ module Set_Associative_Cache
 	logic [4095:0] flush_data;
 	logic [511:0] data;
 	logic [63:0] phy_addr;
+	logic [63:0] store_data_at_addr;
+	logic store_data_enable;
+	logic store_data_ready;
+	logic addr_data_enable;
+	logic addr_data_ready;
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?
 	addr_to_data addr_data(
             .clk(clk),
             .reset(reset),
-
+	    .bus_busy(addr_data_bus_busy),
             .enable(addr_data_enable),
 
             .abtr_grant(addr_data_abtr_grant),
@@ -102,7 +108,7 @@ module Set_Associative_Cache
 	store_data store_data_0(
             .clk(clk),
             .reset(reset),
-
+	    .bus_busy(store_data_bus_busy),
             .enable(store_data_enable),
 
             .abtr_grant(store_data_abtr_grant),
@@ -121,6 +127,7 @@ module Set_Associative_Cache
                        );
 
 	always_comb begin
+		if(enable==2) begin
 		assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];
 		assign tag = addr[63:STARTING_INDEX+15];
 		assign block_offset = addr[STARTING_INDEX+5:STARTING_INDEX];
@@ -217,6 +224,10 @@ module Set_Associative_Cache
                                 end
 			end
 		end
+		end
+		else begin
+			assign data_available =CACHE_MISS;
+		end
 	end
 	always_ff @(posedge clk) begin
 		if(reset) begin
@@ -232,6 +243,7 @@ module Set_Associative_Cache
 		else begin
 			$display("\nnew cycle");
 			$display("addr ready", addr_data_ready);
+			if(enable==2) begin
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss
@@ -568,6 +580,7 @@ module Set_Associative_Cache
 						ff_Cache_block_invalidation<=Cache_block_invalidation;
 					end
 				end		
+			end
 			end
 		end
 	end

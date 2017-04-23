@@ -101,7 +101,7 @@ module top
             .bus_grant3(store_data_abtr_grant),
             .bus_busy(va_pa_bus_busy|addr_data_bus_busy|store_data_bus_busy)
                );
-
+//TODO:add bus_busy as op to respective modules
   va_to_pa va_to_pa1   (.clk(clk),
             .reset(reset),
             .ptbr(4096),

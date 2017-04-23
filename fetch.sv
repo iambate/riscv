@@ -3,6 +3,7 @@
  * Add instruction cache module and respective buslines
  */
 `include "Cache.sv"
+`include "TLB.sv"
 module fetch
 #(
   BUS_DATA_WIDTH = 64,
@@ -35,7 +36,10 @@ module fetch
   input store_data_abtr_grant,
   output store_data_abtr_reqcyc,
   output store_data_bus_busy,
-  output addr_data_bus_busy
+  output addr_data_bus_busy,
+  input va_pa_abtr_grant,
+  output va_pa_abtr_reqcyc,
+  output va_pa_bus_busy,
 );
   logic [ADDRESS_WIDTH-1:0] old_pc;
   logic [ADDRESS_WIDTH-1:0] pc;
@@ -43,9 +47,31 @@ module fetch
   logic [1:0] cache_ready;
 
   // TODO: Instantiate Instruction Cache module
+
+  Trans_Lookaside_Buff tlb(     .clk(clk),
+                                .reset(reset),
+ 
+                                .v_addr(pc),
+                                .p_addr(p_addr),
+                                .addr_available(tlb_ready),//signal which fetch needs to wait on
+				.ptbr(4096), 
+                                .bus_reqcyc(bus_reqcyc),
+                                .bus_respack(bus_respack),
+                                .bus_req(bus_req),
+                                .bus_reqtag(bus_reqtag),
+                                .bus_respcyc(bus_respcyc),
+                                .bus_reqack(bus_reqack),
+                                .bus_resp(bus_resp),
+                                .bus_resptag(bus_resptag),
+                                .va_pa_abtr_grant(va_pa_abtr_grant),
+                                .va_pa_abtr_reqcyc(va_pa_abtr_reqcyc),
+                                .va_pa_bus_busy(va_pa_bus_busy)
+                                );
+
   Set_Associative_Cache ICache(	.clk(clk),
 				.reset(reset),
-				.addr(pc),
+				.addr(p_addr),
+				.enable(tlb_ready),
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(cache_ready),//signal which fetch needs to wait on
@@ -87,7 +113,7 @@ module fetch
       out_pcplus1 <= 0;
     end else if(cache_ready==2 & in_enable) begin
 	if(cache_instruction_bits) begin
-      		$display("instruction bits %0x", cache_instruction_bits);
+      		$display("instruction bits %x", cache_instruction_bits);
       		$display("this pc %d", pc);
       		out_instruction_bits <= cache_instruction_bits;
 		out_pcplus1 <= pc + 4;
