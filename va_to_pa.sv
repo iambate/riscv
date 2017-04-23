@@ -152,6 +152,9 @@ module va_to_pa
                 end
                 STATEWAIT:
                 begin
+`ifdef VAPADEBUG
+		$display("VP Wait state");
+`endif
                     level <= level;
                     counter <= 0;
                 end

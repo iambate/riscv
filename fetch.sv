@@ -46,7 +46,8 @@ module fetch
   logic [ADDRESS_WIDTH-1:0] pc;
   logic [INSTRUCTION_WIDTH-1:0] cache_instruction_bits;
   logic [1:0] cache_ready;
-
+  logic [1:0] tlb_ready;
+  logic [63:0] p_addr;
   // TODO: Instantiate Instruction Cache module
 
   Trans_Lookaside_Buff tlb(     .clk(clk),

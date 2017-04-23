@@ -124,7 +124,10 @@ module top
 			.store_data_abtr_grant(store_data_abtr_reqcyc),
 			.store_data_abtr_reqcyc(store_data_abtr_reqcyc),
 			.store_data_bus_busy(addr_data_abtr_reqcyc),
-			.addr_data_bus_busy(addr_data_bus_busy));
+			.addr_data_bus_busy(addr_data_bus_busy),
+			.va_pa_abtr_grant(va_pa_abtr_grant),
+                        .va_pa_abtr_reqcyc(va_pa_abtr_reqcyc),
+			.va_pa_bus_busy(va_pa_bus_busy));
     always_comb begin
     //    assign npc = pc + 64;
 /*

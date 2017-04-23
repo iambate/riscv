@@ -99,7 +99,7 @@ module Set_Associative_Cache
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqtag(bus_reqtag),
-
+	    .main_bus_resptag(bus_resptag),
             .addr(phy_addr),
             .data(data),
             .ready(addr_data_ready)
@@ -120,7 +120,7 @@ module Set_Associative_Cache
             .main_bus_reqcyc(bus_reqcyc),
             .main_bus_reqack(bus_reqack),
             .main_bus_reqtag(bus_reqtag),
-
+	    .main_bus_resptag(bus_resptag),
             .addr(store_data_at_addr),
             .data(flush_data),
             .ready(store_data_ready)
@@ -242,14 +242,14 @@ module Set_Associative_Cache
 			//	$display("READ SIGNAL\n");
 				if(data_available == CACHE_HIT) begin//not a miss
 `ifdef CACHEDEBUGXTRA
-					$display("cache hit");
-					$display("CACHE addr %d", addr);
-					$display("CACHE phy_addr %d", phy_addr);
-					$display("CACHE index %d", index);
-					$display("CACHE Tag1 %b", Tag[SET1][index]);
-					$display("CACHE Tag1 %b", Tag[SET2][index]);
-					$display("CACHE State1 %b",State[SET1][index]);
-					$display("CACHE State2 %b",State[SET2][index]);
+					$display("CACHE :cache hit");
+					$display("CACHE :addr %d", addr);
+					$display("CACHE :starting addr of block %d", phy_addr);
+					$display("CACHE :index %d", index);
+					$display("CACHE :Tag1 %b", Tag[SET1][index]);
+					$display("CACHE :Tag1 %b", Tag[SET2][index]);
+					$display("CACHE :State1 %b",State[SET1][index]);
+					$display("CACHE :State2 %b",State[SET2][index]);
 `endif
 					State[RSet][index][LRU_BIT]<= 0;
 					State[~RSet][index][LRU_BIT]<= 1;
@@ -300,7 +300,7 @@ module Set_Associative_Cache
 						Wait_fr_mem_read <=UNSET_WAIT;
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
-						$display("FLUSHING_NOT_NEEDED Requesting %d:\n ", starting_addr_of_block);
+						$display("CACHE :FLUSHING_NOT_NEEDED Requesting %x %x:\n ", starting_addr_of_block,addr);
 						addr_data_enable <= 1;
 						phy_addr <= starting_addr_of_block;
 						Wait_fr_mem_read <= SET_WAIT;
@@ -331,11 +331,11 @@ module Set_Associative_Cache
 				end
 				else if(data_available == WAITING_FOR_MEM_READ) begin
 					if(addr_data_ready) begin
-						$display("GSAHA data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
-						$display("GSAHA phy_addr %d", phy_addr);
-						$display("GSAHA start block addr %d", starting_addr_of_block);
-						$display("GSAHA %x %x\n",addr, Tag[RSet][index]);
-						$display("data arrived %x\n",data);
+						$display("CACHE: data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
+						$display("CACHE: phy_addr %d", phy_addr);
+						$display("CACHE: start block addr %d", starting_addr_of_block);
+						$display("CACHE: addr %x tag %x\n",addr, Tag[RSet][index]);
+						$display("CACHE: data arrived %x\n",data);
 						Wait_fr_mem_read <= UNSET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;
 						if(SIZE == 32) begin
@@ -375,7 +375,7 @@ module Set_Associative_Cache
 					else begin
 						addr_data_enable <= 0;
 `ifdef CACHEDEBUGXTRA
-						$display("setting wait 1\n");
+						$display("CACHE :setting wait 1\n");
 `endif
 						Wait_fr_mem_read <= SET_WAIT;
 						Wait_fr_mem_write<=UNSET_WAIT;

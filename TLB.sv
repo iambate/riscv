@@ -74,10 +74,11 @@ module Trans_Lookaside_Buff
             .main_bus_resp(bus_resp),
             .main_bus_req(bus_req),
             .main_bus_reqcyc(bus_reqcyc),
+	    .main_bus_resptag(bus_resptag),
             .main_bus_reqtag(bus_reqtag),
 	    .bus_busy(va_pa_bus_busy),
             .virt_addr(v_addr),//direct input in case of miss
-            .phy_addr(data),//64 bytes data to put in tlb
+            .phy_addr_array(data),//64 bytes data to put in tlb
             .ready(va_pa_ready)
                        );
 
