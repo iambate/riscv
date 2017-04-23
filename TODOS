@@ -22,3 +22,5 @@ All States:
 	(Increment a separately kept PC value only when instruction writebacks)
 
 Handle memory instructions like lb, lw
+
+add a switch case to not have TLB
