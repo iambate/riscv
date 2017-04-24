@@ -23,8 +23,8 @@ module fetch
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
   output out_ready,
-  input flush_signal,
-  input [63:0] sys_call_addrplus1,
+  input in_syscall_flush,
+  input [63:0] in_sys_call_addrplus1,
   output out_bus_reqcyc,
   output out_bus_respack,
   output [BUS_DATA_WIDTH-1:0] out_bus_req,
@@ -97,8 +97,8 @@ module fetch
   always_comb begin
     // PC MUX
     // when flush signal is high set pc to pc plus 1 of sys call inst
-    if(flush_signal) begin
-	assign pc = sys_call_addrplus1-'d4;
+    if(in_syscall_flush) begin
+	assign pc = in_sys_call_addrplus1-'d4;
     end
     else begin
     	if(in_branch_taken_bool) begin
@@ -108,7 +108,7 @@ module fetch
     	end
     end
 
-    if(flush_signal) begin
+    if(in_syscall_flush) begin
 	assign cache_rd_signal=0;
 	assign tlb_rd_signal=0;
     end
@@ -118,7 +118,7 @@ module fetch
     end
     //TODO: the case for flush_signal
     // Decide to stall or not
-    if(flush_signal) begin
+    if(in_syscall_flush) begin
 	assign out_ready=1;
     end
     else begin
@@ -135,7 +135,7 @@ module fetch
       old_pc <= entry-4;
       out_instruction_bits <= 0;
       out_pcplus1 <= 0;
-    end else if(flush_signal) begin
+    end else if(in_syscall_flush) begin
 	out_pcplus1<=0;
 	out_instruction_bits<=0;
 	old_pc<=pc;

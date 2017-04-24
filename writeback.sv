@@ -15,17 +15,20 @@ module writeback
   input in_enable,
   input [REGISTER_WIDTH-1:0] in_alu_result,
   input [REGISTER_WIDTH-1:0] in_mdata,
+  input [REGISTER_WIDTH-1:0] in_rs2_value,
+  input [REGISTER_WIDTH-1:0] in_phy_addr,
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input in_mm_load_bool,
   input in_update_rd_bool,
-  input [REGISTER_WIDTH-1:0] in_a0;
-  input [REGISTER_WIDTH-1:0] in_a1;
-  input [REGISTER_WIDTH-1:0] in_a2;
-  input [REGISTER_WIDTH-1:0] in_a3;
-  input [REGISTER_WIDTH-1:0] in_a4;
-  input [REGISTER_WIDTH-1:0] in_a5;
-  input [REGISTER_WIDTH-1:0] in_a6;
-  input [REGISTER_WIDTH-1:0] in_a7;
+  input [INSTRUCTION_NAME_WIDTH-1:0] in_opcode_name,
+  input [REGISTER_WIDTH-1:0] in_a0,
+  input [REGISTER_WIDTH-1:0] in_a1,
+  input [REGISTER_WIDTH-1:0] in_a2,
+  input [REGISTER_WIDTH-1:0] in_a3,
+  input [REGISTER_WIDTH-1:0] in_a4,
+  input [REGISTER_WIDTH-1:0] in_a5,
+  input [REGISTER_WIDTH-1:0] in_a6,
+  input [REGISTER_WIDTH-1:0] in_a7,
   output out_ready,
   output out_syscall_flush,
   output [REGISTER_WIDTH-1:0] out_wbdata,
@@ -33,30 +36,55 @@ module writeback
   output [REGISTER_WIDTH-1:0] out2wb_wbdata,
   output [REGISTERNO_WIDTH-1:0] out2wb_rd_regno
 );
-
+  logic state;
+  logic [REGISTER_WIDTH-1:0] returna0;
   always_comb begin
-    if(in_mm_load_bool) begin
-      assign out2wb_wbdata = in_mdata;  
+    if(state == 1) begin
+      assign out2wb_rd_regno = 10;
+      assign out2wb_wbdata = returna0;
+      assign out_ready = 1;
+    end else if(in_opcode_name == "scall") begin
+      assign out_ready = 0;
     end else begin
-      assign out2wb_wbdata = in_alu_result;
+      if(in_mm_load_bool) begin
+        assign out2wb_wbdata = in_mdata;
+      end else begin
+        assign out2wb_wbdata = in_alu_result;
+      end
+      assign out2wb_rd_regno = in_rd_regno;
+      assign out_ready = in_update_rd_bool;
     end
-    assign out2wb_rd_regno = in_rd_regno;
-    assign out_ready = in_update_rd_bool;
   end
 
   always_ff @(posedge clk) begin
     if(reset) begin
       //TODO: Add reset things here
+      state <= 0;
     end else begin
+      if(in_opcode_name == "sd" && in_enable) begin
+        do_pending_write(in_phy_addr, in_rs2_value, 64);
+      end if(in_opcode_name == "sw" && in_enable) begin
+        do_pending_write(in_phy_addr, in_rs2_value, 32);
+      end if(in_opcode_name == "sh" && in_enable) begin
+        do_pending_write(in_phy_addr, in_rs2_value, 16);
+      end if(in_opcode_name == "sb" && in_enable) begin
+        do_pending_write(in_phy_addr, in_rs2_value, 8);
+      end
+      if(in_opcode_name == "scall" && in_enable) begin
+        do_ecall(in_a7, in_a0, in_a1, in_a2, in_a3, in_a4, in_a5, in_a6, returna0);
+        state <= 1;
+      end else begin
+        state <= 0;
+      end
       if(in_enable) begin
-        if(in_update_rd_bool) begin
+        if(out_ready) begin
           out_wbdata <= out2wb_wbdata;
           out_rd_regno <= out2wb_rd_regno;
         end else begin
           out_wbdata <= 0;
           out_rd_regno <= 0;
         end
-      end
-    end
-  end
+      end // close else in_enable
+    end // close else reset
+  end //close ff
 endmodule

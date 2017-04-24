@@ -87,12 +87,14 @@ module top
   logic mm_mm_load_bool;
   logic [REGISTER_WIDTH-1:0] mm_mdata;
   logic [REGISTER_WIDTH-1:0] mm_alu_result;
+  logic [REGISTER_WIDTH-1:0] mm_rs2_value;
+  logic [REGISTER_WIDTH-1:0] mm_phy_addr;
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
   logic mm_ready;
   logic [INSTRUCTION_NAME_WIDTH-1:0] mm_opcode_name;
   logic wb_ready;
-  logic sys_call_flush;
-  logic [63:0] sys_call_addrplus1;
+  logic wb_syscall_flush;
+  logic [63:0] mm_pcplus1plusoffset;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
   logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
@@ -134,8 +136,8 @@ module top
                         .in_va_pa_abtr_grant(fetch_va_pa_abtr_grant),
                         .out_va_pa_abtr_reqcyc(fetch_va_pa_abtr_reqcyc),
                         .out_va_pa_bus_busy(fetch_va_pa_bus_busy),
-			.flush_signal(sys_call_flush),
-			.sys_call_addrplus1(sys_call_addrplus1));
+			.in_syscall_flush(wb_syscall_flush),
+			.in_sys_call_addrplus1(mm_pcplus1plusoffset));
 
 
   decode decode0 (.clk(clk),
@@ -210,6 +212,8 @@ module top
           .out_update_rd_bool(mm_update_rd_bool),
           .out_mm_load_bool(mm_mm_load_bool),
           .out_mdata(mm_mdata),
+          .out_rs2_value(mm_rs2_value),
+          .out_phy_addr(mm_phy_addr),
           .out_alu_result(mm_alu_result),
           .out_rd_regno(mm_rd_regno),
           .out_opcode_name(mm_opcode_name),
@@ -221,9 +225,12 @@ module top
                 .in_enable(fetch_ready & mm_ready),
                 .in_alu_result(mm_alu_result),
                 .in_mdata(mm_mdata),
+                .in_rs2_value(mm_rs2_value),
+                .in_phy_addr(mm_phy_addr),
                 .in_rd_regno(mm_rd_regno),
                 .in_mm_load_bool(mm_mm_load_bool),
                 .in_update_rd_bool(mm_update_rd_bool),
+                .in_opcode_name(mm_opcode_name),
                 .out_ready(wb_ready),
                 .out_wbdata(wb_wbdata),
                 .out_rd_regno(wb_rd_regno),
@@ -237,5 +244,6 @@ module top
                 .in_a5(decode_a5),
                 .in_a6(decode_a6),
                 .in_a7(decode_a7),
+                .out_syscall_flush(wb_syscall_flush)
                 );
 endmodule
