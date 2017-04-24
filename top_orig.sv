@@ -19,8 +19,7 @@ module top
   // 64-bit address of the program entry point
   input  [63:0] entry,
   input  [63:0] stackptr,
-  input  [63:0] satp,
-  
+  input  [63:0] satp,  
   // interface to connect to the bus
   output bus_reqcyc,
   output bus_respack,
@@ -84,6 +83,8 @@ module top
   logic mm_ready;
   logic [INSTRUCTION_NAME_WIDTH-1:0] mm_opcode_name;
   logic wb_ready;
+  logic sys_call_flush;
+  logic [63:0] sys_call_addrplus1;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
   logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
@@ -124,7 +125,9 @@ module top
                         .out_addr_data_bus_busy(fetch_addr_data_bus_busy),
                         .in_va_pa_abtr_grant(fetch_va_pa_abtr_grant),
                         .out_va_pa_abtr_reqcyc(fetch_va_pa_abtr_reqcyc),
-                        .out_va_pa_bus_busy(fetch_va_pa_bus_busy));
+                        .out_va_pa_bus_busy(fetch_va_pa_bus_busy),
+			.flush_signal(sys_call_flush),
+			.sys_call_addrplus1(sys_call_addrplus1));
 
 
   decode decode0 (.clk(clk),

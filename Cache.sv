@@ -35,7 +35,7 @@ module Set_Associative_Cache
 	output [SIZE-1:0] read_data,//F
 	output [1:0] data_available,//F
 	input [SIZE-1:0] write_data,
-	input [1:0] enable,
+	input enable,
 	output bus_reqcyc,
   	output bus_respack,
   	output [BUS_DATA_WIDTH-1:0] bus_req,
@@ -127,7 +127,7 @@ module Set_Associative_Cache
                        );
 
 	always_comb begin
-		if(enable==2) begin
+		if(enable) begin
 		assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];
 		assign tag = addr[63:STARTING_INDEX+15];
 		assign block_offset = addr[STARTING_INDEX+5:STARTING_INDEX];
@@ -236,7 +236,7 @@ module Set_Associative_Cache
 			//TODO:init valid bit
 		end
 		else begin
-			if(enable==2) begin
+			if(enable) begin
 `ifdef CACHEDEBUGXTRA
 			$display("CACHE: new cycle");
 `endif

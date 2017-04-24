@@ -23,7 +23,8 @@ module fetch
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
   output out_ready,
-
+  input flush_signal,
+  input [63:0] sys_call_addrplus1,
   output out_bus_reqcyc,
   output out_bus_respack,
   output [BUS_DATA_WIDTH-1:0] out_bus_req,
@@ -51,10 +52,11 @@ module fetch
   logic [63:0] p_addr;
   // TODO: Instantiate Instruction Cache module
 
-  Trans_Lookaside_Buff tlb(     .clk(clk),
+  Trans_Lookaside_Buff Itlb(     .clk(clk),
                                 .reset(reset),
                                 .v_addr(pc),
                                 .p_addr(p_addr),
+				.rd_signal(tlb_rd_signal),
                                 .addr_available(tlb_ready),//signal which fetch needs to wait on
 				.ptbr(ptbr), 
                                 .bus_reqcyc(out_bus_reqcyc),
@@ -73,7 +75,7 @@ module fetch
   Set_Associative_Cache ICache(	.clk(clk),
 				.reset(reset),
 				.addr(p_addr),
-				.enable(tlb_ready),
+				.enable(tlb_ready==2 & cache_rd_signal),//TODO:check if this condition works
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(cache_ready),//signal which fetch needs to wait on
@@ -94,17 +96,37 @@ module fetch
 				);
   always_comb begin
     // PC MUX
-    if(in_branch_taken_bool) begin
-      assign pc = in_target;
-    end else begin
-      assign pc = old_pc + 4;
+    // when flush signal is high set pc to pc plus 1 of sys call inst
+    if(flush_signal) begin
+	assign pc = sys_call_addrplus1-'d4;
+    end
+    else begin
+    	if(in_branch_taken_bool) begin
+      		assign pc = in_target;
+    	end else begin
+      		assign pc = old_pc + 4;
+    	end
     end
 
+    if(flush_signal) begin
+	assign cache_rd_signal=0;
+	assign tlb_rd_signal=0;
+    end
+    else begin
+	assign cache_rd_signal=0;
+	assign tlb_rd_signal=0;
+    end
+    //TODO: the case for flush_signal
     // Decide to stall or not
-    if(cache_ready==2) begin
-      assign out_ready = 1;
-    end else begin
-      assign out_ready = 0;
+    if(flush_signal) begin
+	assign out_ready=1;
+    end
+    else begin
+	    if(cache_ready==2) begin
+	      assign out_ready = 1;
+	    end else begin
+	      assign out_ready = 0;
+	    end
     end
 
   end
@@ -112,6 +134,11 @@ module fetch
     if(reset) begin
       old_pc <= entry-4;
       out_instruction_bits <= 0;
+      out_pcplus1 <= 0;
+    end else if(flush_signal) begin
+	out_pcplus1<=0;
+	out_instruction_bits<=0;
+	old_pc<=pc;
     end else if(cache_ready==2 & in_enable) begin
 	if(cache_instruction_bits) begin
       		$display("FETCH :instruction bits %x", cache_instruction_bits);
@@ -119,9 +146,6 @@ module fetch
       		out_instruction_bits <= cache_instruction_bits;
 		out_pcplus1 <= pc + 4;
       		old_pc <= pc;
-	end
-	else begin
-		$finish;
 	end
     end
   end

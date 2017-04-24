@@ -41,7 +41,7 @@ module Trans_Lookaside_Buff
   	input  bus_reqack,
   	input  [BUS_DATA_WIDTH-1:0] bus_resp,
   	input  [BUS_TAG_WIDTH-1:0] bus_resptag,
-	
+	input rd_signal,
 	input va_pa_abtr_grant,
 	output va_pa_abtr_reqcyc,
 	output va_pa_bus_busy,
@@ -83,35 +83,41 @@ module Trans_Lookaside_Buff
                        );
 
 	always_comb begin
-		assign index = v_addr[STARTING_INDEX+14:STARTING_INDEX+6];
-		assign tag = v_addr[63:STARTING_INDEX+15];
-		assign block_offset = v_addr[STARTING_INDEX+5:STARTING_INDEX];
-		if(Wait_fr_mem_read == SET_WAIT) begin
-			
-			assign RSet=ff_RSet;
-			assign p_addr=ff_p_addr;
-			assign addr_available = WAITING_FOR_MEM_READ;
-		end
-		else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
-			assign RSet=SET1;
-			assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] << 12)+v_addr[11:0];
-			assign addr_available = CACHE_HIT;
-		end
-		else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
-                        assign RSet=SET2;
-			assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] <<12)+v_addr[11:0];
-			assign addr_available = CACHE_HIT;
-                end
-		else begin//pick least recently used set to be replaced
-			assign addr_available = CACHE_MISS;
-			if(Tag[SET1][index]&LRU) begin
-				assign RSet = SET1;
-				assign p_addr=0;
+        	if(rd_signal) begin
+			assign index = v_addr[STARTING_INDEX+14:STARTING_INDEX+6];
+			assign tag = v_addr[63:STARTING_INDEX+15];
+			assign block_offset = v_addr[STARTING_INDEX+5:STARTING_INDEX];
+			if(Wait_fr_mem_read == SET_WAIT) begin
+				assign RSet=ff_RSet;
+				assign p_addr=ff_p_addr;
+				assign addr_available = WAITING_FOR_MEM_READ;
 			end
-			else begin
+			else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
+				assign RSet=SET1;
+				assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] << 12)+v_addr[11:0];
+				assign addr_available = CACHE_HIT;
+			end
+			else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
 				assign RSet=SET2;
-                                assign p_addr = 0;
+				assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] <<12)+v_addr[11:0];
+				assign addr_available = CACHE_HIT;
 			end
+			else begin//pick least recently used set to be replaced
+				assign addr_available = CACHE_MISS;
+				if(Tag[SET1][index]&LRU) begin
+					assign RSet = SET1;
+					assign p_addr=0;
+				end
+				else begin
+					assign RSet=SET2;
+					assign p_addr = 0;
+				end
+			end
+		end
+		else begin
+			assign addr_available = CACHE_MISS;
+			assign RSet=0;
+			assign p_addr=0;
 		end
 	end
 	always_ff @(posedge clk) begin
@@ -119,8 +125,9 @@ module Trans_Lookaside_Buff
 			Wait_fr_mem_read <= UNSET_WAIT;
 		end
 		else begin
+			if(rd_signal) begin
 `ifdef CACHEDEBUGXTRA
-			$display("TLB: new cycle\n");
+				$display("TLB: new cycle\n");
 `endif
 				if(addr_available == CACHE_HIT) begin//not a miss
 `ifdef CACHEDEBUGXTRA
@@ -168,6 +175,9 @@ module Trans_Lookaside_Buff
 						Wait_fr_mem_read <= SET_WAIT;
 					end
 				end
+			end
+			else begin
+			end
 		end
 	end
 endmodule
