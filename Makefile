@@ -15,8 +15,8 @@ obj_dir/Vtop: obj_dir/Vtop.mk
 	$(MAKE) -j5 -C obj_dir/ -f Vtop.mk CXX="ccache g++"
 
 obj_dir/Vtop.mk: $(VFILES) $(CFILES) 
-	verilator -Wall -Wno-LITENDIAN -Wno-lint -O3 $(TRACE) --no-skip-identical --cc test_top.sv \
-	--top-module top --exe $(CFILES) /shared/cse502/DRAMSim2/libdramsim.so \
+	verilator -Wall -Wno-LITENDIAN -Wno-lint -O3 $(TRACE) --no-skip-identical --cc top_orig.sv \
+	--top-module top_orig --exe $(CFILES) /shared/cse502/DRAMSim2/libdramsim.so \
 	-CFLAGS -I/shared/cse502 -CFLAGS -std=c++11 -CFLAGS -g3 \
 	-LDFLAGS -Wl,-rpath=/shared/cse502/DRAMSim2 \
 	-LDFLAGS -lncurses -LDFLAGS -lelf -LDFLAGS -lrt
