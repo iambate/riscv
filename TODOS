@@ -1,3 +1,12 @@
+Date:23-04
+Add three signals for mm in bus_controller
+Check alu_ready
+Change the wb_ready to only depend on rd_update_bool
+Send opcode till writeback so that it knows about ecall
+Think about Display Regs and termination
+Send ecall stall to all stage
+
+End
 Caches:
 
 	On Reset:

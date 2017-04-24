@@ -99,6 +99,7 @@ module top
                );
   fetch fetch_stage(    .clk(clk),
                         .reset(reset),
+                        .entry(entry),
                         .in_branch_taken_bool(alu_branch_taken_bool),
                         .ptbr(satp),
                         .in_target(alu_pcplus1plusoffs),

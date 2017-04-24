@@ -15,7 +15,8 @@ module fetch
 (
   input clk,
   input reset,
-  input [63:0] ptbr,
+  input [REGISTER_WIDTH-1:0] ptbr,
+  input [REGISTER_WIDTH-1:0] entry,
   input in_branch_taken_bool,
   input [ADDRESS_WIDTH-1:0] in_target,
   input in_enable,
@@ -109,9 +110,8 @@ module fetch
   end
   always_ff @ (posedge clk) begin
     if(reset) begin
-      old_pc <= -4;
+      old_pc <= entry-4;
       out_instruction_bits <= 0;
-      out_pcplus1 <= 0;
     end else if(cache_ready==2 & in_enable) begin
 	if(cache_instruction_bits) begin
       		$display("FETCH :instruction bits %x", cache_instruction_bits);

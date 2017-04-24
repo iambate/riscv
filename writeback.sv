@@ -32,11 +32,7 @@ module writeback
       assign out2wb_wbdata = in_alu_result;
     end
     assign out2wb_rd_regno = in_rd_regno;
-    if(in_enable) begin
-      assign out_ready = in_update_rd_bool;
-    end else begin
-      assign out_ready = 0;
-    end
+    assign out_ready = in_update_rd_bool;
   end
 
   always_ff @(posedge clk) begin
@@ -44,8 +40,13 @@ module writeback
       //TODO: Add reset things here
     end else begin
       if(in_enable) begin
-        out_wbdata <= out2wb_wbdata;
-        out_rd_regno <= out2wb_rd_regno;
+        if(in_update_rd_bool) begin
+          out_wbdata <= out2wb_wbdata;
+          out_rd_regno <= out2wb_rd_regno;
+        end else begin
+          out_wbdata <= 0;
+          out_rd_regno <= 0;
+        end
       end
     end
   end
