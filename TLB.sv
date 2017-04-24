@@ -161,7 +161,7 @@ module Trans_Lookaside_Buff
 					else begin
 `ifdef CACHEDEBUGXTRA
 						$display("TLB :Waiting for va to pa to fetch block at %x",v_addr);
-`ifdef CACHEDEBUGXTRA
+`endif
 						va_pa_enable <= 0;
 						ff_RSet<=RSet;
                                                 ff_p_addr<=p_addr;
