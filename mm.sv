@@ -1,4 +1,4 @@
-
+`include "DCache.sv"
 module mm
 #(
   ADDRESS_WIDTH = 64,
@@ -34,6 +34,51 @@ module mm
   logic not_mm_req;
   logic [REGISTER_WIDTH-1:0] cache_data;
   logic [REGISTER_WIDTH-1:0] n_mdata;
+/*
+
+  Trans_Lookaside_Buff Dtlb(    .clk(clk),
+                                .reset(reset),
+                                .v_addr(pc),
+                                .p_addr(p_addr),
+                                .rd_signal(tlb_rd_signal),
+                                .addr_available(tlb_ready),//signal which fetch needs to wait on
+                                .ptbr(ptbr),
+                                .bus_reqcyc(out_bus_reqcyc),
+                                .bus_respack(out_bus_respack),
+                                .bus_req(out_bus_req),
+                                .bus_reqtag(out_bus_reqtag),
+                                .bus_respcyc(in_bus_respcyc),
+                                .bus_reqack(in_bus_reqack),
+                                .bus_resp(in_bus_resp),
+                                .bus_resptag(in_bus_resptag),
+                                .va_pa_abtr_grant(in_va_pa_abtr_grant),
+                                .va_pa_abtr_reqcyc(out_va_pa_abtr_reqcyc),
+                                .va_pa_bus_busy(out_va_pa_bus_busy)
+                                );
+
+  D_Set_Associative_Cache DCache( .clk(clk),
+                                .reset(reset),
+                                .addr(p_addr),
+                                .enable(cache_rd_signal),
+                                .rd_wr_evict_flag(1),
+                                .read_data(cache_instruction_bits),
+                                .data_available(cache_ready),//signal which fetch needs to wait on
+                                .bus_reqcyc(out_bus_reqcyc),
+                                .bus_respack(out_bus_respack),
+                                .bus_req(out_bus_req),
+                                .bus_reqtag(out_bus_reqtag),
+                                .bus_respcyc(in_bus_respcyc),
+                                .bus_reqack(in_bus_reqack),
+                                .bus_resp(in_bus_resp),
+                                .bus_resptag(in_bus_resptag),
+                                .addr_data_abtr_grant(in_addr_data_abtr_grant),
+                                .addr_data_abtr_reqcyc(out_addr_data_abtr_reqcyc),
+                                .store_data_abtr_grant(in_store_data_abtr_grant),
+                                .store_data_abtr_reqcyc(out_store_data_abtr_reqcyc),
+                                .store_data_bus_busy(out_store_data_bus_busy),
+                                .addr_data_bus_busy(out_addr_data_bus_busy)
+                                );
+*/
   always_comb begin
     // default its not a mm_req, if it is set it below
     assign not_mm_req = 1;

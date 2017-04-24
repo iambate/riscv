@@ -51,7 +51,7 @@ module fetch
   logic [1:0] tlb_ready;
   logic [63:0] p_addr;
   // TODO: Instantiate Instruction Cache module
-
+//
   Trans_Lookaside_Buff Itlb(     .clk(clk),
                                 .reset(reset),
                                 .v_addr(pc),
@@ -75,7 +75,7 @@ module fetch
   Set_Associative_Cache ICache(	.clk(clk),
 				.reset(reset),
 				.addr(p_addr),
-				.enable(tlb_ready==2 & cache_rd_signal),//TODO:check if this condition works
+				.enable(tlb_ready==2 & cache_rd_signal),//TODO: check if this works
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(cache_ready),//signal which fetch needs to wait on
@@ -113,8 +113,8 @@ module fetch
 	assign tlb_rd_signal=0;
     end
     else begin
-	assign cache_rd_signal=0;
-	assign tlb_rd_signal=0;
+	assign cache_rd_signal=1;
+	assign tlb_rd_signal=1;
     end
     //TODO: the case for flush_signal
     // Decide to stall or not
