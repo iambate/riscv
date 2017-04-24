@@ -82,6 +82,7 @@ module top
   logic [REGISTER_WIDTH-1:0] mm_alu_result;
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
   logic mm_ready;
+  logic [INSTRUCTION_NAME_WIDTH-1:0] mm_opcode_name;
   logic wb_ready;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
@@ -192,6 +193,7 @@ module top
           .out_mdata(mm_mdata),
           .out_alu_result(mm_alu_result),
           .out_rd_regno(mm_rd_regno),
+          .out_opcode_name(mm_opcode_name),
           .out_ready(mm_ready)
           );
 

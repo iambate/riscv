@@ -53,11 +53,13 @@ module store_data
         case(next_state)
             STATERESET:
             begin
+                assign bus_busy = 0;
                 assign ready = 0;
                 assign abtr_reqcyc = 0;
             end
             STATEBEGIN:
             begin
+                assign bus_busy = 0;
                 assign ready = 0;
                 assign abtr_reqcyc = 1;
             end

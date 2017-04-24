@@ -24,6 +24,7 @@ module mm
   output [REGISTER_WIDTH-1:0] out_mdata,
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
+  output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
   output out_ready
 );
 
@@ -93,11 +94,12 @@ module mm
   always_ff @(posedge clk) begin
     if(reset) begin
       //TODO: Add reset things here
-      out_mm_load_bool <= in_mm_load_bool;
-      out_alu_result <= in_alu_result;
-      out_rd_regno <= in_rd_regno;
-      out_update_rd_bool <= in_update_rd_bool;
-      out_mdata <= n_mdata;
+      out_mm_load_bool <= 0;
+      out_alu_result <= 0;
+      out_rd_regno <= 0;
+      out_update_rd_bool <= 0;
+      out_mdata <= 0;
+      out_opcode_name <= 0;
     end else begin
       if(in_enable & out_ready) begin
 `ifdef MMDEBUG
@@ -112,6 +114,7 @@ module mm
         out_rd_regno <= in_rd_regno;
         out_update_rd_bool <= in_update_rd_bool;
         out_mdata <= n_mdata;
+        out_opcode_name <= in_opcode_name;
       end
     end
   end

@@ -51,11 +51,13 @@ module addr_to_data
         case(next_state)
             STATERESET:
             begin
+                assign bus_busy = 0;
                 assign abtr_reqcyc = 0;
                 assign ready = 0;
             end
             STATEBEGIN:
             begin
+                assign bus_busy = 0;
                 assign abtr_reqcyc = 1;
                 assign ready = 0;
             end
@@ -70,12 +72,14 @@ module addr_to_data
             end
             STATEWAIT:
             begin
+                assign bus_busy = 1;
                 assign main_bus_reqcyc = 0;
                 assign main_bus_respack = 0;
                 assign ready = 0;
             end
             STATERESP:
             begin
+                assign bus_busy = 1;
                 assign main_bus_respack = 1;
                 assign ready = 0;
             end
