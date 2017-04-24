@@ -38,21 +38,21 @@ module top_orig
   logic [8:0] counter;
   logic [8:0] ncounter;
   logic [63:0] phy_addr;
-  logic va_pa_abtr_grant;
-  logic va_pa_abtr_reqcyc;
-  logic va_pa_bus_busy;
-  logic va_pa_enable;
-  logic va_pa_ready;
-  logic addr_data_abtr_grant;
-  logic addr_data_abtr_reqcyc;
-  logic addr_data_bus_busy;
-  logic addr_data_enable;
-  logic addr_data_ready;
-  logic store_data_abtr_grant;
-  logic store_data_abtr_reqcyc;
-  logic store_data_bus_busy;
-  logic store_data_enable;
-  logic store_data_ready;
+  logic fetch_va_pa_abtr_grant;
+  logic fetch_va_pa_abtr_reqcyc;
+  logic fetch_va_pa_bus_busy;
+  logic fetch_va_pa_enable;
+  logic fetch_va_pa_ready;
+  logic fetch_addr_data_abtr_grant;
+  logic fetch_addr_data_abtr_reqcyc;
+  logic fetch_addr_data_bus_busy;
+  logic fetch_addr_data_enable;
+  logic fetch_addr_data_ready;
+  logic fetch_store_data_abtr_grant;
+  logic fetch_store_data_abtr_reqcyc;
+  logic fetch_store_data_bus_busy;
+  logic fetch_store_data_enable;
+  logic fetch_store_data_ready;
   logic [BUS_DATA_WIDTH*8-1:0] data;
   logic [INSTRUCTION_WIDTH-1:0] fetch_instruction_bits;
   logic [ADDRESS_WIDTH-1:0] fetch_pc;
@@ -92,66 +92,41 @@ module top_orig
         STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
 
   bus_controller bc    (.clk(clk),
-            .bus_reqcyc1(va_pa_abtr_reqcyc),
-            .bus_grant1(va_pa_abtr_grant),
-            .bus_reqcyc2(addr_data_abtr_reqcyc),
-            .bus_grant2(addr_data_abtr_grant),
-            .bus_reqcyc3(store_data_abtr_reqcyc),
-            .bus_grant3(store_data_abtr_grant),
-            .bus_busy(va_pa_bus_busy|addr_data_bus_busy|store_data_bus_busy)
+            .bus_reqcyc1(fetch_va_pa_abtr_reqcyc),
+            .bus_grant1(fetch_va_pa_abtr_grant),
+            .bus_reqcyc2(fetch_addr_data_abtr_reqcyc),
+            .bus_grant2(fetch_addr_data_abtr_grant),
+            .bus_reqcyc3(fetch_store_data_abtr_reqcyc),
+            .bus_grant3(fetch_store_data_abtr_grant),
+            .bus_busy(fetch_va_pa_bus_busy|fetch_addr_data_bus_busy|fetch_store_data_bus_busy)
                );
+  fetch fetch_stage(    .clk(clk),
+                        .reset(reset),
+                        .in_branch_taken_bool(alu_branch_taken_bool),
+                        .ptbr(satp),
+                        .in_target(alu_pcplus1plusoffs),
+                        .in_enable(1),
+                        .out_pcplus1(fetch_pc),
+                        .out_instruction_bits(fetch_instruction_bits),
+                        .out_ready(fetch_ready),
+                        .out_bus_reqcyc(bus_reqcyc),
+                        .out_bus_respack(bus_respack),
+                        .out_bus_req(bus_req),
+                        .out_bus_reqtag(bus_reqtag),
+                        .in_bus_respcyc(bus_respcyc),
+                        .in_bus_reqack(bus_reqack),
+                        .in_bus_resp(bus_resp),
+                        .in_bus_resptag(bus_resptag),
+                        .in_addr_data_abtr_grant(fetch_addr_data_abtr_grant),
+                        .out_addr_data_abtr_reqcyc(fetch_addr_data_abtr_reqcyc),
+                        .in_store_data_abtr_grant(fetch_store_data_abtr_grant),
+                        .out_store_data_abtr_reqcyc(fetch_store_data_abtr_reqcyc),
+                        .out_store_data_bus_busy(fetch_store_data_bus_busy),
+                        .out_addr_data_bus_busy(fetch_addr_data_bus_busy),
+                        .in_va_pa_abtr_grant(fetch_va_pa_abtr_grant),
+                        .out_va_pa_abtr_reqcyc(fetch_va_pa_abtr_reqcyc),
+                        .out_va_pa_bus_busy(fetch_va_pa_bus_busy));
 
-  va_to_pa va_to_pa1   (.clk(clk),
-            .reset(reset),
-            .ptbr(4096),
-            .enable(va_pa_enable),
-            .abtr_grant(va_pa_abtr_grant),
-            .abtr_reqcyc(va_pa_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .virt_addr(pc),
-            .phy_addr(phy_addr),
-            .ready(va_pa_ready)
-                       );
-
-  addr_to_data addr_data(
-            .clk(clk),
-            .reset(reset),
-            .enable(addr_data_enable),
-            .abtr_grant(addr_data_abtr_grant),
-            .abtr_reqcyc(addr_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .addr(phy_addr),
-            .data(data),
-            .ready(addr_data_ready)
-                       );
-
-  store_data store_data_0(
-            .clk(clk),
-            .reset(reset),
-            .enable(store_data_enable),
-            .abtr_grant(store_data_abtr_grant),
-            .abtr_reqcyc(store_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqack(bus_reqack),
-            .main_bus_reqtag(bus_reqtag),
-            .addr(phy_addr),
-            .data(data),
-            .ready(store_data_ready)
-                       );
 
   decode decode0 (.clk(clk),
                   .reset(reset),

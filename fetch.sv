@@ -23,24 +23,24 @@ module fetch
   output [INSTRUCTION_WIDTH-1:0] out_instruction_bits,
   output out_ready,
 
-  output bus_reqcyc,
-  output bus_respack,
-  output [BUS_DATA_WIDTH-1:0] bus_req,
-  output [BUS_TAG_WIDTH-1:0] bus_reqtag,
-  input  bus_respcyc,
-  input  bus_reqack,
-  input  [BUS_DATA_WIDTH-1:0] bus_resp,
-  input  [BUS_TAG_WIDTH-1:0] bus_resptag,
+  output out_bus_reqcyc,
+  output out_bus_respack,
+  output [BUS_DATA_WIDTH-1:0] out_bus_req,
+  output [BUS_TAG_WIDTH-1:0] out_bus_reqtag,
+  input  in_bus_respcyc,
+  input  in_bus_reqack,
+  input  [BUS_DATA_WIDTH-1:0] in_bus_resp,
+  input  [BUS_TAG_WIDTH-1:0] in_bus_resptag,
 
-  input addr_data_abtr_grant,
-  output addr_data_abtr_reqcyc,
-  input store_data_abtr_grant,
-  output store_data_abtr_reqcyc,
-  output store_data_bus_busy,
-  output addr_data_bus_busy,
-  input va_pa_abtr_grant,
-  output va_pa_abtr_reqcyc,
-  output va_pa_bus_busy
+  input in_addr_data_abtr_grant,
+  output out_addr_data_abtr_reqcyc,
+  input in_store_data_abtr_grant,
+  output out_store_data_abtr_reqcyc,
+  output out_store_data_bus_busy,
+  output out_addr_data_bus_busy,
+  input in_va_pa_abtr_grant,
+  output out_va_pa_abtr_reqcyc,
+  output out_va_pa_bus_busy
 );
   logic [ADDRESS_WIDTH-1:0] old_pc;
   logic [ADDRESS_WIDTH-1:0] pc;
@@ -56,17 +56,17 @@ module fetch
                                 .p_addr(p_addr),
                                 .addr_available(tlb_ready),//signal which fetch needs to wait on
 				.ptbr(ptbr), 
-                                .bus_reqcyc(bus_reqcyc),
-                                .bus_respack(bus_respack),
-                                .bus_req(bus_req),
-                                .bus_reqtag(bus_reqtag),
-                                .bus_respcyc(bus_respcyc),
-                                .bus_reqack(bus_reqack),
-                                .bus_resp(bus_resp),
-                                .bus_resptag(bus_resptag),
-                                .va_pa_abtr_grant(va_pa_abtr_grant),
-                                .va_pa_abtr_reqcyc(va_pa_abtr_reqcyc),
-                                .va_pa_bus_busy(va_pa_bus_busy)
+                                .bus_reqcyc(out_bus_reqcyc),
+                                .bus_respack(out_bus_respack),
+                                .bus_req(out_bus_req),
+                                .bus_reqtag(out_bus_reqtag),
+                                .bus_respcyc(in_bus_respcyc),
+                                .bus_reqack(in_bus_reqack),
+                                .bus_resp(in_bus_resp),
+                                .bus_resptag(in_bus_resptag),
+                                .va_pa_abtr_grant(in_va_pa_abtr_grant),
+                                .va_pa_abtr_reqcyc(out_va_pa_abtr_reqcyc),
+                                .va_pa_bus_busy(out_va_pa_bus_busy)
                                 );
 
   Set_Associative_Cache ICache(	.clk(clk),
@@ -76,20 +76,20 @@ module fetch
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(cache_ready),//signal which fetch needs to wait on
-        			.bus_reqcyc(bus_reqcyc),
-        			.bus_respack(bus_respack),
-        			.bus_req(bus_req),
-        			.bus_reqtag(bus_reqtag),
-        			.bus_respcyc(bus_respcyc),
-        			.bus_reqack(bus_reqack),
-        			.bus_resp(bus_resp),
-        			.bus_resptag(bus_resptag),
-        			.addr_data_abtr_grant(addr_data_abtr_grant),
-        			.addr_data_abtr_reqcyc(addr_data_abtr_reqcyc),
-        			.store_data_abtr_grant(store_data_abtr_grant),
-        			.store_data_abtr_reqcyc(store_data_abtr_reqcyc),
-        			.store_data_bus_busy(store_data_bus_busy),
-        			.addr_data_bus_busy(addr_data_bus_busy)
+        			.bus_reqcyc(out_bus_reqcyc),
+        			.bus_respack(out_bus_respack),
+        			.bus_req(out_bus_req),
+        			.bus_reqtag(out_bus_reqtag),
+        			.bus_respcyc(in_bus_respcyc),
+        			.bus_reqack(in_bus_reqack),
+        			.bus_resp(in_bus_resp),
+        			.bus_resptag(in_bus_resptag),
+        			.addr_data_abtr_grant(in_addr_data_abtr_grant),
+        			.addr_data_abtr_reqcyc(out_addr_data_abtr_reqcyc),
+        			.store_data_abtr_grant(in_store_data_abtr_grant),
+        			.store_data_abtr_reqcyc(out_store_data_abtr_reqcyc),
+        			.store_data_bus_busy(out_store_data_bus_busy),
+        			.addr_data_bus_busy(out_addr_data_bus_busy)
 				);
   always_comb begin
     // PC MUX
