@@ -377,7 +377,7 @@ endfunction
     end
     "auipc":
     begin
-      assign  n_pc = in_pcplus1 + in_imm_value - 4;
+      assign  n_alu_result = in_pcplus1 + in_imm_value - 4;
       assign n_update_rd_bool = 1;
     end
     "jal":
