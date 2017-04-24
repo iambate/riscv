@@ -29,6 +29,14 @@ module decode
   output [REGISTERNO_WIDTH-1:0] out_rs1_regno,
   output [REGISTERNO_WIDTH-1:0] out_rs2_regno,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
+  output [REGISTER_WIDTH-1:0] out_a0,
+  output [REGISTER_WIDTH-1:0] out_a1,
+  output [REGISTER_WIDTH-1:0] out_a2,
+  output [REGISTER_WIDTH-1:0] out_a3,
+  output [REGISTER_WIDTH-1:0] out_a4,
+  output [REGISTER_WIDTH-1:0] out_a5,
+  output [REGISTER_WIDTH-1:0] out_a6,
+  output [REGISTER_WIDTH-1:0] out_a7,
   output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
   output out_ready
 );
@@ -69,7 +77,15 @@ module decode
                     .in_rd_regno(in_wb_rd_regno),
                     .in_rd_value(in_wb_rd_value),
                     .out_rs1_value(n_rs1_value),
-                    .out_rs2_value(n_rs2_value)
+                    .out_rs2_value(n_rs2_value),
+                    .out_a0(out_a0),
+                    .out_a1(out_a1),
+                    .out_a2(out_a2),
+                    .out_a3(out_a3),
+                    .out_a4(out_a4),
+                    .out_a5(out_a5),
+                    .out_a6(out_a6),
+                    .out_a7(out_a7)
                    );
 
 

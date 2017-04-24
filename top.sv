@@ -68,6 +68,14 @@ module top
   logic [REGISTERNO_WIDTH-1:0] decode_rd_regno;
   logic [INSTRUCTION_NAME_WIDTH-1:0] decode_opcode_name;
   logic decode_ready;
+  logic [REGISTER_WIDTH-1:0] decode_a0;
+  logic [REGISTER_WIDTH-1:0] decode_a1;
+  logic [REGISTER_WIDTH-1:0] decode_a2;
+  logic [REGISTER_WIDTH-1:0] decode_a3;
+  logic [REGISTER_WIDTH-1:0] decode_a4;
+  logic [REGISTER_WIDTH-1:0] decode_a5;
+  logic [REGISTER_WIDTH-1:0] decode_a6;
+  logic [REGISTER_WIDTH-1:0] decode_a7;
   logic [REGISTER_WIDTH-1:0] alu_alu_result;
   logic [REGISTER_WIDTH-1:0] alu_rs2_value;
   logic [REGISTERNO_WIDTH-1:0] alu_rd_regno;

@@ -15,11 +15,27 @@ module RegisterFile
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input [REGISTER_WIDTH-1:0] in_rd_value,
   output [REGISTER_WIDTH-1:0] out_rs1_value,
-  output [REGISTER_WIDTH-1:0] out_rs2_value
+  output [REGISTER_WIDTH-1:0] out_rs2_value,
+  output [REGISTER_WIDTH-1:0] out_a0,
+  output [REGISTER_WIDTH-1:0] out_a1,
+  output [REGISTER_WIDTH-1:0] out_a2,
+  output [REGISTER_WIDTH-1:0] out_a3,
+  output [REGISTER_WIDTH-1:0] out_a4,
+  output [REGISTER_WIDTH-1:0] out_a5,
+  output [REGISTER_WIDTH-1:0] out_a6,
+  output [REGISTER_WIDTH-1:0] out_a7
 );
   reg[REGISTER_WIDTH -1:0] Registers[32];
 
   always_comb begin
+    assign out_a0 = Registers[10];
+    assign out_a1 = Registers[11];
+    assign out_a2 = Registers[12];
+    assign out_a3 = Registers[13];
+    assign out_a4 = Registers[14];
+    assign out_a5 = Registers[15];
+    assign out_a6 = Registers[16];
+    assign out_a7 = Registers[17];
     if(in_rs1_regno >= 'd0 && in_rs1_regno <= 'd31) begin
       assign out_rs1_value = Registers[in_rs1_regno];
     end

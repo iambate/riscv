@@ -18,7 +18,16 @@ module writeback
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input in_mm_load_bool,
   input in_update_rd_bool,
+  input [REGISTER_WIDTH-1:0] in_a0;
+  input [REGISTER_WIDTH-1:0] in_a1;
+  input [REGISTER_WIDTH-1:0] in_a2;
+  input [REGISTER_WIDTH-1:0] in_a3;
+  input [REGISTER_WIDTH-1:0] in_a4;
+  input [REGISTER_WIDTH-1:0] in_a5;
+  input [REGISTER_WIDTH-1:0] in_a6;
+  input [REGISTER_WIDTH-1:0] in_a7;
   output out_ready,
+  output out_syscall_flush,
   output [REGISTER_WIDTH-1:0] out_wbdata,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [REGISTER_WIDTH-1:0] out2wb_wbdata,
