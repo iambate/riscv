@@ -30,13 +30,15 @@ module mm
   output out_mm_load_bool,
   input [REGISTER_WIDTH-1:0] in_pcplus1plusoffs,
   output [REGISTER_WIDTH-1:0] out_pcplus1plusoffs,
-  output [REGISTER_WIDTH-1:0] out_mdata,
+  output [REGISTER_WIDTH-1:0] out_mdata,//need to set
   output [REGISTER_WIDTH-1:0] out_rs2_value,
-  output [REGISTER_WIDTH-1:0] out_phy_addr,
+  output [REGISTER_WIDTH-1:0] out_phy_addr,//set to paddr when u get tlb_ready==2 for 
+					   //st insts
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
-  output out_ready,
+  output out_ready,//set when cache_read_READY is set for ld and cache_read_WRITE is set for st
+		   //set at once for other insts-always_comb
   output out_bus_reqcyc,
   output out_bus_respack,
   output [BUS_DATA_WIDTH-1:0] out_bus_req,
@@ -59,6 +61,15 @@ module mm
 //in_syscall_flush,pc_value passed to 
   // Instantiate Cache and set cache_data as output to be filled
   // data_ready=1 is the signal from cache saying data is ready
+	logic [63:0] p_addr;
+	logic tlb_rd_signal;//ld st and sys_call flush:done
+	logic [1:0] tlb_ready;
+	logic cache_enable;//TODO: dont think we need it-enable only for ld and st inst and tlb is ready:done
+	logic [1:0] cache_signal;//give read_signal/write_signal depending on inst
+	logic [63:0] cache_data;//set to out_mdata in case of ld signal
+	logic [1:0] cache_ready_READ;
+	logic [1:0] cache_ready_WRITE;
+	logic [63:0] write_data;
 	
 /*
 TODO:
@@ -71,7 +82,7 @@ when flush signal is high cache wont read or write but it will still invalidate
   Trans_Lookaside_Buff Dtlb(    .clk(clk),
                                 .reset(reset),
                                 .v_addr(in_alu_result),//IMP
-                                .p_addr(p_addr),//IMP
+                                .p_addr(p_addr),//IMP-output
                                 .rd_signal(tlb_rd_signal),//IMP
                                 .addr_available(tlb_ready),//IMP
                                 .ptbr(ptbr),
@@ -91,7 +102,7 @@ when flush signal is high cache wont read or write but it will still invalidate
   D_Set_Associative_Cache DCache( .clk(clk),
                                 .reset(reset),
                                 .addr(p_addr),//IMP
-                                .enable(tlb_ready==2 & cache_enable),//IMP
+                                .enable(tlb_ready==2),//IMP
                                 .rd_wr_evict_flag(cache_signal),//IMP
                                 .read_data(cache_data),//IMP
                                 .data_available(cache_ready_READ),//IMP
@@ -114,18 +125,147 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 );
 
 	always_comb begin
+		if(in_syscall_flush) begin
+			assign out_ready=1;
+			assign tlb_rd_signal=0;
+		end
+		else begin
+			case(in_opcode_name)
+			"sb":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_WRITE==2) begin
+					assign out_ready =1;
+				end
+				else begin
+					assign out_ready = 0;
+				end
+			end
+			"sh":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_WRITE==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"sw":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_WRITE==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"sd":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_WRITE==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lb":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lbu":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lh":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lhu":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lw":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"lwu":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			"ld":begin
+				assign tlb_rd_signal =1;
+				if(cache_read_READ==2) begin
+                                        assign out_ready =1;
+                                end
+                                else begin
+                                        assign out_ready = 0;
+                                end
+			end
+			default:begin
+				assign tlb_rd_signal =0;
+				assign out_ready=1;
+			end
+			endcase
+		end
 	end
 	always_ff @(posedge clk) begin
 		if(reset) begin
+			out_mm_load_bool<=0;
+			out_mem_pcplus1plusoffs<=0;
+			out_alu_result<=0;
+			out_rd_regno<=0;
+			out_opcode_name<=0;
+			out_rs2_value<=0;
+			out_update_rd_bool<=0;
 		end
 		else begin
-			out_mm_load_bool <= in_mm_load_bool;
-			out_mem_pcplus1plusoffs<=in_pcplus1plusoffs;
-			out_alu_result<=in_alu_result;
-			out_rd_regno<=in_rd_regno;
-			out_opcode_name<=in_opcode_name;
-			out_rs2_value<=in_rs2_value;
-			out_update_rd_bool <= in_update_rd_bool;
+			if(in_syscall_flush) begin
+				out_mm_load_bool<=0;
+				out_mem_pcplus1plusoffs<=0;
+				out_alu_result<=0;
+				out_rd_regno<=0;
+				out_opcode_name<=0;
+				out_rs2_value<=0;
+                        	out_update_rd_bool<=0;
+			end
+			else begin
+				out_mm_load_bool <= in_mm_load_bool;
+				out_mem_pcplus1plusoffs<=in_pcplus1plusoffs;
+				out_alu_result<=in_alu_result;
+				out_rd_regno<=in_rd_regno;
+				out_opcode_name<=in_opcode_name;
+				out_rs2_value<=in_rs2_value;
+				out_update_rd_bool <= in_update_rd_bool;
+			end
 		end
 	end
 
