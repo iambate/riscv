@@ -39,6 +39,8 @@ module mm
 2) cache-listen to bus resp invalidate
 3) handle sys call flush sign
 4) put in wr_en and rd_en for cache and rd_en for tlb
+5) if rd_signal given wait on data_available , if wr signal wait on can_Write
+when flush signal is high cache wont read or write but it will still invalidate
 */
 
 
