@@ -1,7 +1,3 @@
-/*
- * Think about branches and set n_out_branch_taken_bool
- */
-
 
 //module type will have as input: inst name, type,inst
 module execute_instruction
@@ -34,6 +30,7 @@ module execute_instruction
   input in_branch_taken_bool,
   input in_alu_mm_load_bool,
   input in_mm_mm_load_bool,
+  input in_syscall_flush,
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTER_WIDTH-1:0] out_rs2_value,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
@@ -649,10 +646,25 @@ endfunction
     if(reset) begin
       // TODO: add reset things here
       stall_cycs <= 0;
+    end else if (in_syscall_flush) begin
+`ifdef ALUDEBUG
+        $display("ALU flushed due to syscall_flush");
+`endif
+        stall_cycs <= 0;
+        out_alu_result <= 0;
+        out_branch_taken_bool <= 0;
+        out_pcplus1plusoffs <= 0;
+        out_rs2_value <= 0;
+        out_opcode_name <= 0;
+        out_rd_regno <= 0;
+        out_update_rd_bool <= 0;
+        out_mm_load_bool <= 0;
     end else if (in_enable & out_ready) begin
       if (in_branch_taken_bool) begin
         // flush all register to zero i.e. nop
-        $display("ALU flushed");
+`ifdef ALUDEBUG
+        $display("ALU flushed due to branch taken");
+`endif
         stall_cycs <= 0;
         out_alu_result <= 0;
         out_branch_taken_bool <= 0;
@@ -663,6 +675,7 @@ endfunction
         out_update_rd_bool <= 0;
         out_mm_load_bool <= 0;
       end else begin
+`ifdef ALUDEBUG
         $display("ALU stall_cycs %d", n_stall_cycs);
         $display("ALU alu_result %d", n_alu_result);
         $display("ALU branch bool %d", n_branch_taken_bool);
@@ -675,6 +688,7 @@ endfunction
         $display("ALU rd_regno %d", in_rd_regno);
         $display("ALU rd_update_bool %d", n_update_rd_bool);
         $display("ALU mm_load Bool %d", n_mm_load_bool);
+`endif
         stall_cycs <= n_stall_cycs;
         out_alu_result <= n_alu_result;
         out_branch_taken_bool <= n_branch_taken_bool;

@@ -22,6 +22,7 @@ module decode
   input in_wb_enable,
   input in_branch_taken_bool,
   input in_display_regs,
+  input in_syscall_flush,
   output [ADDRESS_WIDTH-1:0] out_pcplus1,
   output [REGISTER_WIDTH-1:0] out_rs1_value,
   output [REGISTER_WIDTH-1:0] out_rs2_value,
@@ -94,10 +95,20 @@ module decode
     assign out_ready = 1;
   end
   always_ff @(posedge clk) begin
-    if(in_decode_enable) begin
+    if(in_syscall_flush) begin
+      $display("DECODE flushed due to syscall_flush signal");
+      out_pcplus1 <= 0;
+      out_rs1_value <= 0;
+      out_rs2_value <= 0;
+      out_rs1_regno <= 0;
+      out_rs2_regno <= 0;
+      out_rd_regno <= 0;
+      out_imm_value <= 0;
+      out_opcode_name <= 0;
+    end else if(in_decode_enable) begin
       if(in_branch_taken_bool) begin
         // If branch taken then flush and send nop instruction
-        $display("DECODE flushed");
+        $display("DECODE flushed due to branch taken");
         out_pcplus1 <= 0;
         out_rs1_value <= 0;
         out_rs2_value <= 0;

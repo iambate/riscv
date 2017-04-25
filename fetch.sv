@@ -1,7 +1,4 @@
-/*
- * TODO:
- * Add instruction cache module and respective buslines
- */
+`define FETCHDEBUG
 `include "Cache.sv"
 `include "TLB.sv"
 module fetch
@@ -132,17 +129,25 @@ module fetch
   end
   always_ff @ (posedge clk) begin
     if(reset) begin
+`ifdef FETCHDEBUG
+	$display("FETCH old_pc resetted to %d", entry-4);
+`endif
       old_pc <= entry-4;
       out_instruction_bits <= 0;
       out_pcplus1 <= 0;
     end else if(in_syscall_flush) begin
+`ifdef FETCHDEBUG
+	$display("FETCH flushed due to syscall flush signal"); 
+`endif
 	out_pcplus1<=0;
 	out_instruction_bits<=0;
 	old_pc<=pc;
     end else if(cache_ready==2 & in_enable) begin
 	if(cache_instruction_bits) begin
+`ifdef FETCHDEBUG
       		$display("FETCH :instruction bits %x", cache_instruction_bits);
       		$display("FETCH :this pc %d", pc);
+`endif
       		out_instruction_bits <= cache_instruction_bits;
 		out_pcplus1 <= pc + 4;
       		old_pc <= pc;

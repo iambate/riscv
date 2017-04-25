@@ -1,4 +1,4 @@
-
+`define WBDEBUG
 module writeback
 #(
   ADDRESS_WIDTH = 64,
@@ -43,8 +43,10 @@ module writeback
       assign out2wb_rd_regno = 10;
       assign out2wb_wbdata = returna0;
       assign out_ready = 1;
+      assign out_syscall_flush = 0;
     end else if(in_opcode_name == "scall") begin
       assign out_ready = 0;
+      assign out_syscall_flush = 1;
     end else begin
       if(in_mm_load_bool) begin
         assign out2wb_wbdata = in_mdata;
@@ -53,6 +55,7 @@ module writeback
       end
       assign out2wb_rd_regno = in_rd_regno;
       assign out_ready = in_update_rd_bool;
+      assign out_syscall_flush = 0;
     end
   end
 
@@ -62,15 +65,30 @@ module writeback
       state <= 0;
     end else begin
       if(in_opcode_name == "sd" && in_enable) begin
+`ifdef WBDEBUG
+        $display("WB do_pending_write sd phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
+`endif
         do_pending_write(in_phy_addr, in_rs2_value, 64);
       end if(in_opcode_name == "sw" && in_enable) begin
+`ifdef WBDEBUG
+        $display("WB do_pending_write sw phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
+`endif
         do_pending_write(in_phy_addr, in_rs2_value, 32);
       end if(in_opcode_name == "sh" && in_enable) begin
+`ifdef WBDEBUG
+        $display("WB do_pending_write sh phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
+`endif
         do_pending_write(in_phy_addr, in_rs2_value, 16);
       end if(in_opcode_name == "sb" && in_enable) begin
+`ifdef WBDEBUG
+        $display("WB do_pending_write sb phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
+`endif
         do_pending_write(in_phy_addr, in_rs2_value, 8);
       end
       if(in_opcode_name == "scall" && in_enable) begin
+`ifdef WBDEBUG
+        $display("WB scall, do_ecall called");
+`endif
         do_ecall(in_a7, in_a0, in_a1, in_a2, in_a3, in_a4, in_a5, in_a6, returna0);
         state <= 1;
       end else begin
@@ -78,9 +96,19 @@ module writeback
       end
       if(in_enable) begin
         if(out_ready) begin
+`ifdef WBDEBUG
+          $display("WB wbdata: %d", out2wb_wbdata); 
+          $display("WB rd regno: %d", out2wb_rd_regno); 
+          $display("WB ready: %d", out_ready); 
+`endif
           out_wbdata <= out2wb_wbdata;
           out_rd_regno <= out2wb_rd_regno;
         end else begin
+`ifdef WBDEBUG
+          $display("WB wbdata: %d", 0); 
+          $display("WB rd regno: %d", 0); 
+          $display("WB ready: %d", out_ready); 
+`endif
           out_wbdata <= 0;
           out_rd_regno <= 0;
         end
