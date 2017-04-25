@@ -27,9 +27,11 @@ module mm
   output out_update_rd_bool,
   input in_syscall_flush,
   output out_mm_load_bool,
-  input [63:0] in_pcplus1plusoffs,
-  output [63:0] out_mem_pcplus1plusoffs,
+  input [REGISTER_WIDTH-1:0] in_pcplus1plusoffs,
+  output [REGISTER_WIDTH-1:0] out_pcplus1plusoffs,
   output [REGISTER_WIDTH-1:0] out_mdata,
+  output [REGISTER_WIDTH-1:0] out_rs2_value,
+  output [REGISTER_WIDTH-1:0] out_phy_addr,
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
@@ -50,9 +52,7 @@ module mm
   output out_addr_data_bus_busy,
   input in_va_pa_abtr_grant,
   output out_va_pa_abtr_reqcyc,
-  output out_va_pa_bus_busy,
-  output out_rs2_value,
-  output [63:0] out_phy_addr
+  output out_va_pa_bus_busy
 );
 //TODO:
 //in_syscall_flush,pc_value passed to 
@@ -75,7 +75,6 @@ TODO:
 when flush signal is high cache wont read or write but it will still invalidate
 6) rs2 and pc value for sys call flush time
 */
-
 
   Trans_Lookaside_Buff Dtlb(    .clk(clk),
                                 .reset(reset),
@@ -250,7 +249,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 		out_phy_addr<=0;
 	end
 	endcase
-	out_mem_pcplus1plusoffs<=in_pcplus1plusoffs;
+	out_pcplus1plusoffs<=in_pcplus1plusoffs;
         out_mm_load_bool <= in_mm_load_bool;
         out_alu_result <= in_alu_result;
         out_rd_regno <= in_rd_regno;

@@ -146,11 +146,11 @@ module D_Set_Associative_Cache
 			assign block_offset = addr[STARTING_INDEX+5:STARTING_INDEX];
 			assign starting_addr_of_block = addr[63:6]<<6;
 			if(Wait_fr_mem_write==SET_WAIT) begin
-				if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+				if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 					assign WSet=ff_WSet;
 					assign canWrite=ff_canWrite;
 				end
-				else if(rd_wr_evict_signal==READ_SIGNAL) begin
+				else if(rd_wr_evict_flag==READ_SIGNAL) begin
 					assign RSet=ff_RSet;
 					assign read_data=ff_read_data;
 					assign data_available = ff_data_available;
@@ -158,11 +158,11 @@ module D_Set_Associative_Cache
 				assign flush_before_replacement = WAIT_FOR_FLUSH_COMPLETION;
 			end
 			else if(Wait_fr_mem_read == SET_WAIT) begin
-				if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+				if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 					assign WSet=ff_WSet;
 					assign canWrite=WAITING_FOR_MEM_READ;
 				end
-				else if(rd_wr_evict_signal==READ_SIGNAL) begin
+				else if(rd_wr_evict_flag==READ_SIGNAL) begin
 					assign RSet=ff_RSet;
 					assign read_data=ff_read_data;
 					assign data_available = WAITING_FOR_MEM_READ;
@@ -170,39 +170,39 @@ module D_Set_Associative_Cache
 				assign flush_before_replacement = ff_flush_before_replacement;
 			end
 			else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
-				if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+				if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 					assign WSet=SET1;//write
 					assign canWrite=CACHE_HIT;//write
 				end
-				else if(rd_wr_evict_signal==READ_SIGNAL) begin
+				else if(rd_wr_evict_flag==READ_SIGNAL) begin
 					assign RSet=SET1;
 					assign read_data = Data[RSet][index][block_offset/(SIZE/8)];
 					assign data_available = CACHE_HIT;
 				end
 			end
 			else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
-				if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+				if(rd_wr_evict_flag==WRITE_SIGNAL) begin
                                         assign WSet=SET2;//write
                                         assign canWrite=CACHE_HIT;//write
                                 end
-                                else if(rd_wr_evict_signal==READ_SIGNAL) begin
+                                else if(rd_wr_evict_flag==READ_SIGNAL) begin
                                         assign RSet=SET2;
                                         assign read_data = Data[RSet][index][block_offset/(SIZE/8)];
                                         assign data_available = CACHE_HIT;
                                 end
 			end
 			else begin//pick least recently used set to be replaced
-				if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+				if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 					assign canWrite=CACHE_MISS;//write
 				end
-				else if(rd_wr_evict_signal==READ_SIGNAL) begin
+				else if(rd_wr_evict_flag==READ_SIGNAL) begin
 					assign data_available = CACHE_MISS;
 				end
 				if(Tag[SET1][index]&LRU) begin
-					if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+					if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 						assign WSet= SET1;//write
 					end
-					else if(rd_wr_evict_signal==READ_SIGNAL) begin
+					else if(rd_wr_evict_flag==READ_SIGNAL) begin
 						assign RSet = SET1;
 						assign read_data = 0;
 					end
@@ -214,10 +214,10 @@ module D_Set_Associative_Cache
 					end
 				end
 				else begin
-					if(rd_wr_evict_signal==WRITE_SIGNAL) begin
+					if(rd_wr_evict_flag==WRITE_SIGNAL) begin
                                                 assign WSet= SET2;//write
                                         end
-                                        else if(rd_wr_evict_signal==READ_SIGNAL) begin
+                                        else if(rd_wr_evict_flag==READ_SIGNAL) begin
                                                 assign RSet = SET2;
                                                 assign read_data = 0;
                                         end
