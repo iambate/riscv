@@ -35,6 +35,12 @@ module mm
   logic [REGISTER_WIDTH-1:0] cache_data;
   logic [REGISTER_WIDTH-1:0] n_mdata;
 /*
+1) store-read first then write
+2) cache-listen to bus resp invalidate
+3) handle sys call flush sign
+4) put in wr_en and rd_en for cache and rd_en for tlb
+*/
+
 
   Trans_Lookaside_Buff Dtlb(    .clk(clk),
                                 .reset(reset),
@@ -78,7 +84,7 @@ module mm
                                 .store_data_bus_busy(out_store_data_bus_busy),
                                 .addr_data_bus_busy(out_addr_data_bus_busy)
                                 );
-*/
+
   always_comb begin
     // default its not a mm_req, if it is set it below
     assign not_mm_req = 1;
