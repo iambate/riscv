@@ -24,7 +24,7 @@ module D_Set_Associative_Cache
 	DIRTY_BIT=0,
 	LRU_BIT=1,
 	VALID_BIT=2,
-	INVAL_RESPTAG=SYSBUS_INVAL<<8
+	INVAL_RESPTAG='b1000<<8
 )
 (	
 	input clk,//F
@@ -44,7 +44,6 @@ module D_Set_Associative_Cache
   	input  bus_reqack,
   	input  [BUS_DATA_WIDTH-1:0] bus_resp,
   	input  [BUS_TAG_WIDTH-1:0] bus_resptag,
-	
 	input addr_data_abtr_grant,
 	output addr_data_abtr_reqcyc,
 	input store_data_abtr_grant,
@@ -246,7 +245,7 @@ module D_Set_Associative_Cache
 			if(inval_signal) begin
 				State[CSet][index][VALID_BIT]<=0;
 			end
-			if(enable) begin
+			else if(enable) begin
 	`ifdef CACHEDEBUGXTRA   
 				$display("CACHE: new cycle");
 	`endif

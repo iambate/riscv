@@ -72,6 +72,7 @@ module fetch
   Set_Associative_Cache ICache(	.clk(clk),
 				.reset(reset),
 				.addr(p_addr),
+				//TODO: IMP: check for circular dependency
 				.enable(tlb_ready==2 & cache_rd_signal),//TODO: check if this works
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
