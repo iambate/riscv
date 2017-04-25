@@ -40,18 +40,21 @@ module top
   logic fetch_va_pa_abtr_grant;
   logic fetch_va_pa_abtr_reqcyc;
   logic fetch_va_pa_bus_busy;
-  logic fetch_va_pa_enable;
-  logic fetch_va_pa_ready;
   logic fetch_addr_data_abtr_grant;
   logic fetch_addr_data_abtr_reqcyc;
   logic fetch_addr_data_bus_busy;
-  logic fetch_addr_data_enable;
-  logic fetch_addr_data_ready;
   logic fetch_store_data_abtr_grant;
   logic fetch_store_data_abtr_reqcyc;
   logic fetch_store_data_bus_busy;
-  logic fetch_store_data_enable;
-  logic fetch_store_data_ready;
+  logic mm_va_pa_abtr_grant;
+  logic mm_va_pa_abtr_reqcyc;
+  logic mm_va_pa_bus_busy;
+  logic mm_addr_data_abtr_grant;
+  logic mm_addr_data_abtr_reqcyc;
+  logic mm_addr_data_bus_busy;
+  logic mm_store_data_abtr_grant;
+  logic mm_store_data_abtr_reqcyc;
+  logic mm_store_data_bus_busy;
   logic [BUS_DATA_WIDTH*8-1:0] data;
   logic [INSTRUCTION_WIDTH-1:0] fetch_instruction_bits;
   logic [ADDRESS_WIDTH-1:0] fetch_pc;
@@ -101,14 +104,22 @@ module top
   logic [REGISTERNO_WIDTH-1:0] going2wb_rd_regno;
 
   bus_controller bc    (.clk(clk),
-            .bus_reqcyc1(fetch_va_pa_abtr_reqcyc),
-            .bus_grant1(fetch_va_pa_abtr_grant),
-            .bus_reqcyc2(fetch_addr_data_abtr_reqcyc),
-            .bus_grant2(fetch_addr_data_abtr_grant),
-            .bus_reqcyc3(fetch_store_data_abtr_reqcyc),
-            .bus_grant3(fetch_store_data_abtr_grant),
-            .bus_busy(fetch_va_pa_bus_busy|fetch_addr_data_bus_busy|fetch_store_data_bus_busy)
-               );
+                        .bus_reqcyc1(fetch_va_pa_abtr_reqcyc),
+                        .bus_grant1(fetch_va_pa_abtr_grant),
+                        .bus_reqcyc2(fetch_addr_data_abtr_reqcyc),
+                        .bus_grant2(fetch_addr_data_abtr_grant),
+                        .bus_reqcyc3(fetch_store_data_abtr_reqcyc),
+                        .bus_grant3(fetch_store_data_abtr_grant),
+                        .bus_reqcyc4(mm_va_pa_abtr_reqcyc),
+                        .bus_grant4(mm_va_pa_abtr_grant),
+                        .bus_reqcyc5(mm_addr_data_abtr_reqcyc),
+                        .bus_grant5(mm_addr_data_abtr_grant),
+                        .bus_reqcyc6(mm_store_data_abtr_reqcyc),
+                        .bus_grant6(mm_store_data_abtr_grant),
+                        .bus_busy(fetch_va_pa_bus_busy|fetch_addr_data_bus_busy|fetch_store_data_bus_busy |
+                                  mm_va_pa_bus_busy|mm_addr_data_bus_busy|mm_store_data_bus_busy
+                                 )
+                       );
   fetch fetch_stage(    .clk(clk),
                         .reset(reset),
                         .entry(entry),
@@ -219,7 +230,24 @@ module top
           .out_alu_result(mm_alu_result),
           .out_rd_regno(mm_rd_regno),
           .out_opcode_name(mm_opcode_name),
-          .out_ready(mm_ready)
+          .out_ready(mm_ready),
+          .out_bus_reqcyc(bus_reqcyc),
+          .out_bus_respack(bus_respack),
+          .out_bus_req(bus_req),
+          .out_bus_reqtag(bus_reqtag),
+          .in_bus_respcyc(bus_respcyc),
+          .in_bus_reqack(bus_reqack),
+          .in_bus_resp(bus_resp),
+          .in_bus_resptag(bus_resptag),
+          .in_addr_data_abtr_grant(mm_addr_data_abtr_grant),
+          .out_addr_data_abtr_reqcyc(mm_addr_data_abtr_reqcyc),
+          .in_store_data_abtr_grant(mm_store_data_abtr_grant),
+          .out_store_data_abtr_reqcyc(mm_store_data_abtr_reqcyc),
+          .out_store_data_bus_busy(mm_store_data_bus_busy),
+          .out_addr_data_bus_busy(mm_addr_data_bus_busy),
+          .in_va_pa_abtr_grant(mm_va_pa_abtr_grant),
+          .out_va_pa_abtr_reqcyc(mm_va_pa_abtr_reqcyc),
+          .out_va_pa_bus_busy(mm_va_pa_bus_busy)
           );
 
   writeback wb0(.clk(clk),

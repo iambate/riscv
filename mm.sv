@@ -1,6 +1,8 @@
 `include "DCache.sv"
 module mm
 #(
+  BUS_DATA_WIDTH = 64,
+  BUS_TAG_WIDTH = 13,
   ADDRESS_WIDTH = 64,
   REGISTER_WIDTH = 64,
   REGISTERNO_WIDTH = 5,
@@ -9,7 +11,7 @@ module mm
   INSTRUCTION_NAME_WIDTH = 12*8,
   FLAG_WIDTH = 16,
   READ_SIGNAL=1,
-  WRITE_SIGNAL=2,
+  WRITE_SIGNAL=2
   
 )
 (
@@ -32,7 +34,24 @@ module mm
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [INSTRUCTION_NAME_WIDTH-1:0] out_opcode_name,
   output out_ready,
-  output out_rs2_val,
+  output out_bus_reqcyc,
+  output out_bus_respack,
+  output [BUS_DATA_WIDTH-1:0] out_bus_req,
+  output [BUS_TAG_WIDTH-1:0] out_bus_reqtag,
+  input  in_bus_respcyc,
+  input  in_bus_reqack,
+  input  [BUS_DATA_WIDTH-1:0] in_bus_resp,
+  input  [BUS_TAG_WIDTH-1:0] in_bus_resptag,
+  input in_addr_data_abtr_grant,
+  output out_addr_data_abtr_reqcyc,
+  input in_store_data_abtr_grant,
+  output out_store_data_abtr_reqcyc,
+  output out_store_data_bus_busy,
+  output out_addr_data_bus_busy,
+  input in_va_pa_abtr_grant,
+  output out_va_pa_abtr_reqcyc,
+  output out_va_pa_bus_busy,
+  output out_rs2_value,
   output [63:0] out_phy_addr
 );
 //TODO:
