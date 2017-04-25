@@ -1,4 +1,4 @@
-
+//`define BCDEBUG
 module bus_controller
 #(
     BUS_DATA_WIDTH = 64,

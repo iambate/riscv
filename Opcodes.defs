@@ -34,6 +34,7 @@
 `define AUIPC	32'bxxxxxxxxxxxxxxxxxxxxxxxxx0010111
 `define JAL	32'bxxxxxxxxxxxxxxxxxxxxxxxxx1101111
 `define JALR	32'bxxxxxxxxxxxxxxxxx000xxxxx1100111
+`define RET	32'b00000000000000001000000001100111
 
 `define LB	32'bxxxxxxxxxxxxxxxxx000xxxxx0000011
 `define LH    	32'bxxxxxxxxxxxxxxxxx001xxxxx0000011 

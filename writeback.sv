@@ -30,6 +30,7 @@ module writeback
   input [REGISTER_WIDTH-1:0] in_a6,
   input [REGISTER_WIDTH-1:0] in_a7,
   output out_ready,
+  output out_display_regs,
   output out_syscall_flush,
   output [REGISTER_WIDTH-1:0] out_wbdata,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
@@ -39,7 +40,14 @@ module writeback
   logic state;
   logic [REGISTER_WIDTH-1:0] returna0;
   always_comb begin
-    if(state == 1) begin
+    assign out_display_regs = 0;
+    if(in_opcode_name == "ret") begin
+      assign out_display_regs = 1;
+      assign out_ready = 0;
+      assign out_syscall_flush = 0;
+      assign out2wb_rd_regno = 0;
+      assign out2wb_wbdata = 0;
+    end else if(state == 1) begin
       assign out2wb_rd_regno = 10;
       assign out2wb_wbdata = returna0;
       assign out_ready = 1;

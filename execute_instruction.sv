@@ -1,4 +1,5 @@
-
+`define ALUDEBUGEX
+`define ALUDEBUG
 //module type will have as input: inst name, type,inst
 module execute_instruction
 #(

@@ -1,4 +1,4 @@
-`define VAPADEBUG
+//`define VAPADEBUG
 module va_to_pa
 #(
     BUS_DATA_WIDTH = 64,
@@ -154,7 +154,7 @@ module va_to_pa
                 end
                 STATEWAIT:
                 begin
-`ifdef VAPADEBUG
+`ifdef VAPADEBUGEXTRA
 		$display("VP Wait state");
 `endif
                     level <= level;
@@ -220,7 +220,7 @@ module va_to_pa
                 end
                 STATEREADY:
                 begin
-`ifdef VAPADEBUG
+`ifdef VAPADEBUGEXTRA
                     $display("VP State ready");
 `endif
                     level <= 0;

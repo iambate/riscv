@@ -277,6 +277,7 @@ module top
                 .in_a5(decode_a5),
                 .in_a6(decode_a6),
                 .in_a7(decode_a7),
-                .out_syscall_flush(wb_syscall_flush)
+                .out_syscall_flush(wb_syscall_flush),
+                .out_display_regs(display_regs)
                 );
 endmodule

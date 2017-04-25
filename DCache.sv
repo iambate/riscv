@@ -204,7 +204,7 @@ module D_Set_Associative_Cache
 					end
 					else if(rd_wr_evict_flag==READ_SIGNAL) begin
 						assign RSet = SET1;
-						assign read_data = 0;
+						//assign read_data = 0;
 					end
 					if(State[RSet][index]&DIRTY == 1) begin
 						assign flush_before_replacement = FLUSHING_NEEDED;//flush before rewriting
@@ -219,7 +219,7 @@ module D_Set_Associative_Cache
                                         end
                                         else if(rd_wr_evict_flag==READ_SIGNAL) begin
                                                 assign RSet = SET2;
-                                                assign read_data = 0;
+                                                //assign read_data = 0;
                                         end
 					if(State[RSet][index]&DIRTY == 1) begin
 						assign flush_before_replacement = FLUSHING_NEEDED;
