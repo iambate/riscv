@@ -133,7 +133,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			case(in_opcode_name)
 			"sb":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_WRITE==2) begin
+				if(cache_ready_WRITE==2) begin
 					assign out_ready =1;
 				end
 				else begin
@@ -142,7 +142,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"sh":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_WRITE==2) begin
+				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -151,7 +151,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"sw":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_WRITE==2) begin
+				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -160,7 +160,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"sd":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_WRITE==2) begin
+				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -169,7 +169,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lb":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -178,7 +178,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lbu":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -187,7 +187,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lh":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -196,7 +196,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lhu":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -205,7 +205,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lw":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -214,7 +214,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"lwu":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
@@ -223,7 +223,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"ld":begin
 				assign tlb_rd_signal =1;
-				if(cache_read_READ==2) begin
+				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
                                 else begin
