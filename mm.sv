@@ -240,7 +240,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 	always_ff @(posedge clk) begin
 		if(reset) begin
 			out_mm_load_bool<=0;
-			out_mem_pcplus1plusoffs<=0;
+			out_pcplus1plusoffs<=0;
 			out_alu_result<=0;
 			out_rd_regno<=0;
 			out_opcode_name<=0;
@@ -250,7 +250,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 		else begin
 			if(in_syscall_flush) begin
 				out_mm_load_bool<=0;
-				out_mem_pcplus1plusoffs<=0;
+				out_pcplus1plusoffs<=0;
 				out_alu_result<=0;
 				out_rd_regno<=0;
 				out_opcode_name<=0;
@@ -259,7 +259,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			else begin
 				out_mm_load_bool <= in_mm_load_bool;
-				out_mem_pcplus1plusoffs<=in_pcplus1plusoffs;
+				out_pcplus1plusoffs<=in_pcplus1plusoffs;
 				out_alu_result<=in_alu_result;
 				out_rd_regno<=in_rd_regno;
 				out_opcode_name<=in_opcode_name;
