@@ -187,7 +187,7 @@ module Set_Associative_Cache
 		else begin
 			if(enable) begin
 `ifdef CACHEDEBUGXTRA
-			$display("CACHE: new cycle");
+			$display("CACHE: new cycle %d",rd_wr_evict_flag);
 `endif
 			if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 				if(data_available == CACHE_HIT) begin//not a miss
