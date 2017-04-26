@@ -73,7 +73,7 @@ module fetch
 				.reset(reset),
 				.addr(p_addr),
 				//TODO: IMP: check for circular dependency
-				.enable(tlb_ready==2 & cache_rd_signal),//TODO: check if this works
+				.enable(cache_rd_signal),//TODO: check if this works
 				.rd_wr_evict_flag(1),
 				.read_data(cache_instruction_bits),
 				.data_available(cache_ready),//signal which fetch needs to wait on
@@ -93,6 +93,19 @@ module fetch
         			.addr_data_bus_busy(out_addr_data_bus_busy)
 				);
   always_comb begin
+	if(in_syscall_flush) begin
+		assign cache_rd_signal=0;
+	end
+	else begin
+		if(tlb_ready==2) begin
+			assign cache_rd_signal=1;
+		end
+		else begin
+			assign cache_rd_signal =0;
+		end
+	end
+  end
+  always_comb begin
     // PC MUX
     // when flush signal is high set pc to pc plus 1 of sys call inst
     if(in_syscall_flush) begin
@@ -107,11 +120,9 @@ module fetch
     end
 
     if(in_syscall_flush) begin
-	assign cache_rd_signal=0;
 	assign tlb_rd_signal=0;
     end
     else begin
-	assign cache_rd_signal=1;
 	assign tlb_rd_signal=1;
     end
     //TODO: the case for flush_signal
