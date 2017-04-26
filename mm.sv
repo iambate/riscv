@@ -381,14 +381,51 @@ when flush signal is high cache wont read or write but it will still invalidate
                                                         end
                                                 end
 						"lh":begin
+							if(in_alu_result[2:0]==0) begin
+                                                                out_mdata<=$signed(cache_data[15:0]);
+                                                        end
+                                                        else if(in_alu_result[2:0]==2) begin
+                                                                out_mdata<=$signed(cache_data[31:16]);
+                                                        end
+                                                        else if(in_alu_result[2:0]==4) begin
+                                                                out_mdata<=$signed(cache_data[47:32]);
+                                                        end
+                                                        else if(in_alu_result[2:0]==6) begin
+                                                                out_mdata<=$signed(cache_data[63:48]);
+                                                        end
                                                 end
 						"lhu":begin
+							if(in_alu_result[2:0]==0) begin
+                                                                out_mdata<=cache_data[15:0];
+                                                        end
+                                                        else if(in_alu_result[2:0]==2) begin
+                                                                out_mdata<=cache_data[31:16];
+                                                        end
+                                                        else if(in_alu_result[2:0]==4) begin
+                                                                out_mdata<=cache_data[47:32];
+                                                        end
+                                                        else if(in_alu_result[2:0]==6) begin
+                                                                out_mdata<=cache_data[63:48];
+                                                        end
                                                 end
 						"lw":begin
+							if(in_alu_result[2:0]==0) begin
+                                                                out_mdata<=$signed(cache_data[31:0]);
+                                                        end
+                                                        else if(in_alu_result[2:0]==4) begin
+                                                                out_mdata<=$signed(cache_data[63:32]);
+                                                        end
                                                 end
 						"lwu":begin
+							if(in_alu_result[2:0]==0) begin
+                                                                out_mdata<=cache_data[31:0];
+                                                        end
+                                                        else if(in_alu_result[2:0]==4) begin
+                                                                out_mdata<=cache_data[63:32];
+                                                        end
                                                 end
 						"ld":begin
+							out_mdata<=$signed(cache_data);
                                                 end
 						endcase
                                         end
