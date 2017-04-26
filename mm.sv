@@ -414,7 +414,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 out_branch_taken_bool <= 0;
 			end
 			else begin
-				$display("mm new cycle %d",cache_signal);
 				out_mm_load_bool <= in_mm_load_bool;
 				out_pcplus1plusoffs<=in_pcplus1plusoffs;
 				out_alu_result<=in_alu_result;

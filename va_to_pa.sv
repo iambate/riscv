@@ -1,4 +1,4 @@
-`define VAPADEBUG
+//`define VAPADEBUG
 //`define VAPADEBUGEXTRA
 module va_to_pa
 #(
