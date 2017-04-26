@@ -164,7 +164,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 else begin
                                         assign cache_enable=0;
                                 end
-				assign cache_signal=READ_SIGNAL;
+				assign cache_signal=WRITE_SIGNAL;
                         end
                         "lb":begin
 				if(tlb_ready==2) begin
@@ -423,6 +423,15 @@ when flush signal is high cache wont read or write but it will still invalidate
 				out_rs2_value<=in_rs2_value;
 				out_update_rd_bool <= in_update_rd_bool;
 				out_branch_taken_bool <= in_branch_taken_bool;
+				if(in_opcode_name=="sd")begin
+					if(cache_ready==2) begin
+						out_mdata<=0;
+					end
+					else begin
+						out_mdata<=0;
+					end
+				end
+
 				if(in_opcode_name=="sb"||in_opcode_name=="sh"||in_opcode_name=="sw"||in_opcode_name=="sd")begin
 					if(tlb_ready==2) begin
 						out_phy_addr<=p_addr;
