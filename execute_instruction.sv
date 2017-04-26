@@ -387,7 +387,10 @@ endfunction
     end
     "ret":
     begin
-        assign instruction_name="ret";
+      if(in_rs1_value) begin
+        assign n_branch_taken_bool = 1;
+        assign n_pc = in_rs1_value;
+      end
     end
     "jalr":
     begin

@@ -8,7 +8,7 @@ using namespace std;
 
 extern "C" {
 
-#define ECALL_DEBUG 0
+#define ECALL_DEBUG 1
 #define ECALL_MEMGUARD (10*1024)
 
     map<long long, char> pending_writes;

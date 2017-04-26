@@ -23,9 +23,11 @@ module mm
   input [REGISTER_WIDTH-1:0] in_rs2_value,//store.what to write to mem
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input in_mm_load_bool,
+  input in_branch_taken_bool,
   input in_update_rd_bool,
   input [INSTRUCTION_NAME_WIDTH-1:0] in_opcode_name,
   output out_update_rd_bool,
+  output out_branch_taken_bool,
   input in_syscall_flush,
   output out_mm_load_bool,
   input [REGISTER_WIDTH-1:0] in_pcplus1plusoffs,
@@ -409,6 +411,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 				out_opcode_name<=0;
 				out_rs2_value<=0;
                         	out_update_rd_bool<=0;
+                                out_branch_taken_bool <= 0;
 			end
 			else begin
 				$display("mm new cycle %d",cache_signal);
@@ -419,6 +422,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 				out_opcode_name<=in_opcode_name;
 				out_rs2_value<=in_rs2_value;
 				out_update_rd_bool <= in_update_rd_bool;
+				out_branch_taken_bool <= in_branch_taken_bool;
 				if(in_opcode_name=="sb"||in_opcode_name=="sh"||in_opcode_name=="sw"||in_opcode_name=="sd")begin
 					if(tlb_ready==2) begin
 						out_phy_addr<=p_addr;

@@ -10,6 +10,7 @@ module RegisterFile
   input reset,
   input in_wr_enable,
   input display_regs,
+  input [REGISTER_WIDTH-1:0] in_stackptr,
   input [REGISTERNO_WIDTH-1:0] in_rs1_regno,
   input [REGISTERNO_WIDTH-1:0] in_rs2_regno,
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
@@ -52,7 +53,38 @@ module RegisterFile
 
   always_ff @(posedge clk) begin
     if(reset) begin
-      Registers[31:0]='{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+      Registers[0] <= 0;
+      Registers[1] <= 0; //TODO: Figureout the correct value
+      Registers[2] <= in_stackptr;
+      Registers[3] <= 0;
+      Registers[4] <= 0;
+      Registers[5] <= 0;
+      Registers[6] <= 0;
+      Registers[7] <= 0;
+      Registers[8] <= 0;
+      Registers[9] <= 0;
+      Registers[10] <= 0;
+      Registers[11] <= 0;
+      Registers[12] <= 0;
+      Registers[13] <= 0;
+      Registers[14] <= 0;
+      Registers[15] <= 0;
+      Registers[16] <= 0;
+      Registers[17] <= 0;
+      Registers[18] <= 0;
+      Registers[19] <= 0;
+      Registers[20] <= 0;
+      Registers[21] <= 0;
+      Registers[22] <= 0;
+      Registers[23] <= 0;
+      Registers[24] <= 0;
+      Registers[25] <= 0;
+      Registers[26] <= 0;
+      Registers[27] <= 0;
+      Registers[28] <= 0;
+      Registers[29] <= 0;
+      Registers[30] <= 0;
+      Registers[31] <= 0;
     end
     else if(in_wr_enable) begin
       $display("display_regs :%d", display_regs);

@@ -88,6 +88,7 @@ module top
   logic display_regs;
   logic mm_update_rd_bool;
   logic mm_mm_load_bool;
+  logic mm_branch_taken_bool;
   logic [REGISTER_WIDTH-1:0] mm_mdata;
   logic [REGISTER_WIDTH-1:0] mm_alu_result;
   logic [REGISTER_WIDTH-1:0] mm_rs2_value;
@@ -155,6 +156,7 @@ module top
                   .reset(reset),
                   // alu_ready is for stall against alu->mm data hazard
                   .in_decode_enable(fetch_ready & mm_ready & alu_ready),
+                  .in_stackptr(stackptr),
                   .in_pcplus1(fetch_pc),
                   .in_instruction_bits(fetch_instruction_bits),
                   .in_wb_rd_value(going2wb_wbdata),
@@ -220,11 +222,13 @@ module top
           .in_rs2_value(alu_rs2_value),
           .in_rd_regno(alu_rd_regno),
           .in_mm_load_bool(alu_mm_load_bool),
+          .in_branch_taken_bool(alu_branch_taken_bool),
           .in_update_rd_bool(alu_update_rd_bool),
           .in_opcode_name(alu_opcode_name),
           .out_update_rd_bool(mm_update_rd_bool),
           .in_syscall_flush(wb_syscall_flush),
           .out_mm_load_bool(mm_mm_load_bool),
+          .out_branch_taken_bool(mm_branch_taken_bool),
           .in_pcplus1plusoffs(alu_pcplus1plusoffs),
           .out_pcplus1plusoffs(mm_pcplus1plusoffset),
           .out_mdata(mm_mdata),
@@ -263,6 +267,7 @@ module top
                 .in_rd_regno(mm_rd_regno),
                 .in_mm_load_bool(mm_mm_load_bool),
                 .in_update_rd_bool(mm_update_rd_bool),
+                .in_branch_taken_bool(mm_branch_taken_bool),
                 .in_opcode_name(mm_opcode_name),
                 .out_ready(wb_ready),
                 .out_wbdata(wb_wbdata),

@@ -20,6 +20,7 @@ module writeback
   input [REGISTERNO_WIDTH-1:0] in_rd_regno,
   input in_mm_load_bool,
   input in_update_rd_bool,
+  input in_branch_taken_bool,
   input [INSTRUCTION_NAME_WIDTH-1:0] in_opcode_name,
   input [REGISTER_WIDTH-1:0] in_a0,
   input [REGISTER_WIDTH-1:0] in_a1,
@@ -41,7 +42,7 @@ module writeback
   logic [REGISTER_WIDTH-1:0] returna0;
   always_comb begin
     assign out_display_regs = 0;
-    if(in_opcode_name == "ret") begin
+    if(in_opcode_name == "ret" && in_branch_taken_bool == 0) begin
       assign out_display_regs = 1;
       assign out_ready = 0;
       assign out_syscall_flush = 0;
