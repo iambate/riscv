@@ -1,4 +1,4 @@
-//`define CACHEDEBUGXTRA
+`define CACHEDEBUGXTRA
 module Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,

@@ -54,7 +54,7 @@ module Trans_Lookaside_Buff
 	logic [2:0] State[2][512];
 	logic [48-STARTING_INDEX:0] tag;
 	logic [8:0] index;
-	logic [5:0] block_offset;
+	logic [5:0] block_offset_index;
 	logic [1:0] RSet;
         logic [1:0] ff_RSet;
 	logic Wait_fr_mem_read;
@@ -84,9 +84,9 @@ module Trans_Lookaside_Buff
 
 	always_comb begin
         	if(rd_signal) begin
-			assign index = v_addr[STARTING_INDEX+14:STARTING_INDEX+6];
+			assign index = v_addr[STARTING_INDEX+11:STARTING_INDEX+3];
 			assign tag = v_addr[63:STARTING_INDEX+15];
-			assign block_offset = v_addr[STARTING_INDEX+5:STARTING_INDEX];
+			assign block_offset_index = v_addr[STARTING_INDEX+2:STARTING_INDEX];
 			if(Wait_fr_mem_read == SET_WAIT) begin
 				assign RSet=ff_RSet;
 				assign p_addr=ff_p_addr;
@@ -94,12 +94,12 @@ module Trans_Lookaside_Buff
 			end
 			else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
 				assign RSet=SET1;
-				assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] << 12)+v_addr[11:0];
+				assign p_addr = (Data[RSet][index][block_offset_index][63:10] << 12)+v_addr[11:0];
 				assign addr_available = CACHE_HIT;
 			end
 			else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
 				assign RSet=SET2;
-				assign p_addr = (Data[RSet][index][block_offset/(SIZE/8)][63:10] <<12)+v_addr[11:0];
+				assign p_addr = (Data[RSet][index][block_offset_index][63:10] <<12)+v_addr[11:0];
 				assign addr_available = CACHE_HIT;
 			end
 			else begin//pick least recently used set to be replaced
@@ -132,6 +132,8 @@ module Trans_Lookaside_Buff
 				if(addr_available == CACHE_HIT) begin//not a miss
 `ifdef CACHEDEBUGXTRA
 					$display("TLB :cache hit, returning v addr %x p addr %x \n",v_addr,p_addr);
+					$display("TLB :cache hit, index %d \n",index);
+					$display("TLB :cache hit, block_offset_index %d \n",block_offset_index);
 `endif
 					Wait_fr_mem_read <= UNSET_WAIT;
 					State[RSet][index][LRU_BIT]<= 0;
@@ -150,6 +152,7 @@ module Trans_Lookaside_Buff
 					if(va_pa_ready) begin
 `ifdef CACHEDEBUGXTRA
 						$display("TLB : data arrived for block which contains virt addr %x",v_addr);
+						$display("TLB : data arrived %x",data);
 `endif
 						Wait_fr_mem_read <= UNSET_WAIT;
 						Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];

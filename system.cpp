@@ -239,7 +239,7 @@ uint64_t System::get_phys_page() {
     return page_no;
 }
 
-#define VM_DEBUG 0
+#define VM_DEBUG 1
 
 uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocated) {
     uint64_t addr = base_addr + vpn*8;
