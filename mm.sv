@@ -265,6 +265,28 @@ when flush signal is high cache wont read or write but it will still invalidate
 				out_opcode_name<=in_opcode_name;
 				out_rs2_value<=in_rs2_value;
 				out_update_rd_bool <= in_update_rd_bool;
+				if(in_opcode_name=="sb"||in_opcode_name=="sh"||in_opcode_name=="sw"||in_opcode_name=="sd")begin
+					if(tlb_ready==2) begin
+						out_phy_addr<=p_addr;
+					end
+					else begin
+						out_phy_addr<=0;
+					end
+				end
+				else begin
+					out_phy_addr<=0;
+				end
+				if(in_opcode_name=="lw"||in_opcode_name=="lwu"||in_opcode_name=="lh"||in_opcode_name=="lhu"||in_opcode_name=="ld"||in_opcode_name=="lbu"||in_opcode_name=="lb")begin
+                                        if(cache_ready_READ==2) begin
+                                                out_mdata<=cache_data;
+                                        end
+                                        else begin
+                                                out_mdata<=0;
+                                        end
+                                end
+                                else begin
+                                        out_mdata<=0;
+                                end
 			end
 		end
 	end
