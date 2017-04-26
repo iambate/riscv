@@ -124,7 +124,6 @@ when flush signal is high cache wont read or write but it will still invalidate
 
 	always_comb begin
 		if(in_syscall_flush) begin
-			assign out_ready=1;
 			assign tlb_rd_signal=0;
 		end
 		else begin
@@ -132,6 +131,61 @@ when flush signal is high cache wont read or write but it will still invalidate
 			"sb":begin
 				assign tlb_rd_signal =1;
 				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"sh":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"sw":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"sd":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lb":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lbu":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lh":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lhu":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lw":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"lwu":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			"ld":begin
+				assign tlb_rd_signal =1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			default:begin
+				assign tlb_rd_signal =0;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			endcase
+		end
+	end
+	always_comb begin
+		if(in_syscall_flush) begin
+			assign out_ready=1;
+		end
+		else begin
+			case(in_opcode_name)
+			"sb":begin
 				if(cache_ready_WRITE==2) begin
 					assign out_ready =1;
 				end
@@ -140,8 +194,6 @@ when flush signal is high cache wont read or write but it will still invalidate
 				end
 			end
 			"sh":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
@@ -150,8 +202,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"sw":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
@@ -160,8 +210,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"sd":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_WRITE==2) begin
                                         assign out_ready =1;
                                 end
@@ -170,8 +218,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lb":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -180,8 +226,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lbu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -190,8 +234,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lh":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -200,8 +242,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lhu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -210,8 +250,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lw":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -220,8 +258,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"lwu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -230,8 +266,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			"ld":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
 				if(cache_ready_READ==2) begin
                                         assign out_ready =1;
                                 end
@@ -240,7 +274,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
 			end
 			default:begin
-				assign tlb_rd_signal =0;
 				assign out_ready=1;
 			end
 			endcase
