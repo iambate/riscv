@@ -100,7 +100,7 @@ when flush signal is high cache wont read or write but it will still invalidate
   D_Set_Associative_Cache DCache( .clk(clk),
                                 .reset(reset),
                                 .addr(p_addr),//IMP
-                                .enable(tlb_ready==2),//IMP
+                                .enable(tlb_ready==2 & cache_enable),//IMP
                                 .rd_wr_evict_flag(cache_signal),//IMP
                                 .read_data(cache_data),//IMP
                                 .data_available(cache_ready_READ),//IMP
@@ -122,6 +122,58 @@ when flush signal is high cache wont read or write but it will still invalidate
 				.write_data(write_data)//IMP
                                 );
 
+	always_comb begin
+		if(in_syscall_flush) begin
+                        assign cache_enable=0;
+                end
+                else begin
+                        case(in_opcode_name)
+                        "sb":begin
+				assign cache_enable =1;
+                        end
+                        "sh":begin
+				assign cache_enable =1;
+                        end
+                        "sw":begin
+				assign cache_enable =1;
+                        end
+                        "sd":begin
+				assign cache_enable =1;
+                        end
+                        "lb":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+			"lbu":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        "lh":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        "lhu":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        "lw":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        "lwu":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        "ld":begin
+				assign cache_signal=READ_SIGNAL;
+				assign cache_enable =1;
+                        end
+                        default:begin
+				assign cache_enable=0;
+                        end
+                        endcase
+		end
+	end
 	always_comb begin
 		if(in_syscall_flush) begin
 			assign tlb_rd_signal=0;
@@ -198,7 +250,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -207,7 +258,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -216,7 +266,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -225,7 +274,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -234,7 +282,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -243,7 +290,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -252,7 +298,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
-					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -435,9 +480,8 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 end
                                 else begin
                                         out_mdata<=0;
-                                end
-			end
-		end
+                                end//end of ld copcode condition
+			end//if not syscall what to do
+		end//if not reset
 	end
-
 endmodule
