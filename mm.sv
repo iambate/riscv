@@ -198,6 +198,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -206,6 +207,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -214,6 +216,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -222,6 +225,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -230,6 +234,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -238,6 +243,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -246,6 +252,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign out_ready =1;
                                 end
                                 else begin
+					assign cache_signal = READ_SIGNAL;
                                         assign out_ready = 0;
                                 end
 			end
@@ -320,7 +327,70 @@ when flush signal is high cache wont read or write but it will still invalidate
 				end
 				if(in_opcode_name=="lw"||in_opcode_name=="lwu"||in_opcode_name=="lh"||in_opcode_name=="lhu"||in_opcode_name=="ld"||in_opcode_name=="lbu"||in_opcode_name=="lb")begin
                                         if(cache_ready_READ==2) begin
-                                                out_mdata<=cache_data;
+						case(in_opcode_name)
+						"lb":begin
+							if(in_alu_result[2:0]==0) begin
+								out_mdata<=$signed(cache_data[7:0]);
+							end
+							else if(in_alu_result[2:0]==1) begin
+								out_mdata<=$signed(cache_data[15:8]);
+                                                        end
+							else if(in_alu_result[2:0]==2) begin
+								out_mdata<=$signed(cache_data[23:16]);
+                                                        end
+							else if(in_alu_result[2:0]==3) begin
+								out_mdata<=$signed(cache_data[31:24]);
+                                                        end
+							else if(in_alu_result[2:0]==4) begin
+								out_mdata<=$signed(cache_data[39:32]);
+                                                        end
+							else if(in_alu_result[2:0]==5) begin
+								out_mdata<=$signed(cache_data[47:40]);
+                                                        end
+							else if(in_alu_result[2:0]==6) begin
+								out_mdata<=$signed(cache_data[55:48]);
+                                                        end
+							else if(in_alu_result[2:0]==7) begin
+								out_mdata<=$signed(cache_data[63:56]);
+                                                        end
+						end
+						"lbu":begin
+							if(in_alu_result[2:0]==0) begin
+                                                                out_mdata<=cache_data[7:0];
+                                                        end
+                                                        else if(in_alu_result[2:0]==1) begin
+                                                                out_mdata<=cache_data[15:8];
+                                                        end
+                                                        else if(in_alu_result[2:0]==2) begin
+                                                                out_mdata<=cache_data[23:16];
+                                                        end
+                                                        else if(in_alu_result[2:0]==3) begin
+                                                                out_mdata<=cache_data[31:24];
+                                                        end
+                                                        else if(in_alu_result[2:0]==4) begin
+                                                                out_mdata<=cache_data[39:32];
+                                                        end
+                                                        else if(in_alu_result[2:0]==5) begin
+                                                                out_mdata<=cache_data[47:40];
+                                                        end
+                                                        else if(in_alu_result[2:0]==6) begin
+                                                                out_mdata<=cache_data[55:48];
+                                                        end
+                                                        else if(in_alu_result[2:0]==7) begin
+                                                                out_mdata<=cache_data[63:56];
+                                                        end
+                                                end
+						"lh":begin
+                                                end
+						"lhu":begin
+                                                end
+						"lw":begin
+                                                end
+						"lwu":begin
+                                                end
+						"ld":begin
+                                                end
+						endcase
                                         end
                                         else begin
                                                 out_mdata<=0;
