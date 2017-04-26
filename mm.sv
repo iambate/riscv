@@ -100,7 +100,7 @@ when flush signal is high cache wont read or write but it will still invalidate
   D_Set_Associative_Cache DCache( .clk(clk),
                                 .reset(reset),
                                 .addr(p_addr),//IMP
-                                .enable(tlb_ready==2 & cache_enable),//IMP
+                                .enable(cache_enable),//IMP
                                 .rd_wr_evict_flag(cache_signal),//IMP
                                 .read_data(cache_data),//IMP
                                 .data_available(cache_ready_READ),//IMP
@@ -129,48 +129,107 @@ when flush signal is high cache wont read or write but it will still invalidate
                 else begin
                         case(in_opcode_name)
                         "sb":begin
-				assign cache_enable =1;
+				if(tlb_ready==2) begin
+					assign cache_enable =1;
+				end
+				else begin
+					assign cache_enable=0; 
+				end
+				assign cache_signal=READ_SIGNAL;
                         end
                         "sh":begin
-				assign cache_enable =1;
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
+				assign cache_signal=READ_SIGNAL;
                         end
                         "sw":begin
-				assign cache_enable =1;
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
+				assign cache_signal=READ_SIGNAL;
                         end
                         "sd":begin
-				assign cache_enable =1;
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
+				assign cache_signal=READ_SIGNAL;
                         end
                         "lb":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
 			"lbu":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
                         "lh":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
                         "lhu":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
                         "lw":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
                         "lwu":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
                         "ld":begin
+				if(tlb_ready==2) begin
+                                        assign cache_enable =1;
+                                end
+                                else begin
+                                        assign cache_enable=0;
+                                end
 				assign cache_signal=READ_SIGNAL;
-				assign cache_enable =1;
                         end
-                        default:begin
+			default:begin
 				assign cache_enable=0;
-                        end
+			end
                         endcase
 		end
 	end
@@ -352,6 +411,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                         	out_update_rd_bool<=0;
 			end
 			else begin
+				$display("mm new cycle %d",cache_signal);
 				out_mm_load_bool <= in_mm_load_bool;
 				out_pcplus1plusoffs<=in_pcplus1plusoffs;
 				out_alu_result<=in_alu_result;

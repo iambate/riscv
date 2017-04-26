@@ -250,7 +250,7 @@ module D_Set_Associative_Cache
 			end
 			else if(enable) begin
 	`ifdef CACHEDEBUGXTRA   
-				$display("DCACHE: new cycle");
+				$display("DCACHE: new cycle %d",rd_wr_evict_flag);
 	`endif
 				if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 `ifdef CACHEDEBUGXTRA
@@ -404,6 +404,9 @@ module D_Set_Associative_Cache
 	//----------------------------------------------------------------------------------------------------------------
 				//write signal
 				else if(rd_wr_evict_flag == WRITE_SIGNAL) begin//write
+`ifdef CACHEDEBUGXTRA
+					$display("DCACHE :write signal recvd for addr %x",addr);
+`endif
 					if(canWrite==CACHE_HIT)begin
 						Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 						State[WSet][index][LRU_BIT]<= 0;
