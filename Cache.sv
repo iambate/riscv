@@ -1,4 +1,4 @@
-`define CACHEDEBUGXTRA
+//`define CACHEDEBUGXTRA
 module Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -249,7 +249,7 @@ module Set_Associative_Cache
 					end
 					else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 `ifdef CACHEDEBUGXTRA
-						$display("CACHE :FLUSHING_NOT_NEEDED Requesting %x %x:\n ", starting_addr_of_block,addr);
+						$display("CACHE :FLUSHING_NOT_NEEDED Requesting %d %d:\n ", starting_addr_of_block,addr);
 `endif
 						addr_data_enable <= 1;
 						phy_addr <= starting_addr_of_block;
@@ -282,7 +282,7 @@ module Set_Associative_Cache
 						$display("CACHE: data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
 						$display("CACHE: phy_addr %d", phy_addr);
 						$display("CACHE: start block addr %d", starting_addr_of_block);
-						$display("CACHE: addr %x tag %x\n",addr, Tag[RSet][index]);
+						$display("CACHE: addr %d tag %d\n",addr, Tag[RSet][index]);
 						$display("CACHE: data arrived %x\n",data);
 `endif
 						Wait_fr_mem_read <= UNSET_WAIT;

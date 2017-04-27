@@ -218,6 +218,7 @@ module top
 
   mm mm0 (.clk(clk),
           .in_enable(fetch_ready),
+          .ptbr(satp),
           .in_alu_result(alu_alu_result),
           .in_rs2_value(alu_rs2_value),
           .in_rd_regno(alu_rd_regno),

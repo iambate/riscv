@@ -423,7 +423,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 				out_update_rd_bool <= in_update_rd_bool;
 				out_branch_taken_bool <= in_branch_taken_bool;
 				if(in_opcode_name=="sd")begin
-					if(cache_ready==2) begin
+					if(cache_ready_WRITE==2) begin
 						out_mdata<=0;
 					end
 					else begin

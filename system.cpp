@@ -57,6 +57,7 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
     top->stackptr = ramsize - 4*MEGA;
     virt_to_phy(top->stackptr - PAGE_SIZE); // allocate stack page
 
+    cout << "Virtual addr of stackptr: " << std::dec << top->stackptr << " Phy addr: " << virt_to_phy(top->stackptr) <<endl;
     uint64_t* argvp = (uint64_t*)(ram+virt_to_phy(top->stackptr));
     argvp[0] = argc;
     uint64_t dst = top->stackptr + 8/*argc*/ + 8*argc;
@@ -138,7 +139,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        //cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        //cerr << "responding data " << std::dec << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -239,7 +240,7 @@ uint64_t System::get_phys_page() {
     return page_no;
 }
 
-#define VM_DEBUG 1
+#define VM_DEBUG 0
 
 uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocated) {
     uint64_t addr = base_addr + vpn*8;
@@ -255,6 +256,7 @@ uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocat
         if (VM_DEBUG) {
             cout << "Addr:" << std::dec << addr << endl;
             cout << "Initialized page no " << std::dec << page_no << endl;
+            cout << "Initialized new addr " << std::dec << (page_no<<12) << endl;
         }
         allocated = isleaf;
     } else {
@@ -273,9 +275,11 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
     uint64_t phy_offset = virt_addr & (PAGE_SIZE-1);
     uint64_t tmp_virt_addr = virt_addr >> 12;
     for(int i = 0; i < 4; i++) {
-        int vpn = tmp_virt_addr & (0x01ff << 9*(3-i));
+        int vpn = (tmp_virt_addr & (0x01ff << 9*(3-i))) >> 9*(3-i);
+        //cout << "vpn" << std::dec << vpn << endl;
         uint64_t pte = get_pte(pt_base_addr, vpn, i == 3, allocated);
         pt_base_addr = ((pte&0x0000ffffffffffff)>>10)<<12;
+        //cout << "new pte " << std::dec << pte << " pt_base_addr " << pt_base_addr << endl;
     }
     if (allocated) {
         void* new_virt = ram_virt + (virt_addr & ~(PAGE_SIZE-1));
@@ -287,6 +291,8 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
 
 uint64_t System::load_elf_parts(int fd, size_t part_size, const uint64_t virt_addr) {
     uint64_t phy_addr = virt_to_phy(virt_addr);
+    //TODO: remove the following sentence
+    //cout << "Virtual addr: " << std::dec << virt_addr << " Physical addr: " << phy_addr << endl;
     if (VM_DEBUG) cout << "Virtual addr: " << std::hex << virt_addr << " Physical addr: " << phy_addr << endl;
     size_t len = read(fd, (void*)(ram + phy_addr/* addr */), part_size);
     assert(len == part_size);

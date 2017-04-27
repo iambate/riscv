@@ -1,4 +1,4 @@
-//`define CACHEDEBUGXTRA
+//`define TLBDEBUG
 module Trans_Lookaside_Buff
 #(
 	BUS_DATA_WIDTH = 64,
@@ -126,12 +126,12 @@ module Trans_Lookaside_Buff
 		end
 		else begin
 			if(rd_signal) begin
-`ifdef CACHEDEBUGXTRA
+`ifdef TLBDEBUG
 				$display("TLB: new cycle\n");
 `endif
 				if(addr_available == CACHE_HIT) begin//not a miss
-`ifdef CACHEDEBUGXTRA
-					$display("TLB :cache hit, returning v addr %x p addr %x \n",v_addr,p_addr);
+`ifdef TLBDEBUG
+					$display("TLB :cache hit, returning v addr %d p addr %d \n",v_addr,p_addr);
 					$display("TLB :cache hit, index %d \n",index);
 					$display("TLB :cache hit, block_offset_index %d \n",block_offset_index);
 `endif
@@ -140,8 +140,8 @@ module Trans_Lookaside_Buff
 					State[~RSet][index][LRU_BIT]<= 1;
 				end
 				else if(addr_available == CACHE_MISS) begin//miss
-`ifdef CACHEDEBUGXTRA
-						$display("TLB : cache miss for virt addr %x",v_addr);
+`ifdef TLBDEBUG
+						$display("TLB : cache miss for virt addr %d",v_addr);
 `endif
 						va_pa_enable <= 1;
 						Wait_fr_mem_read <= SET_WAIT;
@@ -150,8 +150,8 @@ module Trans_Lookaside_Buff
 				end
 				else if(addr_available == WAITING_FOR_MEM_READ) begin
 					if(va_pa_ready) begin
-`ifdef CACHEDEBUGXTRA
-						$display("TLB : data arrived for block which contains virt addr %x",v_addr);
+`ifdef TLBDEBUG
+						$display("TLB : data arrived for block which contains virt addr %d",v_addr);
 						$display("TLB : data arrived %x",data);
 `endif
 						Wait_fr_mem_read <= UNSET_WAIT;
@@ -169,8 +169,8 @@ module Trans_Lookaside_Buff
 						State[~RSet][index][LRU_BIT] <= 1;
 					end
 					else begin
-`ifdef CACHEDEBUGXTRA
-						$display("TLB :Waiting for va to pa to fetch block at %x",v_addr);
+`ifdef TLBDEBUG
+						$display("TLB :Waiting for va to pa to fetch block at %d",v_addr);
 `endif
 						va_pa_enable <= 0;
 						ff_RSet<=RSet;
