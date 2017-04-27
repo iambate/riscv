@@ -1,4 +1,4 @@
-//`define CACHEDEBUGXTRA
+`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -408,6 +408,9 @@ module D_Set_Associative_Cache
 					$display("DCACHE :write signal recvd for addr %d",addr);
 `endif
 					if(canWrite==CACHE_HIT)begin
+`ifdef CACHEDEBUGXTRA
+						$display("DCACHE :cache hit for addr %d writing data %x",addr,write_data);
+`endif			
 						Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 						State[WSet][index][LRU_BIT]<= 0;
 						State[~WSet][index][LRU_BIT]<=1;

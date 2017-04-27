@@ -1,4 +1,5 @@
 //`define TLBDEBUG
+//`define ENABLE_TLB
 module Trans_Lookaside_Buff
 #(
 	BUS_DATA_WIDTH = 64,
@@ -83,6 +84,7 @@ module Trans_Lookaside_Buff
                        );
 
 	always_comb begin
+`ifdef ENABLE_TLB
         	if(rd_signal) begin
 			assign index = v_addr[STARTING_INDEX+11:STARTING_INDEX+3];
 			assign tag = v_addr[63:STARTING_INDEX+15];
@@ -119,12 +121,17 @@ module Trans_Lookaside_Buff
 			assign RSet=0;
 			assign p_addr=0;
 		end
+`else
+		assign p_addr=v_addr;
+		assign addr_available=CACHE_HIT;
+`endif
 	end
 	always_ff @(posedge clk) begin
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 		end
 		else begin
+`ifdef ENABLE_TLB
 			if(rd_signal) begin
 `ifdef TLBDEBUG
 				$display("TLB: new cycle\n");
@@ -181,6 +188,7 @@ module Trans_Lookaside_Buff
 			end
 			else begin
 			end
+`endif
 		end
 	end
 endmodule

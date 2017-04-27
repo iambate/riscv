@@ -126,88 +126,90 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 );
 	//for manipulating data to write for sb,sh,sw
 	always_comb begin
-		case(in_opcode_name)
-		"sb":begin
-			if(store_rd_wr==2) begin
-                                //assign stuff to write_data that are taken from read_data
-                                if(in_alu_result[2:0]==0) begin
-                                        assign write_data[7:0]=in_rs2_value[7:0];
-                                        assign write_data[63:8]=cache_data[63:8];
-                                end
-                                else if(in_alu_result[2:0]==1) begin
-                                        assign write_data[7:0]=cache_data[7:0];
-                                        assign write_data[15:8]=in_rs2_value[7:0];
-                                        assign write_data[63:16]=cache_data[63:16];
-                                end
-                                else if(in_alu_result[2:0]==2) begin
-                                        assign write_data[15:0]=cache_data[15:0];
-                                        assign write_data[23:16]=in_rs2_value[7:0];
-                                        assign write_data[63:24]=cache_data[63:24];
-                                end
-                                else if(in_alu_result[2:0]==3) begin//
-                                        assign write_data[23:0]=cache_data[23:0];
-                                        assign write_data[31:24]=in_rs2_value[7:0];
-                                        assign write_data[63:32]=cache_data[63:32];
-                                end
-                                else if(in_alu_result[2:0]==4) begin
-                                        assign write_data[31:0]=cache_data[31:0];
-                                        assign write_data[39:32]=in_rs2_value[7:0];
-                                        assign write_data[63:40]=cache_data[63:40];
-                                end
-                                else if(in_alu_result[2:0]==5) begin
-					assign write_data[39:0]=cache_data[39:0];
-                                        assign write_data[47:40]=in_rs2_value[7:0];
-                                        assign write_data[63:48]=cache_data[63:48];
-                                end
-                                else if(in_alu_result[2:0]==6) begin
-                                        assign write_data[47:0]=cache_data[47:0];
-                                        assign write_data[55:48]=in_rs2_value[7:0];
-                                        assign write_data[63:56]=cache_data[63:56];
-                                end
-                                else if(in_alu_result[2:0]==7) begin
-                                        assign write_data[55:0]=cache_data[55:0];
-                                        assign write_data[63:56]=in_rs2_value[7:0];
-                                end
+		if(in_syscall_flush==0) begin
+			case(in_opcode_name)
+			"sb":begin
+				if(store_rd_wr==2) begin
+					//assign stuff to write_data that are taken from read_data
+					if(in_alu_result[2:0]==0) begin
+						assign write_data[7:0]=in_rs2_value[7:0];
+						assign write_data[63:8]=cache_data[63:8];
+					end
+					else if(in_alu_result[2:0]==1) begin
+						assign write_data[7:0]=cache_data[7:0];
+						assign write_data[15:8]=in_rs2_value[7:0];
+						assign write_data[63:16]=cache_data[63:16];
+					end
+					else if(in_alu_result[2:0]==2) begin
+						assign write_data[15:0]=cache_data[15:0];
+						assign write_data[23:16]=in_rs2_value[7:0];
+						assign write_data[63:24]=cache_data[63:24];
+					end
+					else if(in_alu_result[2:0]==3) begin//
+						assign write_data[23:0]=cache_data[23:0];
+						assign write_data[31:24]=in_rs2_value[7:0];
+						assign write_data[63:32]=cache_data[63:32];
+					end
+					else if(in_alu_result[2:0]==4) begin
+						assign write_data[31:0]=cache_data[31:0];
+						assign write_data[39:32]=in_rs2_value[7:0];
+						assign write_data[63:40]=cache_data[63:40];
+					end
+					else if(in_alu_result[2:0]==5) begin
+						assign write_data[39:0]=cache_data[39:0];
+						assign write_data[47:40]=in_rs2_value[7:0];
+						assign write_data[63:48]=cache_data[63:48];
+					end
+					else if(in_alu_result[2:0]==6) begin
+						assign write_data[47:0]=cache_data[47:0];
+						assign write_data[55:48]=in_rs2_value[7:0];
+						assign write_data[63:56]=cache_data[63:56];
+					end
+					else if(in_alu_result[2:0]==7) begin
+						assign write_data[55:0]=cache_data[55:0];
+						assign write_data[63:56]=in_rs2_value[7:0];
+					end
+				end
 			end
+			"sh":begin
+				if(store_rd_wr==2) begin
+					if(in_alu_result[2:0]==0) begin
+						assign write_data[15:0]=in_rs2_value[15:0];
+						assign write_data[63:16]=cache_data[63:16];
+					end
+					else if(in_alu_result[2:0]==2) begin
+						assign write_data[15:0]=cache_data[15:0];
+						assign write_data[31:16]=in_rs2_value[15:0];
+						assign write_data[63:32]=cache_data[63:32];
+					end
+					else if(in_alu_result[2:0]==4) begin
+						assign write_data[31:0]=cache_data[31:0];
+						assign write_data[47:32]=in_rs2_value[15:0];
+						assign write_data[63:48]=cache_data[63:48];
+					end
+					else if(in_alu_result[2:0]==6) begin//
+						assign write_data[47:0]=cache_data[47:0];
+						assign write_data[63:48]=in_rs2_value[15:0];
+					end
+				end
+			end
+			"sw":begin
+				if(store_rd_wr==2) begin
+					if(in_alu_result[2:0]==0) begin
+						assign write_data[31:0]=in_rs2_value[31:0];
+						assign write_data[63:32]=cache_data[63:32];
+					end
+					else if(in_alu_result[2:0]==4) begin
+						assign write_data[31:0]=cache_data[31:0];
+						assign write_data[63:32]=in_rs2_value[31:0];
+					end
+				end
+			end
+			endcase
 		end
-		"sh":begin
-			if(store_rd_wr==2) begin
-                                if(in_alu_result[2:0]==0) begin
-                                        assign write_data[15:0]=in_rs2_value[15:0];
-                                        assign write_data[63:16]=cache_data[63:16];
-                                end
-                                else if(in_alu_result[2:0]==2) begin
-                                        assign write_data[15:0]=cache_data[15:0];
-                                        assign write_data[31:16]=in_rs2_value[15:0];
-                                        assign write_data[63:32]=cache_data[63:32];
-                                end
-                                else if(in_alu_result[2:0]==4) begin
-                                        assign write_data[31:0]=cache_data[31:0];
-                                        assign write_data[47:32]=in_rs2_value[15:0];
-                                        assign write_data[63:48]=cache_data[63:48];
-                                end
-                                else if(in_alu_result[2:0]==6) begin//
-                                        assign write_data[47:0]=cache_data[47:0];
-                                        assign write_data[63:48]=in_rs2_value[15:0];
-                                end
-                        end
-		end
-		"sw":begin
-			if(store_rd_wr==2) begin
-                                if(in_alu_result[2:0]==0) begin
-                                        assign write_data[31:0]=in_rs2_value[31:0];
-                                        assign write_data[63:32]=cache_data[63:32];
-                                end
-                                else if(in_alu_result[2:0]==4) begin
-                                        assign write_data[31:0]=cache_data[31:0];
-                                        assign write_data[63:32]=in_rs2_value[31:0];
-                                end
-                        end
-		end
-		endcase
 	end
-	always_comb begin
-		if(!in_syscall_flush) begin
+	always_comb begin //for working on the states in sb,sh,sw
+		if(in_syscall_flush==0) begin
 			case(in_opcode_name) 
 			"sb": begin 
 	//state0:give tlb the signal, 			wait for tlb_ready
