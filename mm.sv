@@ -524,13 +524,13 @@ when flush signal is high cache wont read or write but it will still invalidate
 //state1:tlb_ready give cache read signal,      wait for cache_ready_READ
 //state2:cache_ready_READ=2 , manipulate data , give write signal,      wait for cache_ready_WRITE
 				if(in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw") begin
-					if(tlb_ready==2) begin
+					if(tlb_ready==2 && store_rd_wr==0) begin
 						store_rd_wr<=1;
 					end
-					else if(cache_ready_READ==2) begin
+					else if(cache_ready_READ==2 && store_rd_wr==1) begin
 						store_rd_wr<=2;
 					end
-					else if(cache_ready_WRITE==2) begin
+					else if(cache_ready_WRITE==2 && store_rd_wr==2) begin
 						store_rd_wr<=0;
 					end
 				end
