@@ -263,9 +263,10 @@ module D_Set_Associative_Cache
 						$display("DCACHE :read -starting addr of block %d", phy_addr);
 						$display("DCACHE :read -index %d", index);
 						$display("DCACHE :read -Tag1 %b", Tag[SET1][index]);
-						$display("DCACHE :read -Tag1 %b", Tag[SET2][index]);
+						$display("DCACHE :read -Tag2 %b", Tag[SET2][index]);
 						$display("DCACHE :read -State1 %b",State[SET1][index]);
 						$display("DCACHE :read -State2 %b",State[SET2][index]);
+						$display("DCACHE :read -index %b",index);
 	`endif
 						State[RSet][index][LRU_BIT]<= 0;
 						State[~RSet][index][LRU_BIT]<= 1;
@@ -427,6 +428,7 @@ module D_Set_Associative_Cache
                                                 $display("DCACHE :write -Tag1 %b", Tag[SET2][index]);
                                                 $display("DCACHE :write -State1 %b",State[SET1][index]);
                                                 $display("DCACHE :write -State2 %b",State[SET2][index]);
+						$display("DCACHE :write -index %b",index);
 `endif			
 						Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 						State[WSet][index][LRU_BIT]<= 0;
