@@ -70,7 +70,7 @@ module mm
 	logic [1:0] cache_ready_READ;
 	logic [1:0] cache_ready_WRITE;
 	logic [63:0] write_data;
-	logic store_rd_wr;
+	logic [1:0] store_rd_wr;
 	logic [63:0] v_addr;//derive from in_alu_result	
 /*
 TODO:
@@ -125,62 +125,54 @@ when flush signal is high cache wont read or write but it will still invalidate
 				.write_data(write_data)//IMP
                                 );
 	always_comb begin
-		case(in_opcode_name) 
-		"sb": begin
-			//when tlb is ready and store_rd_wr ==0 change store_rd_wr = 1
-			//when cache is ready and store_rd_wr==1 change store_rd_wr to 0 
-			if(store_rd_wr == 1) begin
-				assign cache_signal=READ_SIGNAL;
-			end
-			else if(store_rd_wr==0) begin
-				//assign stuff to write_data that are taken from read_data
-				if(in_alu_result[2:0]==0) begin
-					assign write_data[7:0]=in_rs2_value[7:0];
-					assign write_data[63:8]=cache_data[63:8];
-				end
-				else if(in_alu_result[2:0]==1) begin
-					assign write_data[7:0]=cache_data[7:0];
-					assign write_data[15:8]=in_rs2_value[7:0];
-					assign write_data[63:16]=cache_data[63:16];
+		case(in_opcode_name)
+		"sb":begin
+			if(store_rd_wr==2) begin
+                                //assign stuff to write_data that are taken from read_data
+                                if(in_alu_result[2:0]==0) begin
+                                        assign write_data[7:0]=in_rs2_value[7:0];
+                                        assign write_data[63:8]=cache_data[63:8];
                                 end
-				else if(in_alu_result[2:0]==2) begin
-					assign write_data[15:0]=cache_data[15:0];
+                                else if(in_alu_result[2:0]==1) begin
+                                        assign write_data[7:0]=cache_data[7:0];
+                                        assign write_data[15:8]=in_rs2_value[7:0];
+                                        assign write_data[63:16]=cache_data[63:16];
+                                end
+                                else if(in_alu_result[2:0]==2) begin
+                                        assign write_data[15:0]=cache_data[15:0];
                                         assign write_data[23:16]=in_rs2_value[7:0];
                                         assign write_data[63:24]=cache_data[63:24];
                                 end
-				else if(in_alu_result[2:0]==3) begin//
-					assign write_data[23:0]=cache_data[23:0];
+                                else if(in_alu_result[2:0]==3) begin//
+                                        assign write_data[23:0]=cache_data[23:0];
                                         assign write_data[31:24]=in_rs2_value[7:0];
                                         assign write_data[63:32]=cache_data[63:32];
                                 end
-				else if(in_alu_result[2:0]==4) begin
-					assign write_data[31:0]=cache_data[31:0];
+                                else if(in_alu_result[2:0]==4) begin
+                                        assign write_data[31:0]=cache_data[31:0];
                                         assign write_data[39:32]=in_rs2_value[7:0];
                                         assign write_data[63:40]=cache_data[63:40];
                                 end
-				else if(in_alu_result[2:0]==5) begin
+                                else if(in_alu_result[2:0]==5) begin
 					assign write_data[39:0]=cache_data[39:0];
                                         assign write_data[47:40]=in_rs2_value[7:0];
                                         assign write_data[63:48]=cache_data[63:48];
                                 end
-				else if(in_alu_result[2:0]==6) begin
-					assign write_data[47:0]=cache_data[47:0];
+                                else if(in_alu_result[2:0]==6) begin
+                                        assign write_data[47:0]=cache_data[47:0];
                                         assign write_data[55:48]=in_rs2_value[7:0];
                                         assign write_data[63:56]=cache_data[63:56];
                                 end
-				else if(in_alu_result[2:0]==7) begin
-					assign write_data[55:0]=cache_data[55:0];
+                                else if(in_alu_result[2:0]==7) begin
+                                        assign write_data[55:0]=cache_data[55:0];
                                         assign write_data[63:56]=in_rs2_value[7:0];
                                 end
-				assign cache_signal = WRITE_SIGNAL;
 			end
 		end
-		"sh": begin
-                        if(store_rd_wr == 1) begin
-                                assign cache_signal=READ_SIGNAL;
-                        end
-                        else if(store_rd_wr==0) begin
-				if(in_alu_result[2:0]==0) begin
+		"sh":begin
+			if(store_rd_wr==2) begin
+                                assign cache_enable=1;
+                                if(in_alu_result[2:0]==0) begin
                                         assign write_data[15:0]=in_rs2_value[15:0];
                                         assign write_data[63:16]=cache_data[63:16];
                                 end
@@ -198,15 +190,13 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign write_data[47:0]=cache_data[47:0];
                                         assign write_data[63:48]=in_rs2_value[15:0];
                                 end
-				assign cache_signal = WRITE_SIGNAL;
+                                assign cache_signal = WRITE_SIGNAL;
                         end
-                end
-		"sw": begin
-                        if(store_rd_wr == 1) begin
-                                assign cache_signal=READ_SIGNAL;
-                        end
-                        else if(store_rd_wr==0) begin
-				if(in_alu_result[2:0]==0) begin
+		end
+		"sw":begin
+			if(store_rd_wr==2) begin
+                                assign cache_enable=1;
+                                if(in_alu_result[2:0]==0) begin
                                         assign write_data[31:0]=in_rs2_value[31:0];
                                         assign write_data[63:32]=cache_data[63:32];
                                 end
@@ -214,9 +204,61 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign write_data[31:0]=cache_data[31:0];
                                         assign write_data[63:32]=in_rs2_value[31:0];
                                 end
+                                assign cache_signal = WRITE_SIGNAL;
+                        end
+		end
+		endcase
+	end
+	always_comb begin
+		case(in_opcode_name) 
+		"sb": begin 
+//state0:give tlb the signal, 			wait for tlb_ready
+//state1:tlb_ready give cache read signal, 	wait for cache_ready_READ
+//state2:cache_ready_READ=2 , manipulate data , give write signal, 	wait for cache_ready_WRITE
+//state3:cache_ready_WRITE=2 ,change signal back tp state1
+			if(store_rd_wr == 0) begin
+				assign tlb_rd_signal=1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end
+			else if(store_rd_wr == 1) begin
+				assign cache_enable=1;
+				assign cache_signal=READ_SIGNAL;
+			end
+			else if(store_rd_wr==2) begin
+				assign cache_enable=1;
+				//assign stuff to write_data that are taken from read_data
+				assign cache_signal = WRITE_SIGNAL;
+			end
+		end
+		"sh": begin
+			if(store_rd_wr == 0) begin
+                                assign tlb_rd_signal=1;
+                                assign v_addr=in_alu_result[63:3]<<3;
+                        end
+                        else if(store_rd_wr == 1) begin
+				assign cache_enable=1;
+                                assign cache_signal=READ_SIGNAL;
+                        end
+                        else if(store_rd_wr==2) begin
+				assign cache_enable=1;
 				assign cache_signal = WRITE_SIGNAL;
                         end
                 end
+		"sw": begin
+			if(store_rd_wr == 0) begin
+                                assign tlb_rd_signal=1;
+                                assign v_addr=in_alu_result[63:3]<<3;
+                        end
+                        else if(store_rd_wr == 1) begin
+				assign cache_enable=1;
+                                assign cache_signal=READ_SIGNAL;
+                        end
+                        else if(store_rd_wr==2) begin
+				assign cache_enable=1;
+				assign cache_signal = WRITE_SIGNAL;
+                        end
+                end
+		endcase
 	end
 	always_comb begin
 		if(in_syscall_flush) begin
@@ -224,30 +266,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                 end
                 else begin
                         case(in_opcode_name)
-                        "sb":begin
-				if(tlb_ready==2) begin
-					assign cache_enable =1;
-				end
-				else begin
-					assign cache_enable=0; 
-				end
-                        end
-                        "sh":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-                        end
-                        "sw":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-                        end
                         "sd":begin
 				if(tlb_ready==2) begin
                                         assign cache_enable =1;
@@ -333,18 +351,6 @@ when flush signal is high cache wont read or write but it will still invalidate
 		end
 		else begin
 			case(in_opcode_name)
-			"sb":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"sh":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"sw":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
 			"sd":begin
 				assign tlb_rd_signal =1;
 				assign v_addr=in_alu_result[63:3]<<3;
@@ -508,29 +514,28 @@ when flush signal is high cache wont read or write but it will still invalidate
 				store_rd_wr<=0;//TODO:should this really be here. Rethink the logic
 			end
 			else begin
-				out_mm_load_bool <= in_mm_load_bool;
-				out_pcplus1plusoffs<=in_pcplus1plusoffs;
-				out_alu_result<=in_alu_result;
-				out_rd_regno<=in_rd_regno;
-				out_opcode_name<=in_opcode_name;
-				out_rs2_value<=in_rs2_value;
-				out_update_rd_bool <= in_update_rd_bool;
-				out_branch_taken_bool <= in_branch_taken_bool;
-				if(in_opcode_name=="sd" || in_opcode_name=="sd" || in_opcode_name=="sd") begin
-				//when tlb is ready and store_rd_wr ==0 change store_rd_wr = 1
-                        	//when cache is ready and store_rd_wr==1 change store_rd_wr to 0 	
-					if(tlb_ready==2	&& store_rd_wr ==0) begin
-						store_rd_wr<=1;//go read now
+				if(out_ready) begin
+					out_mm_load_bool <= in_mm_load_bool;
+					out_pcplus1plusoffs<=in_pcplus1plusoffs;
+					out_alu_result<=in_alu_result;
+					out_rd_regno<=in_rd_regno;
+					out_opcode_name<=in_opcode_name;
+					out_rs2_value<=in_rs2_value;
+					out_update_rd_bool <= in_update_rd_bool;
+					out_branch_taken_bool <= in_branch_taken_bool;
+				end
+				if(in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw") begin
+					if(tlb_ready==2) begin
+						store_rd_wr<=1;
 					end
-					else if(cache_ready==2 && store_rd_wr==1) begin
-						store_rd_wr<=0;//reading done,proceed to writing
+					else if(cache_ready_READ==2) begin
+						store_rd_wr<=2;
 					end
-					else if(cache_ready==2 && store_rd_wr==1) begin //writing is done too
-						out_mdata<=0;
+					else if(cache_ready_WRITE==2) begin
 						store_rd_wr<=0;
 					end
 				end
-				if(in_opcode_name=="sd")begin
+				if(in_opcode_name=="sd"||in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw")begin
 					if(cache_ready_WRITE==2) begin
 						out_mdata<=0;
 					end
