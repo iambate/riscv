@@ -258,12 +258,14 @@ module Set_Associative_Cache
 	
 						ff_RSet<=RSet;
 						ff_read_data<=read_data;
+						ff_data_available<=data_available;
 						ff_flush_before_replacement<=flush_before_replacement;
 					end
 					else if(flush_before_replacement ==  WAIT_FOR_FLUSH_COMPLETION) begin
                                                 ff_RSet <=RSet;
                                                 ff_read_data <=read_data;
                                                 ff_data_available<=data_available;
+						ff_flush_before_replacement<=flush_before_replacement;
 						if(store_data_ready) begin//TODO:we are done writing to mem
 							Wait_fr_mem_write <=UNSET_WAIT;
 							Wait_fr_mem_read<=UNSET_WAIT;
@@ -277,6 +279,10 @@ module Set_Associative_Cache
 					end
 				end
 				else if(data_available == WAITING_FOR_MEM_READ) begin
+					ff_RSet<=RSet;
+					ff_read_data<=read_data;
+					ff_data_available<=data_available;
+					ff_flush_before_replacement<=flush_before_replacement;
 					if(addr_data_ready) begin
 `ifdef CACHEDEBUGXTRA
 						$display("CACHE: data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);

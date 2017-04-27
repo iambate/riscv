@@ -280,6 +280,7 @@ module D_Set_Associative_Cache
 `ifdef CACHEDEBUGXTRA
 							$display("DCACHE: signal %d flushing data at %d",rd_wr_evict_flag,((Tag[RSet][index]<<15)+(index<<6)));
 `endif
+							ff_RSet<=RSet;
 							ff_read_data<=read_data;
 							ff_data_available<=data_available;
 							ff_flush_before_replacement <=flush_before_replacement;
@@ -326,7 +327,7 @@ module D_Set_Associative_Cache
 							phy_addr <= starting_addr_of_block;
 							Wait_fr_mem_read <= SET_WAIT;
 							Wait_fr_mem_write <=UNSET_WAIT;
-		
+							ff_data_available<=data_available;
 							ff_RSet<=RSet;
 							ff_read_data<=read_data;
 							ff_flush_before_replacement<=flush_before_replacement;
@@ -335,10 +336,11 @@ module D_Set_Associative_Cache
 							ff_RSet <=RSet;
 							ff_read_data <=read_data;
 							ff_data_available<=data_available;
+							ff_flush_before_replacement<=flush_before_replacement;
 							if(store_data_ready) begin//TODO:we are done writing to mem
 `ifdef CACHEDEBUGXTRA
                                                                 $display("DCACHE :signal %d addr %d doen flushing dirty block at %d",rd_wr_evict_flag,addr,store_data_at_addr);
-`endif
+`endif		
 								Wait_fr_mem_write <=UNSET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
 								State[RSet][index][DIRTY_BIT]<=0;
@@ -354,6 +356,10 @@ module D_Set_Associative_Cache
 						end
 					end
 					else if(data_available == WAITING_FOR_MEM_READ) begin
+						ff_RSet<=RSet;
+						ff_read_data<=read_data;
+						ff_data_available<=data_available;
+						ff_flush_before_replacement<=flush_before_replacement;
 						if(addr_data_ready) begin
 	`ifdef CACHEDEBUGXTRA
 							$display("DCACHE: read-signal %d",rd_wr_evict_flag);
@@ -497,6 +503,7 @@ module D_Set_Associative_Cache
 						else if(flush_before_replacement == WAIT_FOR_FLUSH_COMPLETION) begin
 							ff_WSet <= WSet;
 							ff_canWrite <= canWrite;
+							ff_flush_before_replacement<=flush_before_replacement;
 							if(store_data_ready) begin//TODO:we are done writing to mem
 `ifdef CACHEDEBUGXTRA
 								$display("DCACHE :signal %d addr %d doen flushing dirty block at %d",rd_wr_evict_flag,addr,store_data_at_addr);
@@ -516,6 +523,9 @@ module D_Set_Associative_Cache
 						end
 					end
 					else if(canWrite==WAITING_FOR_MEM_READ) begin
+						ff_WSet<=WSet;
+                                                ff_canWrite<=canWrite;
+                                                ff_flush_before_replacement<=flush_before_replacement;
 						if(addr_data_ready) begin
  `ifdef CACHEDEBUGXTRA
                                                         $display("DCACHE:write- signal %d",rd_wr_evict_flag);
@@ -565,7 +575,7 @@ module D_Set_Associative_Cache
 						else begin
  `ifdef CACHEDEBUGXTRA
                                                         $display("DCACHE :signal %d, waiting for data to be read for addr %d\n",rd_wr_evict_flag,addr);
-        `endif
+        `endif//XXXXX
 							addr_data_enable <= 0;
 							Wait_fr_mem_read <= SET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
