@@ -244,37 +244,40 @@ module D_Set_Associative_Cache
 		else begin
 			if(inval_signal) begin
 `ifdef CACHEDEBUGXTRA
-				$display("DCache:invalidation signal received for addr %d",bus_resp);
+				$display("DCACHE :Invalidation signal received for addr %d",bus_resp);
 `endif
 				State[CSet][index][VALID_BIT]<=0;
 			end
 			else if(enable) begin
 	`ifdef CACHEDEBUGXTRA   
-				$display("DCACHE: new cycle %d",rd_wr_evict_flag);
+				$display("DCACHE: new cycle-flag val%d ",rd_wr_evict_flag);
 	`endif
 				if(rd_wr_evict_flag == READ_SIGNAL) begin //read
 `ifdef CACHEDEBUGXTRA
-					$display("DCache :read signal rcvd for addr %d",addr);
+					$display("DCACHE :read signal rcvd for addr %d",addr);
 `endif
 					if(data_available == CACHE_HIT) begin//not a miss
 	`ifdef CACHEDEBUGXTRA
-						$display("DCACHE :cache hit");
-						$display("DCACHE :addr %d", addr);
-						$display("DCACHE :starting addr of block %d", phy_addr);
-						$display("DCACHE :index %d", index);
-						$display("DCACHE :Tag1 %b", Tag[SET1][index]);
-						$display("DCACHE :Tag1 %b", Tag[SET2][index]);
-						$display("DCACHE :State1 %b",State[SET1][index]);
-						$display("DCACHE :State2 %b",State[SET2][index]);
+						$display("DCACHE :read -cache hit");
+						$display("DCACHE :read -addr %d", addr);
+						$display("DCACHE :read -starting addr of block %d", phy_addr);
+						$display("DCACHE :read -index %d", index);
+						$display("DCACHE :read -Tag1 %b", Tag[SET1][index]);
+						$display("DCACHE :read -Tag1 %b", Tag[SET2][index]);
+						$display("DCACHE :read -State1 %b",State[SET1][index]);
+						$display("DCACHE :read -State2 %b",State[SET2][index]);
 	`endif
 						State[RSet][index][LRU_BIT]<= 0;
 						State[~RSet][index][LRU_BIT]<= 1;
 					end
 					else if(data_available == CACHE_MISS) begin//miss
+`ifdef CACHEDEBUGXTRA
+						$display("DCACHE: signal %d cache miss",rd_wr_evict_flag);
+`endif
 						if(flush_before_replacement == FLUSHING_NEEDED) begin
 							//TODO:change variables
 `ifdef CACHEDEBUGXTRA
-							$display("DCache: flushing data at %d",((Tag[RSet][index]<<15)+(index<<6)));
+							$display("DCACHE: signal %d flushing data at %d",rd_wr_evict_flag,((Tag[RSet][index]<<15)+(index<<6)));
 `endif
 							ff_read_data<=read_data;
 							ff_data_available<=data_available;
@@ -316,7 +319,7 @@ module D_Set_Associative_Cache
 						end
 						else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
 	`ifdef CACHEDEBUGXTRA
-							$display("DCACHE :FLUSHING_NOT_NEEDED Requesting %d %d:\n ", starting_addr_of_block,addr);
+							$display("DCACHE :signal %d FLUSHING_NOT_NEEDED Requesting block at %d for miss at %d:\n ",rd_wr_evict_flag, starting_addr_of_block,addr);
 	`endif
 							addr_data_enable <= 1;
 							phy_addr <= starting_addr_of_block;
@@ -332,11 +335,17 @@ module D_Set_Associative_Cache
 							ff_read_data <=read_data;
 							ff_data_available<=data_available;
 							if(store_data_ready) begin//TODO:we are done writing to mem
+`ifdef CACHEDEBUGXTRA
+                                                                $display("DCACHE :signal %d addr %d doen flushing dirty block at %d",rd_wr_evict_flag,addr,store_data_at_addr);
+`endif
 								Wait_fr_mem_write <=UNSET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
 								State[RSet][index][DIRTY_BIT]<=0;
 							end
 							else begin
+`ifdef CACHEDEBUGXTRA
+								$display("DCACHE :signal %d waiting for flush completion so we can load addr %d",rd_wr_evict_flag,addr);
+`endif
 								Wait_fr_mem_write <=SET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
 								store_data_enable <= 0;
@@ -346,11 +355,12 @@ module D_Set_Associative_Cache
 					else if(data_available == WAITING_FOR_MEM_READ) begin
 						if(addr_data_ready) begin
 	`ifdef CACHEDEBUGXTRA
-							$display("DCACHE: data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
-							$display("DCACHE: phy_addr %d", phy_addr);
-							$display("DCACHE: start block addr %d", starting_addr_of_block);
-							$display("DCACHE: addr %d tag %d\n",addr, Tag[RSet][index]);
-							$display("DCACHE: data arrived %x\n",data);
+							$display("DCACHE: read-signal %d",rd_wr_evict_flag);
+							$display("DCACHE: read-data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
+							$display("DCACHE: read-phy_addr %d", phy_addr);
+							$display("DCACHE: read-start block addr %d", starting_addr_of_block);
+							$display("DCACHE: read-addr %d tag %d\n",addr, Tag[RSet][index]);
+							$display("DCACHE: read-data arrived %x\n",data);
 	`endif
 							Wait_fr_mem_read <= UNSET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
@@ -391,7 +401,7 @@ module D_Set_Associative_Cache
 						else begin
 							addr_data_enable <= 0;
 	`ifdef CACHEDEBUGXTRA
-							$display("DCACHE :setting wait 1\n");
+							$display("DCACHE :signal %d, waiting for data to be read for addr %d\n",rd_wr_evict_flag,addr);
 	`endif
 							Wait_fr_mem_read <= SET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
@@ -405,11 +415,18 @@ module D_Set_Associative_Cache
 				//write signal
 				else if(rd_wr_evict_flag == WRITE_SIGNAL) begin//write
 `ifdef CACHEDEBUGXTRA
-					$display("DCACHE :write signal recvd for addr %d",addr);
+					$display("DCACHE :read signal rcvd for addr %d",addr);
 `endif
 					if(canWrite==CACHE_HIT)begin
 `ifdef CACHEDEBUGXTRA
-						$display("DCACHE :cache hit for addr %d writing data %x",addr,write_data);
+						$display("DCACHE :write -cache hit");
+                                                $display("DCACHE :write -addr %d", addr);
+                                                $display("DCACHE :write -starting addr of block %d", phy_addr);
+                                                $display("DCACHE :write -index %d", index);
+                                                $display("DCACHE :write -Tag1 %b", Tag[SET1][index]);
+                                                $display("DCACHE :write -Tag1 %b", Tag[SET2][index]);
+                                                $display("DCACHE :write -State1 %b",State[SET1][index]);
+                                                $display("DCACHE :write -State2 %b",State[SET2][index]);
 `endif			
 						Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
 						State[WSet][index][LRU_BIT]<= 0;
@@ -417,7 +434,13 @@ module D_Set_Associative_Cache
 						State[WSet][index][DIRTY_BIT]<=1;
 					end
 					else if(canWrite ==CACHE_MISS) begin
+`ifdef CACHEDEBUGXTRA
+                                                $display("DCACHE: signal %d cache miss",rd_wr_evict_flag);
+`endif
 						if(flush_before_replacement==FLUSHING_NEEDED) begin
+`ifdef CACHEDEBUGXTRA
+                                                        $display("DCACHE: signal %d flushing data at %d",rd_wr_evict_flag,((Tag[RSet][index]<<15)+(index<<6)));
+`endif
 							ff_WSet<=WSet;
 							ff_canWrite<=canWrite;
 							ff_flush_before_replacement <=flush_before_replacement;
@@ -457,11 +480,11 @@ module D_Set_Associative_Cache
 							Wait_fr_mem_read <=UNSET_WAIT;
 						end
 						else if(flush_before_replacement == FLUSHING_NOT_NEEDED) begin
+ `ifdef CACHEDEBUGXTRA
+                                                        $display("DCACHE :signal %d FLUSHING_NOT_NEEDED Requesting block at %d for miss at %d:\n ",rd_wr_evict_flag, starting_addr_of_block,addr);
+ `endif
 							addr_data_enable <= 1;
 							phy_addr <= starting_addr_of_block;
-	`ifdef CACHEDEBUGXTRA
-							$display("DCache: setting wait 2\n");
-	`endif
 							Wait_fr_mem_read <= SET_WAIT;
 							Wait_fr_mem_write <=UNSET_WAIT;
 
@@ -473,11 +496,17 @@ module D_Set_Associative_Cache
 							ff_WSet <= WSet;
 							ff_canWrite <= canWrite;
 							if(store_data_ready) begin//TODO:we are done writing to mem
+`ifdef CACHEDEBUGXTRA
+								$display("DCACHE :signal %d addr %d doen flushing dirty block at %d",rd_wr_evict_flag,addr,store_data_at_addr);
+`endif
 								Wait_fr_mem_write <=UNSET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
 								State[RSet][index][DIRTY_BIT]<=0;
 							end
 							else begin
+`ifdef CACHEDEBUGXTRA
+                                                                $display("DCACHE :signal %d waiting for flush completion so we can load addr %d",rd_wr_evict_flag,addr);
+`endif
 								Wait_fr_mem_write <=SET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
 								store_data_enable <= 0;
@@ -486,6 +515,15 @@ module D_Set_Associative_Cache
 					end
 					else if(canWrite==WAITING_FOR_MEM_READ) begin
 						if(addr_data_ready) begin
+ `ifdef CACHEDEBUGXTRA
+                                                        $display("DCACHE:write- signal %d",rd_wr_evict_flag);
+                                                        $display("DCACHE:write- data is ready %d %d\n",Wait_fr_mem_read,Wait_fr_mem_write);
+                                                        $display("DCACHE:write-phy_addr %d", phy_addr);
+                                                        $display("DCACHE:write- start block addr %d", starting_addr_of_block);
+                                                        $display("DCACHE:write- addr %d tag %d\n",addr, Tag[RSet][index]);
+                                                        $display("DCACHE:write- data arrived %x\n",data);
+ `endif
+
 							Wait_fr_mem_read <= UNSET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
 							if(SIZE == 32) begin
@@ -523,6 +561,9 @@ module D_Set_Associative_Cache
 							State[~RSet][index][LRU_BIT] <= 1;
 						end
 						else begin
+ `ifdef CACHEDEBUGXTRA
+                                                        $display("DCACHE :signal %d, waiting for data to be read for addr %d\n",rd_wr_evict_flag,addr);
+        `endif
 							addr_data_enable <= 0;
 							Wait_fr_mem_read <= SET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
