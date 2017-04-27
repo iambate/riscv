@@ -31,6 +31,9 @@ module execute_instruction
   input in_branch_taken_bool,
   input in_alu_mm_load_bool,
   input in_mm_mm_load_bool,
+  input in_alu_update_rd_bool,
+  input in_mm_update_rd_bool,
+  input in_wb_update_rd_bool,
   input in_syscall_flush,
   output [REGISTER_WIDTH-1:0] out_alu_result,
   output [REGISTER_WIDTH-1:0] out_rs2_value,
@@ -199,15 +202,15 @@ endfunction
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
-    end else if (in_rs1_regno == in_alu_rd_regno) begin
+    end else if (in_rs1_regno == in_alu_rd_regno && in_alu_update_rd_bool) begin
       assign n_value1 = in_alu_alu_result;
     end else if (in_rs1_regno == in_mm_rd_regno) begin
       if(in_mm_mm_load_bool) begin
         assign n_value1 = in_mm_mdata;
-      end else begin
+      end else if(in_mm_update_rd_bool) begin
         assign n_value1 = in_mm_alu_result;
       end
-    end else if (in_rs1_regno == in_wb_rd_regno) begin
+    end else if (in_rs1_regno == in_wb_rd_regno && in_wb_update_rd_bool) begin
       assign n_value1 = in_wb_data;
     end else begin
       assign n_value1 = in_rs1_value;
@@ -222,15 +225,15 @@ endfunction
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
-    end else if (in_rs2_regno == in_alu_rd_regno) begin
+    end else if (in_rs2_regno == in_alu_rd_regno && in_alu_update_rd_bool) begin
       assign n_value2 = in_alu_alu_result;
     end else if (in_rs2_regno == in_mm_rd_regno) begin
       if(in_mm_mm_load_bool) begin
         assign n_value2 = in_mm_mdata;
-      end else begin
+      end else if (in_mm_update_rd_bool) begin
         assign n_value2 = in_mm_alu_result;
       end
-    end else if (in_rs2_regno == in_wb_rd_regno) begin
+    end else if (in_rs2_regno == in_wb_rd_regno && in_wb_update_rd_bool) begin
       assign n_value2 = in_wb_data;
     end else begin
       assign n_value2 = in_rs2_value;

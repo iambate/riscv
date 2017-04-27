@@ -33,6 +33,7 @@ module writeback
   output out_ready,
   output out_display_regs,
   output out_syscall_flush,
+  output out_update_rd_bool,
   output [REGISTER_WIDTH-1:0] out_wbdata,
   output [REGISTERNO_WIDTH-1:0] out_rd_regno,
   output [REGISTER_WIDTH-1:0] out2wb_wbdata,
@@ -115,6 +116,7 @@ module writeback
 `endif
           out_wbdata <= out2wb_wbdata;
           out_rd_regno <= out2wb_rd_regno;
+          out_update_rd_bool <= out_ready;
         end else begin
 `ifdef WBDEBUG
           $display("WB wbdata: %d", 0); 
@@ -123,6 +125,7 @@ module writeback
 `endif
           out_wbdata <= 0;
           out_rd_regno <= 0;
+          out_update_rd_bool <= 0;
         end
       end // close else in_enable
     end // close else reset

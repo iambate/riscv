@@ -96,6 +96,7 @@ module top
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
   logic mm_ready;
   logic [INSTRUCTION_NAME_WIDTH-1:0] mm_opcode_name;
+  logic wb_update_rd_bool;
   logic wb_ready;
   logic wb_syscall_flush;
   logic [63:0] mm_pcplus1plusoffset;
@@ -204,6 +205,9 @@ module top
                           .in_branch_taken_bool(alu_branch_taken_bool),
                           .in_mm_mm_load_bool(mm_mm_load_bool),
                           .in_alu_mm_load_bool(alu_mm_load_bool),
+                          .in_alu_update_rd_bool(alu_update_rd_bool),
+                          .in_mm_update_rd_bool(mm_update_rd_bool),
+                          .in_wb_update_rd_bool(wb_update_rd_bool),
                           .in_syscall_flush(wb_syscall_flush),
                           .out_alu_result(alu_alu_result),
                           .out_rs2_value(alu_rs2_value),
@@ -270,6 +274,7 @@ module top
                 .in_update_rd_bool(mm_update_rd_bool),
                 .in_branch_taken_bool(mm_branch_taken_bool),
                 .in_opcode_name(mm_opcode_name),
+                .out_update_rd_bool(wb_update_rd_bool),
                 .out_ready(wb_ready),
                 .out_wbdata(wb_wbdata),
                 .out_rd_regno(wb_rd_regno),
