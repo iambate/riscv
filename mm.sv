@@ -171,7 +171,6 @@ when flush signal is high cache wont read or write but it will still invalidate
 		end
 		"sh":begin
 			if(store_rd_wr==2) begin
-                                assign cache_enable=1;
                                 if(in_alu_result[2:0]==0) begin
                                         assign write_data[15:0]=in_rs2_value[15:0];
                                         assign write_data[63:16]=cache_data[63:16];
@@ -190,12 +189,10 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign write_data[47:0]=cache_data[47:0];
                                         assign write_data[63:48]=in_rs2_value[15:0];
                                 end
-                                assign cache_signal = WRITE_SIGNAL;
                         end
 		end
 		"sw":begin
 			if(store_rd_wr==2) begin
-                                assign cache_enable=1;
                                 if(in_alu_result[2:0]==0) begin
                                         assign write_data[31:0]=in_rs2_value[31:0];
                                         assign write_data[63:32]=cache_data[63:32];
@@ -204,7 +201,6 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign write_data[31:0]=cache_data[31:0];
                                         assign write_data[63:32]=in_rs2_value[31:0];
                                 end
-                                assign cache_signal = WRITE_SIGNAL;
                         end
 		end
 		endcase
@@ -215,7 +211,6 @@ when flush signal is high cache wont read or write but it will still invalidate
 //state0:give tlb the signal, 			wait for tlb_ready
 //state1:tlb_ready give cache read signal, 	wait for cache_ready_READ
 //state2:cache_ready_READ=2 , manipulate data , give write signal, 	wait for cache_ready_WRITE
-//state3:cache_ready_WRITE=2 ,change signal back tp state1
 			if(store_rd_wr == 0) begin
 				assign tlb_rd_signal=1;
 				assign v_addr=in_alu_result[63:3]<<3;
@@ -524,6 +519,9 @@ when flush signal is high cache wont read or write but it will still invalidate
 					out_update_rd_bool <= in_update_rd_bool;
 					out_branch_taken_bool <= in_branch_taken_bool;
 				end
+//state0:give tlb the signal,                   wait for tlb_ready
+//state1:tlb_ready give cache read signal,      wait for cache_ready_READ
+//state2:cache_ready_READ=2 , manipulate data , give write signal,      wait for cache_ready_WRITE
 				if(in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw") begin
 					if(tlb_ready==2) begin
 						store_rd_wr<=1;
