@@ -152,7 +152,7 @@ module Set_Associative_Cache
                 end
 		else begin//pick least recently used set to be replaced
 			assign data_available = CACHE_MISS;
-			if(Tag[SET1][index]&LRU) begin
+			if(State[SET1][index]&LRU) begin
 				assign RSet = SET1;
 				assign read_data = 0;
 				if(State[RSet][index]&DIRTY == 1) begin

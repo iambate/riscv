@@ -198,7 +198,7 @@ module D_Set_Associative_Cache
 				else if(rd_wr_evict_flag==READ_SIGNAL) begin
 					assign data_available = CACHE_MISS;
 				end
-				if(Tag[SET1][index]&LRU) begin
+				if(State[SET1][index]&LRU) begin
 					if(rd_wr_evict_flag==WRITE_SIGNAL) begin
 						assign WSet= SET1;//write
 					end
