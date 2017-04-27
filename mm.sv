@@ -124,6 +124,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 .addr_data_bus_busy(out_addr_data_bus_busy),
 				.write_data(write_data)//IMP
                                 );
+	//for manipulating data to write for sb,sh,sw
 	always_comb begin
 		case(in_opcode_name)
 		"sb":begin
@@ -197,7 +198,7 @@ when flush signal is high cache wont read or write but it will still invalidate
                                         assign write_data[31:0]=in_rs2_value[31:0];
                                         assign write_data[63:32]=cache_data[63:32];
                                 end
-                                else if(in_alu_result[2:0]==1) begin
+                                else if(in_alu_result[2:0]==4) begin
                                         assign write_data[31:0]=cache_data[31:0];
                                         assign write_data[63:32]=in_rs2_value[31:0];
                                 end
