@@ -1,4 +1,5 @@
 `include "DCache.sv"
+`define MMDEBUG
 module mm
 #(
   BUS_DATA_WIDTH = 64,
@@ -515,6 +516,14 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			else begin
 				if(out_ready) begin
+`ifdef MMDEBUG
+					$display("MM mm_load_bool %d", in_mm_load_bool);
+					$display("MM alu result %d", in_alu_result);
+					$display("MM rd regno %d", in_rd_regno);
+					$display("MM rs2 value %d", in_rs2_value);
+					$display("MM update bool %d", in_update_rd_bool);
+					$display("MM branch taken %d", in_branch_taken_bool);
+`endif
 					out_mm_load_bool <= in_mm_load_bool;
 					out_pcplus1plusoffs<=in_pcplus1plusoffs;
 					out_alu_result<=in_alu_result;

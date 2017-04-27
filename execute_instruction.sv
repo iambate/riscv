@@ -194,7 +194,7 @@ endfunction
     // i-2 will be in Memory and i-3 will be in WB. So we want
     // Value rd_value of latest instruction
     // For rs1
-    if (in_rs1_regno == in_alu_rd_regno && in_alu_mm_load_bool) begin
+    if ((in_rs1_regno == in_alu_rd_regno) && in_alu_mm_load_bool) begin
       if (stall_cycs == 1) begin
         assign n_value1 = in_mm_mdata;
       end else begin
@@ -202,22 +202,24 @@ endfunction
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
-    end else if (in_rs1_regno == in_alu_rd_regno && in_alu_update_rd_bool) begin
+    end else if ((in_rs1_regno == in_alu_rd_regno) && in_alu_update_rd_bool) begin
       assign n_value1 = in_alu_alu_result;
     end else if (in_rs1_regno == in_mm_rd_regno) begin
       if(in_mm_mm_load_bool) begin
         assign n_value1 = in_mm_mdata;
       end else if(in_mm_update_rd_bool) begin
         assign n_value1 = in_mm_alu_result;
+      end else begin
+        assign n_value1 = in_rs1_value;
       end
-    end else if (in_rs1_regno == in_wb_rd_regno && in_wb_update_rd_bool) begin
+    end else if ((in_rs1_regno == in_wb_rd_regno) && in_wb_update_rd_bool) begin
       assign n_value1 = in_wb_data;
     end else begin
       assign n_value1 = in_rs1_value;
     end
 
     // For rs2
-    if (in_rs2_regno == in_alu_rd_regno && in_mm_mm_load_bool) begin
+    if ((in_rs2_regno == in_alu_rd_regno) && in_mm_mm_load_bool) begin
       if (stall_cycs == 1) begin
         assign n_value1 = in_mm_mdata;
       end else begin
@@ -225,15 +227,17 @@ endfunction
         assign out_ready = 0;
         assign n_stall_cycs = stall_cycs + 1;
       end
-    end else if (in_rs2_regno == in_alu_rd_regno && in_alu_update_rd_bool) begin
+    end else if ((in_rs2_regno == in_alu_rd_regno) && in_alu_update_rd_bool) begin
       assign n_value2 = in_alu_alu_result;
     end else if (in_rs2_regno == in_mm_rd_regno) begin
       if(in_mm_mm_load_bool) begin
         assign n_value2 = in_mm_mdata;
       end else if (in_mm_update_rd_bool) begin
         assign n_value2 = in_mm_alu_result;
+      end else begin
+        assign n_value1 = in_rs1_value;
       end
-    end else if (in_rs2_regno == in_wb_rd_regno && in_wb_update_rd_bool) begin
+    end else if ((in_rs2_regno == in_wb_rd_regno) && in_wb_update_rd_bool) begin
       assign n_value2 = in_wb_data;
     end else begin
       assign n_value2 = in_rs2_value;
@@ -691,6 +695,14 @@ endfunction
         $display("ALU alu_result %d", n_alu_result);
         $display("ALU branch bool %d", n_branch_taken_bool);
         $display("ALU pc %d", n_pc);
+        $display("ALU alu mm load bool %d", in_alu_mm_load_bool);
+	$display("ALU alu rd update %d", in_alu_update_rd_bool);
+	$display("ALU alu reg no %d", in_alu_rd_regno);
+        $display("ALU mm mm load bool %d", in_mm_mm_load_bool);
+        $display("ALU mm rd update %d", in_mm_update_rd_bool);
+	$display("ALU mm rd regno %d", in_mm_rd_regno);
+	$display("ALU wb rd update %d", in_wb_update_rd_bool);
+	$display("ALU wb rd regno %d", in_wb_rd_regno);
         $display("ALU given val1 %d", in_rs1_value);
         $display("ALU given val2 %d", in_rs2_value);
         $display("ALU actual val1 %d", n_value1);
