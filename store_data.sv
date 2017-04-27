@@ -42,7 +42,7 @@ module store_data
                 if (counter < 8) begin
                     next_state = STATEREQ;
                 end else begin
-                    next_state = STATEREADY;
+                    next_state = STATEREQEND;
                 end
             STATEREQEND:
                 next_state = STATEREADY;
@@ -102,6 +102,7 @@ module store_data
                 assign ready = 0;
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 1;
+                assign main_bus_reqtag = 0;
                 assign main_bus_reqcyc = 0;
             end
             STATEREADY:
