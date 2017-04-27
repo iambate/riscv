@@ -134,9 +134,10 @@ module store_data
                 end
                 STATEREQ:
                 begin
-                    $display("WD State req, going to ready");
+                    $display("WD State req, going to ready counter: %d", counter);
                     counter <= ncounter;
-                    $display("WD data: %d", main_bus_resp[63:0]);
+                    $display("WD data: %d", main_bus_req[63:0]);
+                    $display("WD resp: %d", main_bus_resp[63:0]);
                     $display("WD reqack: %d", main_bus_reqack);
                 end
                 STATEREADY:
