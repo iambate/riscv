@@ -60,7 +60,9 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
     cout << "Virtual addr of stackptr: " << std::dec << top->stackptr << " Phy addr: " << virt_to_phy(top->stackptr) <<endl;
     uint64_t* argvp = (uint64_t*)(ram+virt_to_phy(top->stackptr));
     argvp[0] = argc;
-    uint64_t dst = top->stackptr + 8/*argc*/ + 8*argc;
+    uint64_t dst = top->stackptr + 8/*argc*/ + 8*argc + 8/*envp*/ + 8/*env*/;
+    argvp[argc+1] = dst-8; // envp
+    argvp[argc+2] = 0; // env array
     for(int arg = 0; arg < argc; ++arg) {
         argvp[arg+1] = dst;
         char* src = argv[arg];
@@ -152,6 +154,7 @@ void System::tick(int clk) {
             switch(cmd) {
             case MEMORY:
                 *((uint64_t*)(&ram[xfer_addr + (8-rx_count)*8])) = top->bus_req;
+                cout << "Writing to address " << std::dec << xfer_addr + (8-rx_count)*8 << " with value" << top->bus_req << endl;
                 break;
             case MMIO:
                 assert(xfer_addr < ramsize);

@@ -183,6 +183,7 @@ endfunction
     // Bydefault out_ready is True, Unset it whenever needed
     assign out_ready = 1;
     assign n_stall_cycs = 0;
+    assign n_alu_result = 0;
 
     // Forwarding path & stall
     // Need the value of ALU first, then Memory and then WB

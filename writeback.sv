@@ -56,14 +56,17 @@ module writeback
     end else if(in_opcode_name == "scall") begin
       assign out_ready = 0;
       assign out_syscall_flush = 1;
+      assign out2wb_rd_regno = 0;
+      assign out2wb_wbdata = 0;
     end else begin
       if(in_mm_load_bool) begin
         assign out2wb_wbdata = in_mdata;
+        assign out_ready = 1;
       end else begin
         assign out2wb_wbdata = in_alu_result;
+        assign out_ready = in_update_rd_bool;
       end
       assign out2wb_rd_regno = in_rd_regno;
-      assign out_ready = in_update_rd_bool;
       assign out_syscall_flush = 0;
     end
   end
