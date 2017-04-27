@@ -1,4 +1,14 @@
-lw      a4,0(a7)
+addi	a7,x0,1024
+add	a7,a7,a7
+add	a7,a7,a7
+add	a7,a7,a7
+add	a6,a7,a7 #a7=16348 tag=1
+#sd	ra,0(a7) #index 0
+lui     a4,0x0
+li      t1,1244
+#lw      a4,0(x0) #index 0
+add	a7,a7,a7 #a7=32768 tag=2
+lw      a5,0(a7)
 lui     a4,0x0
 li      t1,1244
 li      a6,1

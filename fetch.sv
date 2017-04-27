@@ -1,4 +1,5 @@
 `define FETCHDEBUG
+`define FETCHDEBUGEXT
 `include "Cache.sv"
 `include "TLB.sv"
 module fetch
@@ -140,6 +141,9 @@ module fetch
 
   end
   always_ff @ (posedge clk) begin
+`ifdef FETCHDEBUGEXT
+    $display("FETCH ready %d", out_ready);
+`endif
     if(reset) begin
 `ifdef FETCHDEBUG
 	$display("FETCH old_pc resetted to %d", entry-4);
