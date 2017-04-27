@@ -206,7 +206,7 @@ module D_Set_Associative_Cache
 						assign RSet = SET1;
 						//assign read_data = 0;
 					end
-					if(State[RSet][index]&DIRTY == 1) begin
+					if(State[SET1][index]&DIRTY == 1) begin
 						assign flush_before_replacement = FLUSHING_NEEDED;//flush before rewriting
 					end
 					else begin
@@ -221,7 +221,7 @@ module D_Set_Associative_Cache
                                                 assign RSet = SET2;
                                                 //assign read_data = 0;
                                         end
-					if(State[RSet][index]&DIRTY == 1) begin
+					if(State[SET2][index]&DIRTY == 1) begin
 						assign flush_before_replacement = FLUSHING_NEEDED;
 					end
 					else begin
@@ -345,7 +345,7 @@ module D_Set_Associative_Cache
 							end
 							else begin
 `ifdef CACHEDEBUGXTRA
-								$display("DCACHE :signal %d waiting for flush completion so we can load addr %d",rd_wr_evict_flag,addr);
+								$display("DCACHE :signal %d waiting for flush completion so we can load addr %d state %b",rd_wr_evict_flag,addr,State[RSet][index]);
 `endif
 								Wait_fr_mem_write <=SET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
@@ -507,7 +507,7 @@ module D_Set_Associative_Cache
 							end
 							else begin
 `ifdef CACHEDEBUGXTRA
-                                                                $display("DCACHE :signal %d waiting for flush completion so we can load addr %d",rd_wr_evict_flag,addr);
+                                                                $display("DCACHE :signal %d waiting for flush completion so we can load addr %d state %b",rd_wr_evict_flag,addr,State[WSet][index]);
 `endif
 								Wait_fr_mem_write <=SET_WAIT;
 								Wait_fr_mem_read<=UNSET_WAIT;
