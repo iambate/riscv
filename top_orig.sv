@@ -127,7 +127,7 @@ module top
                         .in_branch_taken_bool(alu_branch_taken_bool),
                         .ptbr(satp),
                         .in_target(alu_pcplus1plusoffs),
-                        .in_enable(mm_ready),
+                        .in_enable(mm_ready & alu_ready),
                         .out_pcplus1(fetch_pc),
                         .out_instruction_bits(fetch_instruction_bits),
                         .out_ready(fetch_ready),

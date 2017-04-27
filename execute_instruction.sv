@@ -1,4 +1,4 @@
-//`define ALUDEBUGEX
+`define ALUDEBUGEX
 `define ALUDEBUG
 //module type will have as input: inst name, type,inst
 module execute_instruction
@@ -647,6 +647,9 @@ endfunction
 `ifdef ALUDEBUGEX
     $display("ALU in_enable %d", in_enable);
     $display("ALU out_ready %d", out_ready);
+    if(!out_ready) begin
+      $display("ALU stall due to ALU->MM dependency");
+    end
 `endif
     if(reset) begin
       // TODO: add reset things here
@@ -704,6 +707,8 @@ endfunction
         out_update_rd_bool <= n_update_rd_bool;
         out_mm_load_bool <= n_mm_load_bool;
       end
+    end else if (in_enable) begin
+        stall_cycs <= n_stall_cycs;
     end
   end
 endmodule
