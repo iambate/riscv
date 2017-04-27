@@ -207,54 +207,56 @@ when flush signal is high cache wont read or write but it will still invalidate
 		endcase
 	end
 	always_comb begin
-		case(in_opcode_name) 
-		"sb": begin 
-//state0:give tlb the signal, 			wait for tlb_ready
-//state1:tlb_ready give cache read signal, 	wait for cache_ready_READ
-//state2:cache_ready_READ=2 , manipulate data , give write signal, 	wait for cache_ready_WRITE
-			if(store_rd_wr == 0) begin
-				assign tlb_rd_signal=1;
-				assign v_addr=in_alu_result[63:3]<<3;
+		if(!in_syscall_flush) begin
+			case(in_opcode_name) 
+			"sb": begin 
+	//state0:give tlb the signal, 			wait for tlb_ready
+	//state1:tlb_ready give cache read signal, 	wait for cache_ready_READ
+	//state2:cache_ready_READ=2 , manipulate data , give write signal, 	wait for cache_ready_WRITE
+				if(store_rd_wr == 0) begin
+					assign tlb_rd_signal=1;
+					assign v_addr=in_alu_result[63:3]<<3;
+				end
+				else if(store_rd_wr == 1) begin
+					assign cache_enable=1;
+					assign cache_signal=READ_SIGNAL;
+				end
+				else if(store_rd_wr==2) begin
+					assign cache_enable=1;
+					//assign stuff to write_data that are taken from read_data
+					assign cache_signal = WRITE_SIGNAL;
+				end
 			end
-			else if(store_rd_wr == 1) begin
-				assign cache_enable=1;
-				assign cache_signal=READ_SIGNAL;
+			"sh": begin
+				if(store_rd_wr == 0) begin
+					assign tlb_rd_signal=1;
+					assign v_addr=in_alu_result[63:3]<<3;
+				end
+				else if(store_rd_wr == 1) begin
+					assign cache_enable=1;
+					assign cache_signal=READ_SIGNAL;
+				end
+				else if(store_rd_wr==2) begin
+					assign cache_enable=1;
+					assign cache_signal = WRITE_SIGNAL;
+				end
 			end
-			else if(store_rd_wr==2) begin
-				assign cache_enable=1;
-				//assign stuff to write_data that are taken from read_data
-				assign cache_signal = WRITE_SIGNAL;
+			"sw": begin
+				if(store_rd_wr == 0) begin
+					assign tlb_rd_signal=1;
+					assign v_addr=in_alu_result[63:3]<<3;
+				end
+				else if(store_rd_wr == 1) begin
+					assign cache_enable=1;
+					assign cache_signal=READ_SIGNAL;
+				end
+				else if(store_rd_wr==2) begin
+					assign cache_enable=1;
+					assign cache_signal = WRITE_SIGNAL;
+				end
 			end
+			endcase
 		end
-		"sh": begin
-			if(store_rd_wr == 0) begin
-                                assign tlb_rd_signal=1;
-                                assign v_addr=in_alu_result[63:3]<<3;
-                        end
-                        else if(store_rd_wr == 1) begin
-				assign cache_enable=1;
-                                assign cache_signal=READ_SIGNAL;
-                        end
-                        else if(store_rd_wr==2) begin
-				assign cache_enable=1;
-				assign cache_signal = WRITE_SIGNAL;
-                        end
-                end
-		"sw": begin
-			if(store_rd_wr == 0) begin
-                                assign tlb_rd_signal=1;
-                                assign v_addr=in_alu_result[63:3]<<3;
-                        end
-                        else if(store_rd_wr == 1) begin
-				assign cache_enable=1;
-                                assign cache_signal=READ_SIGNAL;
-                        end
-                        else if(store_rd_wr==2) begin
-				assign cache_enable=1;
-				assign cache_signal = WRITE_SIGNAL;
-                        end
-                end
-		endcase
 	end
 	always_comb begin
 		if(in_syscall_flush) begin
