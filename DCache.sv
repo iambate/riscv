@@ -236,6 +236,7 @@ module D_Set_Associative_Cache
 		end
 	end
 	always_ff @(posedge clk) begin
+		$display("DCACHE enable signal %d", enable);
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 			Wait_fr_mem_write <= UNSET_WAIT;

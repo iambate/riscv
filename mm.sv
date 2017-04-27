@@ -515,6 +515,11 @@ when flush signal is high cache wont read or write but it will still invalidate
 				store_rd_wr<=0;//TODO:should this really be here. Rethink the logic
 			end
 			else if(in_enable) begin
+				$display("MM out ready %d", out_ready);
+				$display("MM cache ready read %d", cache_ready_READ);
+				$display("MM cache ready write %d", cache_ready_WRITE);
+				$display("MM TLB ready %d", tlb_ready);
+				$display("MM TLB rs signal %d", tlb_rd_signal);
 				if(out_ready) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mm_load_bool %d", in_opcode_name,in_mm_load_bool);
@@ -538,12 +543,15 @@ when flush signal is high cache wont read or write but it will still invalidate
 //state2:cache_ready_READ=2 , manipulate data , give write signal,      wait for cache_ready_WRITE
 				if(in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw") begin
 					if(tlb_ready==2 && store_rd_wr==0) begin
+						$display("Setting store_rd_wr: 1");
 						store_rd_wr<=1;
 					end
 					else if(cache_ready_READ==2 && store_rd_wr==1) begin
+						$display("Setting store_rd_wr: 2");
 						store_rd_wr<=2;
 					end
 					else if(cache_ready_WRITE==2 && store_rd_wr==2) begin
+						$display("Setting store_rd_wr: 0");
 						store_rd_wr<=0;
 					end
 				end
