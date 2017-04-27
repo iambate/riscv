@@ -514,15 +514,15 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 out_branch_taken_bool <= 0;
 				store_rd_wr<=0;//TODO:should this really be here. Rethink the logic
 			end
-			else begin
+			else if(in_enable) begin
 				if(out_ready) begin
 `ifdef MMDEBUG
-					$display("MM mm_load_bool %d", in_mm_load_bool);
-					$display("MM alu result %d", in_alu_result);
-					$display("MM rd regno %d", in_rd_regno);
-					$display("MM rs2 value %d", in_rs2_value);
-					$display("MM update bool %d", in_update_rd_bool);
-					$display("MM branch taken %d", in_branch_taken_bool);
+					$display("MM stage done :%s mm_load_bool %d", in_opcode_name,in_mm_load_bool);
+					$display("MM stage done :%s alu result %d",  in_opcode_name,in_alu_result);
+					$display("MM stage done :%s rd regno %d",  in_opcode_name,in_rd_regno);
+					$display("MM stage done :%s rs2 value %d",  in_opcode_name,in_rs2_value);
+					$display("MM stage done :%s update bool %d",  in_opcode_name,in_update_rd_bool);
+					$display("MM stage done :%s branch taken %d",  in_opcode_name,in_branch_taken_bool);
 `endif
 					out_mm_load_bool <= in_mm_load_bool;
 					out_pcplus1plusoffs<=in_pcplus1plusoffs;
