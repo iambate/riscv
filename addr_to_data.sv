@@ -94,8 +94,6 @@ module addr_to_data
                 assign main_bus_reqtag = 0;
                 if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
 	            assign main_bus_respack = 1;
-                end else begin
-	            assign main_bus_respack = 0;
                 end
                 assign main_bus_req = 0; 
                 assign ready = 0;
