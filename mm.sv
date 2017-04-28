@@ -261,7 +261,9 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 else if(store_rd_wr==2) begin
                                         assign cache_enable=1;
                                         assign cache_signal = WRITE_SIGNAL;
-                                end
+                                end else begin
+                                        assign cache_enable=0;
+				end
                         end
 			"sh": begin
                                 if(store_rd_wr == 1) begin
@@ -271,6 +273,8 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 else if(store_rd_wr==2) begin
                                         assign cache_enable=1;
                                         assign cache_signal = WRITE_SIGNAL;
+                                end else begin
+                                        assign cache_enable=0;
                                 end
                         end
 			"sw": begin
@@ -281,6 +285,8 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 else if(store_rd_wr==2) begin
                                         assign cache_enable=1;
                                         assign cache_signal = WRITE_SIGNAL;
+                                end else begin
+                                        assign cache_enable=0;
                                 end
                         end
                         "sd":begin
