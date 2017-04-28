@@ -654,9 +654,6 @@ endfunction
 `ifdef ALUDEBUGEX
     $display("ALU in_enable %d", in_enable);
     $display("ALU out_ready %d", out_ready);
-    if(!out_ready) begin
-      $display("ALU stall due to ALU->MM dependency");
-    end
 `endif
     if(reset) begin
       // TODO: add reset things here
@@ -723,7 +720,18 @@ endfunction
         out_mm_load_bool <= n_mm_load_bool;
       end
     end else if (in_enable) begin
+`ifdef ALUDEBUG
+        $display("ALU stall due to ALU->MM dependency");
+`endif
         stall_cycs <= n_stall_cycs;
+        out_alu_result <= 0;
+        out_branch_taken_bool <= 0;
+        out_pcplus1plusoffs <= 0;
+        out_rs2_value <= 0;
+        out_opcode_name <= 0;
+        out_rd_regno <= 0;
+        out_update_rd_bool <= 0;
+        out_mm_load_bool <= 0;
     end
   end
 endmodule
