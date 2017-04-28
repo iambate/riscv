@@ -229,6 +229,7 @@ void System::dram_write_complete(unsigned id, uint64_t address, uint64_t clock_c
 }
 
 void System::invalidate(const uint64_t phy_addr) {
+    cerr<< "====== pushing "<<phy_addr<< " into invalidation queue with tag " << std::dec <<(INVAL<<8)<<"========"<<endl;
     System::sys->tx_queue.push_front(make_pair(phy_addr, INVAL << 8));
 }
 
