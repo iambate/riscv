@@ -291,6 +291,7 @@ module top
                 .out_syscall_flush(wb_syscall_flush),
                 .out_display_regs(display_regs)
                 );
+/*
 always_ff @(posedge clk) begin
   $display("bus req", bus_req);
   $display("bus reqcyc", bus_reqcyc);
@@ -301,4 +302,5 @@ always_ff @(posedge clk) begin
   $display("bus resptag", bus_resptag);
   $display("bus respack", bus_respack);
 end
+*/
 endmodule

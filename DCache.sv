@@ -1,4 +1,4 @@
-//`define CACHEDEBUGXTRA
+`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -136,6 +136,7 @@ module D_Set_Associative_Cache
                        );
 
 	always_comb begin
+                assign inval_signal=0;
 		if(bus_resptag==INVAL_RESPTAG) begin
 			assign index = bus_resp[STARTING_INDEX+14:STARTING_INDEX+6];
                 	assign tag = bus_resp[63:STARTING_INDEX+15];
