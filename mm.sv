@@ -180,7 +180,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 		assign write_data_byte7_bool=0;
 		assign cache_enable=0;
 		assign cache_signal=0;
-		if(tlb_ready) begin
+		if(tlb_ready==2) begin
 			case(in_opcode_name)
 			"sb":begin
 				assign cache_enable = 1;
@@ -317,7 +317,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			in_opcode_name == "ld") begin//store or loads
 
 			assign out_ready = 0;
-			if(cache_ready_READ==2) begin
+			if(cache_ready_READ==2 || in_syscall_flush==1) begin
 				assign out_ready = 1;
 			end
 		end else if(in_opcode_name == "sd" || 
@@ -326,7 +326,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			in_opcode_name == "sb" ) begin//store or loads
 
 			assign out_ready = 0;
-			if (cache_ready_WRITE==2) begin
+			if (cache_ready_WRITE==2 || in_syscall_flush==1) begin
 				assign out_ready = 1;
 			end
 		end
@@ -334,7 +334,8 @@ when flush signal is high cache wont read or write but it will still invalidate
 
 
 	always_ff @(posedge clk) begin
-		if(reset & in_syscall_flush) begin
+		if(reset || in_syscall_flush) begin
+			$display("MM Flush due to syscall signal");	
 			out_mm_load_bool<=0;
 			out_pcplus1plusoffs<=0;
 			out_alu_result<=0;
