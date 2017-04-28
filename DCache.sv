@@ -1,4 +1,4 @@
-//`define CACHEDEBUGXTRA
+`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -16,7 +16,7 @@ module D_Set_Associative_Cache
 	WAITING_FOR_MEM_READ=1,
 	CACHE_HIT=2,
 	VALID='b100,
-	SIZE=32,
+	SIZE=64,
 	CACHE_MISS=3,
 	LRU='b010,
 	READ_SIGNAL=1,
@@ -259,6 +259,7 @@ module D_Set_Associative_Cache
 `endif
 					if(data_available == CACHE_HIT) begin//not a miss
 	`ifdef CACHEDEBUGXTRA
+						$display("DCACHE :read data %d", Data[RSet][index][block_offset/(SIZE/8)]);
 						$display("DCACHE :read -cache hit");
 						$display("DCACHE :read -addr %d", addr);
 						$display("DCACHE :read -starting addr of block %d", phy_addr);
@@ -289,34 +290,14 @@ module D_Set_Associative_Cache
 							store_data_enable <= 1;
 							//TODO:move to always_comb
 							store_data_at_addr <= ((Tag[RSet][index]<<15)+(index<<6));
-							if(SIZE == 32) begin
-								flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[RSet][index][0][31:0];
-								flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[RSet][index][1];
-								flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[RSet][index][2];
-								flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[RSet][index][3];
-								flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[RSet][index][4];
-								flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[RSet][index][5];
-								flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[RSet][index][6];
-								flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[RSet][index][7];
-								flush_data[(SIZE*8)+(SIZE-1):(SIZE*8)] <= Data[RSet][index][8];
-								flush_data[(SIZE*9)+(SIZE-1):(SIZE*9)] <= Data[RSet][index][9];
-								flush_data[(SIZE*10)+(SIZE-1):(SIZE*10)] <= Data[RSet][index][10];
-								flush_data[(SIZE*11)+(SIZE-1):(SIZE*11)] <= Data[RSet][index][11];
-								flush_data[(SIZE*12)+(SIZE-1):(SIZE*12)] <= Data[RSet][index][12];
-								flush_data[(SIZE*13)+(SIZE-1):(SIZE*13)] <= Data[RSet][index][13];
-								flush_data[(SIZE*14)+(SIZE-1):(SIZE*14)] <= Data[RSet][index][14];
-								flush_data[(SIZE*15)+(SIZE-1):(SIZE*15)] <= Data[RSet][index][15];
-							end
-							else begin
-								flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[RSet][index][0];
-								flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[RSet][index][1];
-								flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[RSet][index][2];
-								flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[RSet][index][3];
-								flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[RSet][index][4];
-								flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[RSet][index][5];
-								flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[RSet][index][6];
-								flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[RSet][index][7];
-							end
+							flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[RSet][index][0];
+							flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[RSet][index][1];
+							flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[RSet][index][2];
+							flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[RSet][index][3];
+							flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[RSet][index][4];
+							flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[RSet][index][5];
+							flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[RSet][index][6];
+							flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[RSet][index][7];
 							Wait_fr_mem_write<=SET_WAIT;
 							Wait_fr_mem_read <=UNSET_WAIT;
 						end
@@ -372,34 +353,14 @@ module D_Set_Associative_Cache
 	`endif
 							Wait_fr_mem_read <= UNSET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
-							if(SIZE == 32) begin
-								Data[RSet][index][0][31:0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-								Data[RSet][index][1][31:0] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-								Data[RSet][index][2][31:0] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-								Data[RSet][index][3][31:0] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
-								Data[RSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
-								Data[RSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
-								Data[RSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
-								Data[RSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
-								Data[RSet][index][8] <= data[(SIZE*8)+(SIZE-1):(SIZE*8)];
-								Data[RSet][index][9] <= data[(SIZE*9)+(SIZE-1):(SIZE*9)];
-								Data[RSet][index][10] <= data[(SIZE*10)+(SIZE-1):(SIZE*10)];
-								Data[RSet][index][11] <= data[(SIZE*11)+(SIZE-1):(SIZE*11)];
-								Data[RSet][index][12] <= data[(SIZE*12)+(SIZE-1):(SIZE*12)];
-								Data[RSet][index][13] <= data[(SIZE*13)+(SIZE-1):(SIZE*13)];
-								Data[RSet][index][14] <= data[(SIZE*14)+(SIZE-1):(SIZE*14)];
-								Data[RSet][index][15] <= data[(SIZE*15)+(SIZE-1):(SIZE*15)];
-							end
-							else begin
-								Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-								Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-								Data[RSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-								Data[RSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
-								Data[RSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
-								Data[RSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
-								Data[RSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
-								Data[RSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
-							end	
+							Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
+							Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
+							Data[RSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
+							Data[RSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
+							Data[RSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
+							Data[RSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
+							Data[RSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
+							Data[RSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
 							Tag[RSet][index] <= tag;
 							State[RSet][index][VALID_BIT] <= 1;
 							State[RSet][index][DIRTY_BIT] <= 0;
@@ -427,6 +388,7 @@ module D_Set_Associative_Cache
 `endif
 					if(canWrite==CACHE_HIT)begin
 `ifdef CACHEDEBUGXTRA
+						$display("DCACHE :write data %d",write_data); 
 						$display("DCACHE :write -cache hit");
                                                 $display("DCACHE :write -addr %d", addr);
                                                 $display("DCACHE :write -starting addr of block %d", phy_addr);
@@ -457,34 +419,14 @@ module D_Set_Associative_Cache
 							store_data_enable <= 1;
 							//TODO:move to always_comb
 							store_data_at_addr <= ((Tag[WSet][index]<<15)+(index<<6));
-							if(SIZE == 32) begin
-								flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[WSet][index][0];
-								flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[WSet][index][1];
-								flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[WSet][index][2];
-								flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[WSet][index][3];
-								flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[WSet][index][4];
-								flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[WSet][index][5];
-								flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[WSet][index][6];
-								flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[WSet][index][7];
-								flush_data[(SIZE*8)+(SIZE-1):(SIZE*8)] <= Data[WSet][index][8];
-								flush_data[(SIZE*9)+(SIZE-1):(SIZE*9)] <= Data[WSet][index][9];
-								flush_data[(SIZE*10)+(SIZE-1):(SIZE*10)] <= Data[WSet][index][10];
-								flush_data[(SIZE*11)+(SIZE-1):(SIZE*11)] <= Data[WSet][index][11];
-								flush_data[(SIZE*12)+(SIZE-1):(SIZE*12)] <= Data[WSet][index][12];
-								flush_data[(SIZE*13)+(SIZE-1):(SIZE*13)] <= Data[WSet][index][13];
-								flush_data[(SIZE*14)+(SIZE-1):(SIZE*14)] <= Data[WSet][index][14];
-								flush_data[(SIZE*15)+(SIZE-1):(SIZE*15)] <= Data[WSet][index][15];
-							end
-							else begin
-								flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[WSet][index][0];
-								flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[WSet][index][1];
-								flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[WSet][index][2];
-								flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[WSet][index][3];
-								flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[WSet][index][4];
-								flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[WSet][index][5];
-								flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[WSet][index][6];
-								flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[WSet][index][7];
-							end
+							flush_data[(SIZE*0)+(SIZE-1):(SIZE*0)] <= Data[WSet][index][0];
+							flush_data[(SIZE*1)+(SIZE-1):(SIZE*1)] <= Data[WSet][index][1];
+							flush_data[(SIZE*2)+(SIZE-1):(SIZE*2)] <= Data[WSet][index][2];
+							flush_data[(SIZE*3)+(SIZE-1):(SIZE*3)] <= Data[WSet][index][3];
+							flush_data[(SIZE*4)+(SIZE-1):(SIZE*4)] <= Data[WSet][index][4];
+							flush_data[(SIZE*5)+(SIZE-1):(SIZE*5)] <= Data[WSet][index][5];
+							flush_data[(SIZE*6)+(SIZE-1):(SIZE*6)] <= Data[WSet][index][6];
+							flush_data[(SIZE*7)+(SIZE-1):(SIZE*7)] <= Data[WSet][index][7];
 							Wait_fr_mem_write<=SET_WAIT;
 							Wait_fr_mem_read <=UNSET_WAIT;
 						end
@@ -539,34 +481,14 @@ module D_Set_Associative_Cache
 
 							Wait_fr_mem_read <= UNSET_WAIT;
 							Wait_fr_mem_write<=UNSET_WAIT;
-							if(SIZE == 32) begin
-								Data[WSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-								Data[WSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-								Data[WSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-								Data[WSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
-								Data[WSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
-								Data[WSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
-								Data[WSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
-								Data[WSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
-								Data[WSet][index][8] <= data[(SIZE*8)+(SIZE-1):(SIZE*8)];
-								Data[WSet][index][9] <= data[(SIZE*9)+(SIZE-1):(SIZE*9)];
-								Data[WSet][index][10] <= data[(SIZE*10)+(SIZE-1):(SIZE*10)];
-								Data[WSet][index][11] <= data[(SIZE*11)+(SIZE-1):(SIZE*11)];
-								Data[WSet][index][12] <= data[(SIZE*12)+(SIZE-1):(SIZE*12)];
-								Data[WSet][index][13] <= data[(SIZE*13)+(SIZE-1):(SIZE*13)];
-								Data[WSet][index][14] <= data[(SIZE*14)+(SIZE-1):(SIZE*14)];
-								Data[WSet][index][15] <= data[(SIZE*15)+(SIZE-1):(SIZE*15)];
-							end
-							else begin
-								Data[WSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-								Data[WSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-								Data[WSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-								Data[WSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
-								Data[WSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
-								Data[WSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
-								Data[WSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
-								Data[WSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
-							end
+							Data[WSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
+							Data[WSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
+							Data[WSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
+							Data[WSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
+							Data[WSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
+							Data[WSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
+							Data[WSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
+							Data[WSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
 							Tag[WSet][index] <= tag;
 							State[WSet][index][VALID_BIT] <= 1;
 							State[WSet][index][DIRTY_BIT] <= 0;

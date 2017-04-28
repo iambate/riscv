@@ -68,6 +68,7 @@ module mm
 	logic cache_enable;//TODO: dont think we need it-enable only for ld and st inst and tlb is ready:done
 	logic [1:0] cache_signal;//give read_signal/write_signal depending on inst
 	logic [63:0] cache_data;//DONE:set to out_mdata in case of ld signal
+	logic [63:0] ff_cache_data;
 	logic [1:0] cache_ready_READ;
 	logic [1:0] cache_ready_WRITE;
 	logic [63:0] write_data;
@@ -199,12 +200,12 @@ when flush signal is high cache wont read or write but it will still invalidate
 			end
 			"sw":begin
 				if(store_rd_wr==2) begin
-					if(in_alu_result[2:0]==0) begin
+					if(in_alu_result[2]==0) begin
 						assign write_data[31:0]=in_rs2_value[31:0];
-						assign write_data[63:32]=cache_data[63:32];
+						assign write_data[63:32]=ff_cache_data[63:32];
 					end
-					else if(in_alu_result[2:0]==4) begin
-						assign write_data[31:0]=cache_data[31:0];
+					else if(in_alu_result[2]==1) begin
+						assign write_data[31:0]=ff_cache_data[31:0];
 						assign write_data[63:32]=in_rs2_value[31:0];
 					end
 				end
@@ -600,6 +601,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 						store_rd_wr<=1;
 					end
 					else if(cache_ready_READ==2 && store_rd_wr==1) begin
+						ff_cache_data<=cache_data;
 						$display("Setting store_rd_wr: 2");
 						store_rd_wr<=2;
 					end
@@ -607,6 +609,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 						$display("Setting store_rd_wr: 0");
 						store_rd_wr<=0;
 					end
+					$display("write_data %d", write_data);
 				end
 				if(in_opcode_name=="sd"||in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw")begin
 					if(cache_ready_WRITE==2) begin
@@ -713,9 +716,11 @@ when flush signal is high cache wont read or write but it will still invalidate
                                                 end
 						"lw":begin
 							if(in_alu_result[2:0]==0) begin
+								$display("MM cache_data %d", cache_data[31:0]);
                                                                 out_mdata<=$signed(cache_data[31:0]);
                                                         end
                                                         else if(in_alu_result[2:0]==4) begin
+								$display("MM cache_data %d", cache_data[63:32]);
                                                                 out_mdata<=$signed(cache_data[63:32]);
                                                         end
                                                 end
