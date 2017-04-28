@@ -687,9 +687,8 @@ endfunction
         out_update_rd_bool <= 0;
         out_mm_load_bool <= 0;
       end else begin
-`ifdef ALUDEBUG
+`ifdef ALUDEBUGEXTRA
         $display("ALU stall_cycs %d", n_stall_cycs);
-        $display("ALU alu_result %d", n_alu_result);
         $display("ALU branch bool %d", n_branch_taken_bool);
         $display("ALU pc %d", n_pc);
         $display("ALU alu mm load bool %d", in_alu_mm_load_bool);
@@ -700,14 +699,17 @@ endfunction
 	$display("ALU mm rd regno %d", in_mm_rd_regno);
 	$display("ALU wb rd update %d", in_wb_update_rd_bool);
 	$display("ALU wb rd regno %d", in_wb_rd_regno);
+        $display("ALU rd_update_bool %d", n_update_rd_bool);
+        $display("ALU mm_load Bool %d", n_mm_load_bool);
         $display("ALU given val1 %d", in_rs1_value);
         $display("ALU given val2 %d", in_rs2_value);
+`endif
+`ifdef ALUDEBUG
+        $display("ALU alu_result %d", n_alu_result);
         $display("ALU actual val1 %d", n_value1);
         $display("ALU actual val2 %d", n_value2);
         $display("ALU opcode %s", in_opcode_name);
         $display("ALU rd_regno %d", in_rd_regno);
-        $display("ALU rd_update_bool %d", n_update_rd_bool);
-        $display("ALU mm_load Bool %d", n_mm_load_bool);
 `endif
         stall_cycs <= n_stall_cycs;
         out_alu_result <= n_alu_result;

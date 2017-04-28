@@ -1,4 +1,4 @@
-`define CACHEDEBUGXTRA
+//`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -17,6 +17,7 @@ module D_Set_Associative_Cache
 	CACHE_HIT=2,
 	VALID='b100,
 	SIZE=64,
+	BYTE_SIZE=8,
 	CACHE_MISS=3,
 	LRU='b010,
 	READ_SIGNAL=1,
@@ -35,6 +36,14 @@ module D_Set_Associative_Cache
 	output [SIZE-1:0] read_data,//F
 	output [1:0] data_available,//F
 	input [SIZE-1:0] write_data,
+	input write_data_byte0_bool,
+	input write_data_byte1_bool,
+	input write_data_byte2_bool,
+	input write_data_byte3_bool,
+	input write_data_byte4_bool,
+	input write_data_byte5_bool,
+	input write_data_byte6_bool,
+	input write_data_byte7_bool,
 	input enable,
 	output bus_reqcyc,
   	output bus_respack,
@@ -399,7 +408,30 @@ module D_Set_Associative_Cache
                                                 $display("DCACHE :write -State2 %b",State[SET2][index]);
 						$display("DCACHE :write -index %b",index);
 `endif			
-						Data[WSet][index][block_offset/(SIZE/8)] <= write_data;
+						if(write_data_byte0_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*0:BYTE_SIZE*0] <= write_data[BYTE_SIZE-1+BYTE_SIZE*0:BYTE_SIZE*0];
+						end
+						if(write_data_byte1_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*1:BYTE_SIZE*1] <= write_data[BYTE_SIZE-1+BYTE_SIZE*1:BYTE_SIZE*1];
+						end
+						if(write_data_byte2_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*2:BYTE_SIZE*2] <= write_data[BYTE_SIZE-1+BYTE_SIZE*2:BYTE_SIZE*2];
+						end
+						if(write_data_byte3_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*3:BYTE_SIZE*3] <= write_data[BYTE_SIZE-1+BYTE_SIZE*3:BYTE_SIZE*3];
+						end
+						if(write_data_byte4_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*4:BYTE_SIZE*4] <= write_data[BYTE_SIZE-1+BYTE_SIZE*4:BYTE_SIZE*4];
+						end
+						if(write_data_byte5_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*5:BYTE_SIZE*5] <= write_data[BYTE_SIZE-1+BYTE_SIZE*5:BYTE_SIZE*5];
+						end
+						if(write_data_byte6_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*6:BYTE_SIZE*6] <= write_data[BYTE_SIZE-1+BYTE_SIZE*6:BYTE_SIZE*6];
+						end
+						if(write_data_byte7_bool) begin
+						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*7:BYTE_SIZE*7] <= write_data[BYTE_SIZE-1+BYTE_SIZE*7:BYTE_SIZE*7];
+						end
 						State[WSet][index][LRU_BIT]<= 0;
 						State[~WSet][index][LRU_BIT]<=1;
 						State[WSet][index][DIRTY_BIT]<=1;

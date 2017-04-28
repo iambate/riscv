@@ -72,8 +72,15 @@ module mm
 	logic [1:0] cache_ready_READ;
 	logic [1:0] cache_ready_WRITE;
 	logic [63:0] write_data;
-	logic [1:0] store_rd_wr;
 	logic [63:0] v_addr;//derive from in_alu_result	
+	logic write_data_byte0_bool;
+	logic write_data_byte1_bool;
+	logic write_data_byte2_bool;
+	logic write_data_byte3_bool;
+	logic write_data_byte4_bool;
+	logic write_data_byte5_bool;
+	logic write_data_byte6_bool;
+	logic write_data_byte7_bool;
 /*
 TODO:
 1) store-read first then write
@@ -124,427 +131,210 @@ when flush signal is high cache wont read or write but it will still invalidate
                                 .store_data_abtr_reqcyc(out_store_data_abtr_reqcyc),
                                 .store_data_bus_busy(out_store_data_bus_busy),
                                 .addr_data_bus_busy(out_addr_data_bus_busy),
-				.write_data(write_data)//IMP
+								.write_data(write_data),//IMP
+								.write_data_byte0_bool(write_data_byte0_bool),
+								.write_data_byte1_bool(write_data_byte1_bool),
+								.write_data_byte2_bool(write_data_byte2_bool),
+								.write_data_byte3_bool(write_data_byte3_bool),
+								.write_data_byte4_bool(write_data_byte4_bool),
+								.write_data_byte5_bool(write_data_byte5_bool),
+								.write_data_byte6_bool(write_data_byte6_bool),
+								.write_data_byte7_bool(write_data_byte7_bool)
                                 );
+
+
+	always_comb begin
+		//defaults
+		assign tlb_rd_signal=0;
+		assign v_addr=0;
+		if(!in_syscall_flush) begin
+			if(in_opcode_name == "sd" || 
+				in_opcode_name == "sw" ||
+				in_opcode_name == "sh" ||
+				in_opcode_name == "sb" ||
+				in_opcode_name == "lw" ||
+				in_opcode_name == "lwu" ||
+				in_opcode_name == "lh" ||
+				in_opcode_name == "lhu" ||
+				in_opcode_name == "lb" ||
+				in_opcode_name == "lbu" ||
+				in_opcode_name == "ld") begin//store or loads
+
+				assign tlb_rd_signal=1;
+				assign v_addr=in_alu_result[63:3]<<3;
+			end // end of else of stores or loads
+		end //end if syscall_flush 
+	end// end of always comb of tlb_rd_signal
+
+
 	//for manipulating data to write for sb,sh,sw
 	always_comb begin
-		if(in_syscall_flush) begin
-			assign write_data=0;
-		end
-		else begin
+		// default write_data_byte[0-7]_bool to 0
+		assign write_data_byte0_bool=0;
+		assign write_data_byte1_bool=0;
+		assign write_data_byte2_bool=0;
+		assign write_data_byte3_bool=0;
+		assign write_data_byte4_bool=0;
+		assign write_data_byte5_bool=0;
+		assign write_data_byte6_bool=0;
+		assign write_data_byte7_bool=0;
+		assign cache_enable=0;
+		assign cache_signal=0;
+		if(tlb_ready) begin
 			case(in_opcode_name)
 			"sb":begin
-				if(store_rd_wr==2) begin
-					//assign stuff to write_data that are taken from read_data
-					if(in_alu_result[2:0]==0) begin
-						assign write_data[7:0]=in_rs2_value[7:0];
-						assign write_data[63:8]=ff_cache_data[63:8];
-					end
-					else if(in_alu_result[2:0]==1) begin
-						assign write_data[7:0]=ff_cache_data[7:0];
-						assign write_data[15:8]=in_rs2_value[7:0];
-						assign write_data[63:16]=ff_cache_data[63:16];
-					end
-					else if(in_alu_result[2:0]==2) begin
-						assign write_data[15:0]=ff_cache_data[15:0];
-						assign write_data[23:16]=in_rs2_value[7:0];
-						assign write_data[63:24]=ff_cache_data[63:24];
-					end
-					else if(in_alu_result[2:0]==3) begin//
-						assign write_data[23:0]=ff_cache_data[23:0];
-						assign write_data[31:24]=in_rs2_value[7:0];
-						assign write_data[63:32]=ff_cache_data[63:32];
-					end
-					else if(in_alu_result[2:0]==4) begin
-						assign write_data[31:0]=ff_cache_data[31:0];
-						assign write_data[39:32]=in_rs2_value[7:0];
-						assign write_data[63:40]=ff_cache_data[63:40];
-					end
-					else if(in_alu_result[2:0]==5) begin
-						assign write_data[39:0]=ff_cache_data[39:0];
-						assign write_data[47:40]=in_rs2_value[7:0];
-						assign write_data[63:48]=ff_cache_data[63:48];
-					end
-					else if(in_alu_result[2:0]==6) begin
-						assign write_data[47:0]=ff_cache_data[47:0];
-						assign write_data[55:48]=in_rs2_value[7:0];
-						assign write_data[63:56]=ff_cache_data[63:56];
-					end
-					else if(in_alu_result[2:0]==7) begin
-						assign write_data[55:0]=ff_cache_data[55:0];
-						assign write_data[63:56]=in_rs2_value[7:0];
-					end
+				assign cache_enable = 1;
+				assign cache_signal = WRITE_SIGNAL;
+				if(in_alu_result[2:0]==0) begin
+					assign write_data_byte0_bool=1;
+					assign write_data[7:0]=in_rs2_value[7:0];
 				end
-			end
+				else if(in_alu_result[2:0]==1) begin
+					assign write_data_byte1_bool=1;
+					assign write_data[15:8]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==2) begin
+					assign write_data_byte2_bool=1;
+					assign write_data[23:16]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==3) begin//
+					assign write_data_byte3_bool=1;
+					assign write_data[31:24]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==4) begin
+					assign write_data_byte4_bool=1;
+					assign write_data[39:32]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==5) begin
+					assign write_data_byte5_bool=1;
+					assign write_data[47:40]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==6) begin
+					assign write_data_byte6_bool=1;
+					assign write_data[55:48]=in_rs2_value[7:0];
+				end
+				else if(in_alu_result[2:0]==7) begin
+					assign write_data_byte7_bool=1;
+					assign write_data[63:56]=in_rs2_value[7:0];
+				end
+			end //case sw end
 			"sh":begin
-				if(store_rd_wr==2) begin
-					if(in_alu_result[2:0]==0) begin
-						assign write_data[15:0]=in_rs2_value[15:0];
-						assign write_data[63:16]=ff_cache_data[63:16];
-					end
-					else if(in_alu_result[2:0]==2) begin
-						assign write_data[15:0]=ff_cache_data[15:0];
-						assign write_data[31:16]=in_rs2_value[15:0];
-						assign write_data[63:32]=ff_cache_data[63:32];
-					end
-					else if(in_alu_result[2:0]==4) begin
-						assign write_data[31:0]=ff_cache_data[31:0];
-						assign write_data[47:32]=in_rs2_value[15:0];
-						assign write_data[63:48]=ff_cache_data[63:48];
-					end
-					else if(in_alu_result[2:0]==6) begin//
-						assign write_data[47:0]=ff_cache_data[47:0];
-						assign write_data[63:48]=in_rs2_value[15:0];
-					end
+				assign cache_enable = 1;
+				assign cache_signal = WRITE_SIGNAL;
+				if(in_alu_result[2:0]==0) begin
+					assign write_data_byte0_bool=1;
+					assign write_data_byte1_bool=1;
+					assign write_data[15:0]=in_rs2_value[15:0];
 				end
-			end
+				else if(in_alu_result[2:0]==2) begin
+					assign write_data_byte2_bool=1;
+					assign write_data_byte3_bool=1;
+					assign write_data[31:16]=in_rs2_value[15:0];
+				end
+				else if(in_alu_result[2:0]==4) begin
+					assign write_data_byte4_bool=1;
+					assign write_data_byte5_bool=1;
+					assign write_data[47:32]=in_rs2_value[15:0];
+				end
+				else if(in_alu_result[2:0]==6) begin//
+					assign write_data_byte6_bool=1;
+					assign write_data_byte7_bool=1;
+					assign write_data[63:48]=in_rs2_value[15:0];
+				end
+			end //case end sh
 			"sw":begin
-				if(store_rd_wr==2) begin
-					if(in_alu_result[2]==0) begin
-						assign write_data[31:0]=in_rs2_value[31:0];
-						assign write_data[63:32]=ff_cache_data[63:32];
-					end
-					else if(in_alu_result[2]==1) begin
-						assign write_data[31:0]=ff_cache_data[31:0];
-						assign write_data[63:32]=in_rs2_value[31:0];
-					end
+				assign cache_enable = 1;
+				assign cache_signal = WRITE_SIGNAL;
+				if(in_alu_result[2]==0) begin
+					assign write_data_byte0_bool=1;
+					assign write_data_byte1_bool=1;
+					assign write_data_byte2_bool=1;
+					assign write_data_byte3_bool=1;
+					assign write_data[31:0]=in_rs2_value[31:0];
 				end
-			end
+				else if(in_alu_result[2]==1) begin
+					assign write_data_byte4_bool=1;
+					assign write_data_byte5_bool=1;
+					assign write_data_byte6_bool=1;
+					assign write_data_byte7_bool=1;
+					assign write_data[63:32]=in_rs2_value[31:0];
+				end
+			end //case end sw
 			"sd": begin
+				assign cache_enable = 1;
+				assign cache_signal = WRITE_SIGNAL;
+				assign write_data_byte0_bool=1;
+				assign write_data_byte1_bool=1;
+				assign write_data_byte2_bool=1;
+				assign write_data_byte3_bool=1;
+				assign write_data_byte4_bool=1;
+				assign write_data_byte5_bool=1;
+				assign write_data_byte6_bool=1;
+				assign write_data_byte7_bool=1;
 				assign write_data = in_rs2_value;
 			end
-			default:begin
-				assign write_data=0;
+			"lw": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"lwu": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"lh": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"lhu": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"lb": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"lbu": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
+			end
+			"ld": begin
+				assign cache_enable = 1;
+				assign cache_signal = READ_SIGNAL;
 			end
 			endcase
 		end
 	end
-/*
-	always_comb begin //for working on the states in sb,sh,sw
-		if(in_syscall_flush==0) begin
-			case(in_opcode_name) 
-			"sb": begin 
-	//state0:give tlb the signal, 			wait for tlb_ready
-	//state1:tlb_ready give cache read signal, 	wait for cache_ready_READ
-	//state2:cache_ready_READ=2 , manipulate data , give write signal, 	wait for cache_ready_WRITE
-				if(store_rd_wr == 0) begin
-					assign tlb_rd_signal=1;
-					assign v_addr=in_alu_result[63:3]<<3;
-				end
-			end
-			"sh": begin
-				if(store_rd_wr == 0) begin
-					assign tlb_rd_signal=1;
-					assign v_addr=in_alu_result[63:3]<<3;
-				end
-			end
-			"sw": begin
-				if(store_rd_wr == 0) begin
-					assign tlb_rd_signal=1;
-					assign v_addr=in_alu_result[63:3]<<3;
-				end
-			end
-			endcase
-		end
-	end
-*/
+
+
 	always_comb begin
-		if(in_syscall_flush) begin
-                        assign cache_enable=0;
-                end
-                else begin
-                        case(in_opcode_name)
-			"sb": begin
-                                if(store_rd_wr == 1) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal=READ_SIGNAL;
-                                end
-                                else if(store_rd_wr==2) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal = WRITE_SIGNAL;
-                                end else begin
-                                        assign cache_enable=0;
-				end
-                        end
-			"sh": begin
-                                if(store_rd_wr == 1) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal=READ_SIGNAL;
-                                end
-                                else if(store_rd_wr==2) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal = WRITE_SIGNAL;
-                                end else begin
-                                        assign cache_enable=0;
-                                end
-                        end
-			"sw": begin
-                                if(store_rd_wr == 1) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal=READ_SIGNAL;
-                                end
-                                else if(store_rd_wr==2) begin
-                                        assign cache_enable=1;
-                                        assign cache_signal = WRITE_SIGNAL;
-                                end else begin
-                                        assign cache_enable=0;
-                                end
-                        end
-                        "sd":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=WRITE_SIGNAL;
-                        end
-                        "lb":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-			"lbu":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-                        "lh":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-                        "lhu":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-                        "lw":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-                        "lwu":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-                        "ld":begin
-				if(tlb_ready==2) begin
-                                        assign cache_enable =1;
-                                end
-                                else begin
-                                        assign cache_enable=0;
-                                end
-				assign cache_signal=READ_SIGNAL;
-                        end
-			default:begin
-				assign cache_enable=0;
+		assign out_ready=1;
+		if(in_opcode_name == "lw" ||
+			in_opcode_name == "lwu" ||
+			in_opcode_name == "lh" ||
+			in_opcode_name == "lhu" ||
+			in_opcode_name == "lb" ||
+			in_opcode_name == "lbu" ||
+			in_opcode_name == "ld") begin//store or loads
+
+			assign out_ready = 0;
+			if(cache_ready_READ==2) begin
+				assign out_ready = 1;
 			end
-                        endcase
+		end else if(in_opcode_name == "sd" || 
+			in_opcode_name == "sw" ||
+			in_opcode_name == "sh" ||
+			in_opcode_name == "sb" ) begin//store or loads
+
+			assign out_ready = 0;
+			if (cache_ready_WRITE==2) begin
+				assign out_ready = 1;
+			end
 		end
 	end
-	always_comb begin
-		if(in_syscall_flush) begin
-			assign tlb_rd_signal=0;
-		end
-		else begin
-			case(in_opcode_name)
-			"sb": begin
-        //state0:give tlb the signal,                   wait for tlb_ready
-        //state1:tlb_ready give cache read signal,      wait for cache_ready_READ
-        //state2:cache_ready_READ=2 , manipulate data , give write signal,      wait for cache_ready_WRITE
-                                if(store_rd_wr == 0) begin
-                                        assign tlb_rd_signal=1;
-                                        assign v_addr=in_alu_result[63:3]<<3;
-                                end
-				else begin
-					assign tlb_rd_signal =0;
-				end
-                        end
-                        "sh": begin
-                                if(store_rd_wr == 0) begin
-                                        assign tlb_rd_signal=1;
-                                        assign v_addr=in_alu_result[63:3]<<3;
-                                end
-				else begin
-                                        assign tlb_rd_signal =0;
-                                end
-                        end
-                        "sw": begin
-                                if(store_rd_wr == 0) begin
-                                        assign tlb_rd_signal=1;
-                                        assign v_addr=in_alu_result[63:3]<<3;
-                                end
-				else begin
-                                        assign tlb_rd_signal =0;
-                                end
-                        end
-			"sd":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lb":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lbu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lh":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lhu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lw":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"lwu":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			"ld":begin
-				assign tlb_rd_signal =1;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			default:begin
-				assign tlb_rd_signal =0;
-				assign v_addr=in_alu_result[63:3]<<3;
-			end
-			endcase
-		end
-	end
-	always_comb begin
-		if(in_syscall_flush) begin
-			assign out_ready=1;
-		end
-		else begin
-			case(in_opcode_name)
-			"sb":begin
-				if(cache_ready_WRITE==2) begin
-					assign out_ready =1;
-				end
-				else begin
-					assign out_ready = 0;
-				end
-			end
-			"sh":begin
-				if(cache_ready_WRITE==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"sw":begin
-				if(cache_ready_WRITE==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"sd":begin
-				if(cache_ready_WRITE==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lb":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lbu":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lh":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lhu":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lw":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"lwu":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			"ld":begin
-				if(cache_ready_READ==2) begin
-                                        assign out_ready =1;
-                                end
-                                else begin
-                                        assign out_ready = 0;
-                                end
-			end
-			default:begin
-				assign out_ready=1;
-			end
-			endcase
-		end
-	end
+
+
 	always_ff @(posedge clk) begin
-		if(reset) begin
+		if(reset & in_syscall_flush) begin
 			out_mm_load_bool<=0;
 			out_pcplus1plusoffs<=0;
 			out_alu_result<=0;
@@ -552,199 +342,225 @@ when flush signal is high cache wont read or write but it will still invalidate
 			out_opcode_name<=0;
 			out_rs2_value<=0;
 			out_update_rd_bool<=0;
-			store_rd_wr<=0;
-		end
-		else begin
-			if(in_syscall_flush) begin
-				out_mm_load_bool<=0;
-				out_pcplus1plusoffs<=0;
-				out_alu_result<=0;
-				out_rd_regno<=0;
-				out_opcode_name<=0;
-				out_rs2_value<=0;
-                        	out_update_rd_bool<=0;
-                                out_branch_taken_bool <= 0;
-				store_rd_wr<=0;//TODO:should this really be here. Rethink the logic
+		end else if(in_enable & out_ready) begin
+`ifdef MMDEBUGEXTRA
+			$display("MM out ready %d", out_ready);
+			$display("MM cache ready read %d", cache_ready_READ);
+			$display("MM cache ready write %d", cache_ready_WRITE);
+			$display("MM TLB ready %d", tlb_ready);
+			$display("MM TLB rs signal %d", tlb_rd_signal);
+`endif
+`ifdef MMDEBUG
+			$display("MM stage done :%s mm_load_bool %d", in_opcode_name,in_mm_load_bool);
+			$display("MM stage done :%s alu result %d",  in_opcode_name,in_alu_result);
+			$display("MM stage done :%s rd regno %d",  in_opcode_name,in_rd_regno);
+			$display("MM stage done :%s rs2 value %d",  in_opcode_name,in_rs2_value);
+			$display("MM stage done :%s update bool %d",  in_opcode_name,in_update_rd_bool);
+			$display("MM stage done :%s branch taken %d",  in_opcode_name,in_branch_taken_bool);
+`endif
+			out_phy_addr <= p_addr;
+			out_mm_load_bool <= in_mm_load_bool;
+			out_pcplus1plusoffs<=in_pcplus1plusoffs;
+			out_alu_result<=in_alu_result;
+			out_rd_regno<=in_rd_regno;
+			out_opcode_name<=in_opcode_name;
+			out_rs2_value<=in_rs2_value;
+			out_update_rd_bool <= in_update_rd_bool;
+			out_branch_taken_bool <= in_branch_taken_bool;
+			case(in_opcode_name)
+			"lb":begin
+				if(in_alu_result[2:0]==0) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[7:0]));
+`endif
+					out_mdata<=$signed(cache_data[7:0]);
+				end
+				else if(in_alu_result[2:0]==1) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[15:8]));
+`endif
+					out_mdata<=$signed(cache_data[15:8]);
+				end
+				else if(in_alu_result[2:0]==2) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[23:16]));
+`endif
+					out_mdata<=$signed(cache_data[23:16]);
+				end
+				else if(in_alu_result[2:0]==3) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[31:24]));
+`endif
+					out_mdata<=$signed(cache_data[31:24]);
+				end
+				else if(in_alu_result[2:0]==4) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[39:32]));
+`endif
+					out_mdata<=$signed(cache_data[39:32]);
+				end
+				else if(in_alu_result[2:0]==5) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[47:40]));
+`endif
+					out_mdata<=$signed(cache_data[47:40]);
+				end
+				else if(in_alu_result[2:0]==6) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[55:48]));
+`endif
+					out_mdata<=$signed(cache_data[55:48]);
+				end
+				else if(in_alu_result[2:0]==7) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[63:56]));
+`endif
+					out_mdata<=$signed(cache_data[63:56]);
+				end
+			end // end of case lb
+			"lbu":begin
+				if(in_alu_result[2:0]==0) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[7:0]);
+`endif
+						out_mdata<=cache_data[7:0];
+				end
+				else if(in_alu_result[2:0]==1) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[15:8]);
+`endif
+						out_mdata<=cache_data[15:8];
+				end
+				else if(in_alu_result[2:0]==2) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[23:16]);
+`endif
+						out_mdata<=cache_data[23:16];
+				end
+				else if(in_alu_result[2:0]==3) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:24]);
+`endif
+						out_mdata<=cache_data[31:24];
+				end
+				else if(in_alu_result[2:0]==4) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[39:32]);
+`endif
+						out_mdata<=cache_data[39:32];
+				end
+				else if(in_alu_result[2:0]==5) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[47:40]);
+`endif
+						out_mdata<=cache_data[47:40];
+				end
+				else if(in_alu_result[2:0]==6) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[55:48]);
+`endif
+						out_mdata<=cache_data[55:48];
+				end
+				else if(in_alu_result[2:0]==7) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:56]);
+`endif
+						out_mdata<=cache_data[63:56];
+				end
+			end // end of case lbu
+			"lh":begin
+				if(in_alu_result[2:0]==0) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[15:0]));
+`endif
+						out_mdata<=$signed(cache_data[15:0]);
+				end
+				else if(in_alu_result[2:0]==2) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[31:16]));
+`endif
+						out_mdata<=$signed(cache_data[31:16]);
+				end
+				else if(in_alu_result[2:0]==4) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[47:32]));
+`endif
+						out_mdata<=$signed(cache_data[47:32]);
+				end
+				else if(in_alu_result[2:0]==6) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[63:48]));
+`endif
+						out_mdata<=$signed(cache_data[63:48]);
+				end
+			end //end of case lh
+			"lhu":begin
+				if(in_alu_result[2:0]==0) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[15:0]);
+`endif
+						out_mdata<=cache_data[15:0];
+				end
+				else if(in_alu_result[2:0]==2) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:16]);
+`endif
+						out_mdata<=cache_data[31:16];
+				end
+				else if(in_alu_result[2:0]==4) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[47:32]);
+`endif
+						out_mdata<=cache_data[47:32];
+				end
+				else if(in_alu_result[2:0]==6) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:48]);
+`endif
+						out_mdata<=cache_data[63:48];
+				end
+			end //end of case lhu
+			"lw":begin
+				if(in_alu_result[2:0]==0) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[31:0]));
+`endif
+					out_mdata<=$signed(cache_data[31:0]);
+				end
+				else if(in_alu_result[2:0]==4) begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,$signed(cache_data[63:32]));
+`endif
+					out_mdata<=$signed(cache_data[63:32]);
+				end
 			end
-			else if(in_enable) begin
+			"lwu":begin
+				if(in_alu_result[2:0]==0) begin
 `ifdef MMDEBUG
-				$display("MM out ready %d", out_ready);
-				$display("MM cache ready read %d", cache_ready_READ);
-				$display("MM cache ready write %d", cache_ready_WRITE);
-				$display("MM TLB ready %d", tlb_ready);
-				$display("MM TLB rs signal %d", tlb_rd_signal);
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:0]);
 `endif
-				if(out_ready) begin
+					 out_mdata<=cache_data[31:0];
+				end
+				else if(in_alu_result[2:0]==4) begin
 `ifdef MMDEBUG
-					$display("MM stage done :%s mm_load_bool %d", in_opcode_name,in_mm_load_bool);
-					$display("MM stage done :%s alu result %d",  in_opcode_name,in_alu_result);
-					$display("MM stage done :%s rd regno %d",  in_opcode_name,in_rd_regno);
-					$display("MM stage done :%s rs2 value %d",  in_opcode_name,in_rs2_value);
-					$display("MM stage done :%s update bool %d",  in_opcode_name,in_update_rd_bool);
-					$display("MM stage done :%s branch taken %d",  in_opcode_name,in_branch_taken_bool);
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:32]);
 `endif
-					out_mm_load_bool <= in_mm_load_bool;
-					out_pcplus1plusoffs<=in_pcplus1plusoffs;
-					out_alu_result<=in_alu_result;
-					out_rd_regno<=in_rd_regno;
-					out_opcode_name<=in_opcode_name;
-					out_rs2_value<=in_rs2_value;
-					out_update_rd_bool <= in_update_rd_bool;
-					out_branch_taken_bool <= in_branch_taken_bool;
+						out_mdata<=cache_data[63:32];
 				end
-//state0:give tlb the signal,                   wait for tlb_ready
-//state1:tlb_ready give cache read signal,      wait for cache_ready_READ
-//state2:cache_ready_READ=2 , manipulate data , give write signal,      wait for cache_ready_WRITE
-				if(in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw") begin
-					if(tlb_ready==2 && store_rd_wr==0) begin
-						$display("Setting store_rd_wr: 1");
-						store_rd_wr<=1;
-					end
-					else if(cache_ready_READ==2 && store_rd_wr==1) begin
-						ff_cache_data<=cache_data;
-						$display("Setting store_rd_wr: 2");
-						store_rd_wr<=2;
-					end
-					else if(cache_ready_WRITE==2 && store_rd_wr==2) begin
-						$display("Setting store_rd_wr: 0");
-						store_rd_wr<=0;
-					end
-					$display("write_data %d", write_data);
-				end
-				if(in_opcode_name=="sd"||in_opcode_name=="sb" || in_opcode_name=="sh" || in_opcode_name=="sw")begin
-					if(cache_ready_WRITE==2) begin
-						out_mdata<=0;
-					end
-					else begin
-						out_mdata<=0;
-					end
-				end
-
-				if(in_opcode_name=="sb"||in_opcode_name=="sh"||in_opcode_name=="sw"||in_opcode_name=="sd")begin
-					if(tlb_ready==2) begin
-						out_phy_addr<=p_addr;
-					end
-					else begin
-						out_phy_addr<=0;
-					end
-				end
-				else begin
-					out_phy_addr<=0;
-				end
-				if(in_opcode_name=="lw"||in_opcode_name=="lwu"||in_opcode_name=="lh"||in_opcode_name=="lhu"||in_opcode_name=="ld"||in_opcode_name=="lbu"||in_opcode_name=="lb")begin
-                                        if(cache_ready_READ==2) begin
-						case(in_opcode_name)
-						"lb":begin
-							if(in_alu_result[2:0]==0) begin
-								out_mdata<=$signed(cache_data[7:0]);
-							end
-							else if(in_alu_result[2:0]==1) begin
-								out_mdata<=$signed(cache_data[15:8]);
-                                                        end
-							else if(in_alu_result[2:0]==2) begin
-								out_mdata<=$signed(cache_data[23:16]);
-                                                        end
-							else if(in_alu_result[2:0]==3) begin
-								out_mdata<=$signed(cache_data[31:24]);
-                                                        end
-							else if(in_alu_result[2:0]==4) begin
-								out_mdata<=$signed(cache_data[39:32]);
-                                                        end
-							else if(in_alu_result[2:0]==5) begin
-								out_mdata<=$signed(cache_data[47:40]);
-                                                        end
-							else if(in_alu_result[2:0]==6) begin
-								out_mdata<=$signed(cache_data[55:48]);
-                                                        end
-							else if(in_alu_result[2:0]==7) begin
-								out_mdata<=$signed(cache_data[63:56]);
-                                                        end
-						end
-						"lbu":begin
-							if(in_alu_result[2:0]==0) begin
-                                                                out_mdata<=cache_data[7:0];
-                                                        end
-                                                        else if(in_alu_result[2:0]==1) begin
-                                                                out_mdata<=cache_data[15:8];
-                                                        end
-                                                        else if(in_alu_result[2:0]==2) begin
-                                                                out_mdata<=cache_data[23:16];
-                                                        end
-                                                        else if(in_alu_result[2:0]==3) begin
-                                                                out_mdata<=cache_data[31:24];
-                                                        end
-                                                        else if(in_alu_result[2:0]==4) begin
-                                                                out_mdata<=cache_data[39:32];
-                                                        end
-                                                        else if(in_alu_result[2:0]==5) begin
-                                                                out_mdata<=cache_data[47:40];
-                                                        end
-                                                        else if(in_alu_result[2:0]==6) begin
-                                                                out_mdata<=cache_data[55:48];
-                                                        end
-                                                        else if(in_alu_result[2:0]==7) begin
-                                                                out_mdata<=cache_data[63:56];
-                                                        end
-                                                end
-						"lh":begin
-							if(in_alu_result[2:0]==0) begin
-                                                                out_mdata<=$signed(cache_data[15:0]);
-                                                        end
-                                                        else if(in_alu_result[2:0]==2) begin
-                                                                out_mdata<=$signed(cache_data[31:16]);
-                                                        end
-                                                        else if(in_alu_result[2:0]==4) begin
-                                                                out_mdata<=$signed(cache_data[47:32]);
-                                                        end
-                                                        else if(in_alu_result[2:0]==6) begin
-                                                                out_mdata<=$signed(cache_data[63:48]);
-                                                        end
-                                                end
-						"lhu":begin
-							if(in_alu_result[2:0]==0) begin
-                                                                out_mdata<=cache_data[15:0];
-                                                        end
-                                                        else if(in_alu_result[2:0]==2) begin
-                                                                out_mdata<=cache_data[31:16];
-                                                        end
-                                                        else if(in_alu_result[2:0]==4) begin
-                                                                out_mdata<=cache_data[47:32];
-                                                        end
-                                                        else if(in_alu_result[2:0]==6) begin
-                                                                out_mdata<=cache_data[63:48];
-                                                        end
-                                                end
-						"lw":begin
-							if(in_alu_result[2:0]==0) begin
-								$display("MM cache_data %d", cache_data[31:0]);
-                                                                out_mdata<=$signed(cache_data[31:0]);
-                                                        end
-                                                        else if(in_alu_result[2:0]==4) begin
-								$display("MM cache_data %d", cache_data[63:32]);
-                                                                out_mdata<=$signed(cache_data[63:32]);
-                                                        end
-                                                end
-						"lwu":begin
-							if(in_alu_result[2:0]==0) begin
-                                                                out_mdata<=cache_data[31:0];
-                                                        end
-                                                        else if(in_alu_result[2:0]==4) begin
-                                                                out_mdata<=cache_data[63:32];
-                                                        end
-                                                end
-						"ld":begin
-							out_mdata<=$signed(cache_data);
-                                                end
-						endcase
-                                        end
-                                        else begin
-                                                out_mdata<=0;
-                                        end
-                                end
-                                else begin
-                                        out_mdata<=0;
-                                end//end of ld copcode condition
-			end//if not syscall what to do
-		end//if not reset
-	end
+			end
+			"ld":begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data);
+`endif
+				out_mdata<=$signed(cache_data);
+            end
+			default:begin
+`ifdef MMDEBUG
+					$display("MM stage done :%s mdata %d", in_opcode_name,0);
+`endif
+				out_mdata<=0;
+			end
+			endcase
+		end //end of if(in_enable and out_ready)
+	end// end always ff
 endmodule

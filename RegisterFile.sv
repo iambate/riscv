@@ -88,9 +88,9 @@ module RegisterFile
       Registers[31] <= 0;
     end
     else if(in_wr_enable) begin
-      $display("display_regs :%d", display_regs);
+      //$display("display_regs :%d", display_regs);
       if(in_rd_regno) begin
-        $display("Writing Register: %0d with content %0d", in_rd_regno, in_rd_value);
+        //$display("Writing Register: %0d with content %0d", in_rd_regno, in_rd_value);
         Registers[in_rd_regno] <= in_rd_value;
       end
     end
