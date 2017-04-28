@@ -1,4 +1,4 @@
-//`define ADD2DATA
+`define ADD2DATA
 module addr_to_data
 #(
     BUS_DATA_WIDTH = 64,
@@ -131,7 +131,7 @@ module addr_to_data
         if(reset) begin
             state <= STATERESET;
 `ifdef ADD2DATA
-            $display("AD State resetted");
+//            $display("AD State resetted");
 `endif
         end else begin
             state <= next_state;
@@ -139,15 +139,15 @@ module addr_to_data
                 STATEBEGIN:
                 begin
 `ifdef ADD2DATA
-                    $display("AD State begin, going to req");
+//                    $display("AD State begin, going to req");
 `endif
                 end
                 STATEREQ:
                 begin
                     //main_bus_req[63:0] <= addr[63:6] << 6;
 `ifdef ADD2DATA
-                    $display("AD State req, going to wait");
-                    $display("AD State req, req: %d", main_bus_req);
+//                    $display("AD State req, going to wait");
+//                    $display("AD State req, req: %d", main_bus_req);
 `endif
                 end
                 STATEWAIT:
@@ -191,7 +191,7 @@ module addr_to_data
                 STATEREADY:
                 begin
 `ifdef ADD2DATAEXTRA
-                    $display("AD State ready");
+//                    $display("AD State ready");
 `endif
                     counter <= 0;
                 end

@@ -1,5 +1,5 @@
-//`define VAPADEBUG
-//`define VAPADEBUGEXTRA
+`define VAPADEBUG
+`define VAPADEBUGEXTRA
 module va_to_pa
 #(
     BUS_DATA_WIDTH = 64,
