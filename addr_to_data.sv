@@ -32,7 +32,7 @@ module addr_to_data
     logic[3:0] ncounter;
     logic [BUS_DATA_WIDTH-1:0] response;
     enum {STATERESET=3'b000, STATEBEGIN=3'b001, STATEREQ=3'b010, STATEWAIT=3'b011,
-          STATERESP=3'b100, STATEREADY=3'b101} state, next_state;
+          STATERESP=3'b100, STATERESPEND=3'b101, STATEREADY=3'b111} state, next_state;
     always_comb begin
         assign ncounter = counter + 1;
         case(state)
@@ -44,8 +44,10 @@ module addr_to_data
                 if (counter < 8) begin
                     next_state = STATERESP;
                 end else begin
-		    next_state = STATEREADY;
+		    next_state = STATERESPEND;
                 end
+            STATERESPEND:
+                next_state= STATEREADY;
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
         endcase
@@ -65,6 +67,7 @@ module addr_to_data
             STATEREQ:
             begin
                 assign bus_busy = 1;
+                assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 1;
                 assign main_bus_respack = 0;
                 assign main_bus_req[63:0] = (addr[63:6] << 6);
@@ -74,14 +77,31 @@ module addr_to_data
             STATEWAIT:
             begin
                 assign bus_busy = 1;
+                assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
                 assign main_bus_respack = 0;
+                assign main_bus_reqtag = 0;
+                assign main_bus_req = 0; 
                 assign ready = 0;
             end
             STATERESP:
             begin
                 assign bus_busy = 1;
+                assign abtr_reqcyc = 0;
+                assign main_bus_reqcyc = 0;
+                assign main_bus_reqtag = 0;
                 assign main_bus_respack = 1;
+                assign main_bus_req = 0; 
+                assign ready = 0;
+            end
+            STATERESPEND:
+            begin
+                assign bus_busy = 1;
+                assign main_bus_reqcyc = 0;
+                assign main_bus_reqtag = 0;
+                assign main_bus_respack = 0;
+                assign abtr_reqcyc = 0;
+                assign main_bus_req = 0; 
                 assign ready = 0;
             end
             STATEREADY:

@@ -140,7 +140,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        cout << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -241,7 +241,7 @@ uint64_t System::get_phys_page() {
     return page_no;
 }
 
-#define VM_DEBUG 0
+#define VM_DEBUG 1
 
 uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocated) {
     uint64_t addr = base_addr + vpn*8;

@@ -70,6 +70,7 @@ module store_data
                 assign main_bus_respack = 0;
                 assign main_bus_req[63:0] = (addr[63:6] << 6);
                 assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
+                assign abtr_reqcyc = 0;
                 assign ready = 0;
             end
             STATEREQ:
@@ -78,6 +79,8 @@ module store_data
                 assign main_bus_reqcyc = 1;
                 assign main_bus_respack = 1;
                 assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
+                assign abtr_reqcyc = 0;
+                assign ready = 0;
                 case(counter)
                     0:
                         assign main_bus_req[63:0] = data[63:0];
@@ -100,10 +103,12 @@ module store_data
             STATEREQEND:
             begin
                 assign ready = 0;
+                assign abtr_reqcyc = 0;
                 assign bus_busy = 1;
-                assign abtr_reqcyc = 1;
+                assign abtr_reqcyc = 0;
                 assign main_bus_reqtag = 0;
                 assign main_bus_reqcyc = 0;
+                assign main_bus_req = 0; 
             end
             STATEREADY:
             begin
