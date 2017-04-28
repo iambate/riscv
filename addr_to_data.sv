@@ -156,7 +156,7 @@ module addr_to_data
                 end
                 STATEREADY:
                 begin
-`ifdef ADD2DATA
+`ifdef ADD2DATAEXTRA
                     $display("AD State ready");
 `endif
                     counter <= counter;

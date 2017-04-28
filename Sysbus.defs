@@ -1,4 +1,4 @@
-`define SYSBUS_INVAL   4'b1000
+`define SYSBUS_INVAL   3'b100
 `define SYSBUS_READ    1'b1
 `define SYSBUS_WRITE   1'b0
 `define SYSBUS_MEMORY  4'b0001
@@ -9,6 +9,10 @@
 // function to be called when committing a write
 import "DPI-C" function void
 do_pending_write(input longint addr, input longint val, input int size);
+
+// function to be called when write has arrived at memory
+import "DPI-C" function void
+do_finish_write(input longint addr, input int size);
 
 // function to be called to execute a system call
 import "DPI-C" function void

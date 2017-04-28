@@ -77,6 +77,7 @@ module writeback
       //TODO: Add reset things here
       state <= 0;
     end else begin
+      $display("Opcode %s", in_opcode_name);
       if(in_opcode_name == "sd" && in_enable) begin
 `ifdef WBDEBUG
         $display("WB do_pending_write sd phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);

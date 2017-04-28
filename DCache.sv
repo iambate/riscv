@@ -1,4 +1,4 @@
-`define CACHEDEBUGXTRA
+//`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -24,7 +24,7 @@ module D_Set_Associative_Cache
 	DIRTY_BIT=0,
 	LRU_BIT=1,
 	VALID_BIT=2,
-	INVAL_RESPTAG='b1000<<8
+	INVAL_RESPTAG='b100000000000
 )
 (	
 	input clk,//F
@@ -236,7 +236,7 @@ module D_Set_Associative_Cache
 		end
 	end
 	always_ff @(posedge clk) begin
-		$display("DCACHE enable signal %d", enable);
+		//$display("DCACHE enable signal %d", enable);
 		if(reset) begin
 			Wait_fr_mem_read <= UNSET_WAIT;
 			Wait_fr_mem_write <= UNSET_WAIT;

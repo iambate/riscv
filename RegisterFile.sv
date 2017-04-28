@@ -52,7 +52,7 @@ module RegisterFile
   end
 
   always_ff @(posedge clk) begin
-    $display("\nNew cycle");
+    //$display("\nNew cycle");
     if(reset) begin
       Registers[0] <= 0;
       Registers[1] <= 0; //TODO: Figureout the correct value

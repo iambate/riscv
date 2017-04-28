@@ -1,5 +1,5 @@
 `define FETCHDEBUG
-`define FETCHDEBUGEXT
+//`define FETCHDEBUGEXT
 `include "Cache.sv"
 `include "TLB.sv"
 module fetch

@@ -1,4 +1,4 @@
-`define ALUDEBUGEX
+//`define ALUDEBUGEX
 `define ALUDEBUG
 //module type will have as input: inst name, type,inst
 module execute_instruction
@@ -253,42 +253,42 @@ endfunction
     begin
       if(n_value1 == n_value2) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 - 4 + in_imm_value;
       end
     end
     "bne":
     begin
       if(n_value1 != n_value2) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 - 4 + in_imm_value;
       end
     end
     "blt":
     begin
       if($signed(n_value1) < $signed(n_value2)) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 - 4+ in_imm_value;
       end
     end
     "bge":
     begin
       if($signed(n_value1) >= $signed(n_value2)) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 -4 + in_imm_value;
       end
     end
     "bltu":
     begin
       if($unsigned(n_value1) < $unsigned(n_value2)) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 -4 + in_imm_value;
       end
     end
     "bgue":
     begin
       if($unsigned(n_value1) >= $unsigned(n_value2)) begin
         assign n_branch_taken_bool = 1;
-	assign n_pc = in_pcplus1 + in_imm_value;
+	assign n_pc = in_pcplus1 -4 + in_imm_value;
       end
     end
     "sb":

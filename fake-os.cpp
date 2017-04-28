@@ -9,17 +9,31 @@ using namespace std;
 
 extern "C" {
 
-#define ECALL_DEBUG 0
-#define ECALL_MEMGUARD (10*1024)
+#define MAX_PENDING_WRITES 1000000
 
     map<long long, char> pending_writes;
 
+    void do_finish_write(long long addr, int size) {
+        for(int i = 0; i < size; ++i)
+            pending_writes.erase(addr+i);
+    }
+
     void do_pending_write(long long addr, long long val, int size) {
+        if (pending_writes.size() > MAX_PENDING_WRITES) {
+            for(int i = 0; i < MAX_PENDING_WRITES/10; ++i) {
+                auto pw = pending_writes.begin();
+                System::sys->ram[pw->first] = pw->second;
+                pending_writes.erase(pw);
+            }
+        }
         for(int ofs = 0; ofs < size; ++ofs) {
             pending_writes[addr+ofs] = (char)val;
             val >>= 8;
         }
     }
+
+#define ECALL_DEBUG 1
+#define ECALL_MEMGUARD (10*1024)
 
     void do_ecall(long long a7, long long a0, long long a1, long long a2, long long a3, long long a4, long long a5, long long a6, long long* a0ret) {
         vector<pair<long long, char[ECALL_MEMGUARD]> > memargs;
