@@ -138,40 +138,40 @@ when flush signal is high cache wont read or write but it will still invalidate
 					//assign stuff to write_data that are taken from read_data
 					if(in_alu_result[2:0]==0) begin
 						assign write_data[7:0]=in_rs2_value[7:0];
-						assign write_data[63:8]=cache_data[63:8];
+						assign write_data[63:8]=ff_cache_data[63:8];
 					end
 					else if(in_alu_result[2:0]==1) begin
-						assign write_data[7:0]=cache_data[7:0];
+						assign write_data[7:0]=ff_cache_data[7:0];
 						assign write_data[15:8]=in_rs2_value[7:0];
-						assign write_data[63:16]=cache_data[63:16];
+						assign write_data[63:16]=ff_cache_data[63:16];
 					end
 					else if(in_alu_result[2:0]==2) begin
-						assign write_data[15:0]=cache_data[15:0];
+						assign write_data[15:0]=ff_cache_data[15:0];
 						assign write_data[23:16]=in_rs2_value[7:0];
-						assign write_data[63:24]=cache_data[63:24];
+						assign write_data[63:24]=ff_cache_data[63:24];
 					end
 					else if(in_alu_result[2:0]==3) begin//
-						assign write_data[23:0]=cache_data[23:0];
+						assign write_data[23:0]=ff_cache_data[23:0];
 						assign write_data[31:24]=in_rs2_value[7:0];
-						assign write_data[63:32]=cache_data[63:32];
+						assign write_data[63:32]=ff_cache_data[63:32];
 					end
 					else if(in_alu_result[2:0]==4) begin
-						assign write_data[31:0]=cache_data[31:0];
+						assign write_data[31:0]=ff_cache_data[31:0];
 						assign write_data[39:32]=in_rs2_value[7:0];
-						assign write_data[63:40]=cache_data[63:40];
+						assign write_data[63:40]=ff_cache_data[63:40];
 					end
 					else if(in_alu_result[2:0]==5) begin
-						assign write_data[39:0]=cache_data[39:0];
+						assign write_data[39:0]=ff_cache_data[39:0];
 						assign write_data[47:40]=in_rs2_value[7:0];
-						assign write_data[63:48]=cache_data[63:48];
+						assign write_data[63:48]=ff_cache_data[63:48];
 					end
 					else if(in_alu_result[2:0]==6) begin
-						assign write_data[47:0]=cache_data[47:0];
+						assign write_data[47:0]=ff_cache_data[47:0];
 						assign write_data[55:48]=in_rs2_value[7:0];
-						assign write_data[63:56]=cache_data[63:56];
+						assign write_data[63:56]=ff_cache_data[63:56];
 					end
 					else if(in_alu_result[2:0]==7) begin
-						assign write_data[55:0]=cache_data[55:0];
+						assign write_data[55:0]=ff_cache_data[55:0];
 						assign write_data[63:56]=in_rs2_value[7:0];
 					end
 				end
@@ -180,20 +180,20 @@ when flush signal is high cache wont read or write but it will still invalidate
 				if(store_rd_wr==2) begin
 					if(in_alu_result[2:0]==0) begin
 						assign write_data[15:0]=in_rs2_value[15:0];
-						assign write_data[63:16]=cache_data[63:16];
+						assign write_data[63:16]=ff_cache_data[63:16];
 					end
 					else if(in_alu_result[2:0]==2) begin
-						assign write_data[15:0]=cache_data[15:0];
+						assign write_data[15:0]=ff_cache_data[15:0];
 						assign write_data[31:16]=in_rs2_value[15:0];
-						assign write_data[63:32]=cache_data[63:32];
+						assign write_data[63:32]=ff_cache_data[63:32];
 					end
 					else if(in_alu_result[2:0]==4) begin
-						assign write_data[31:0]=cache_data[31:0];
+						assign write_data[31:0]=ff_cache_data[31:0];
 						assign write_data[47:32]=in_rs2_value[15:0];
-						assign write_data[63:48]=cache_data[63:48];
+						assign write_data[63:48]=ff_cache_data[63:48];
 					end
 					else if(in_alu_result[2:0]==6) begin//
-						assign write_data[47:0]=cache_data[47:0];
+						assign write_data[47:0]=ff_cache_data[47:0];
 						assign write_data[63:48]=in_rs2_value[15:0];
 					end
 				end
