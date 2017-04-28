@@ -31,8 +31,8 @@ module addr_to_data
     logic[3:0] counter;
     logic[3:0] ncounter;
     logic [BUS_DATA_WIDTH-1:0] response;
-    enum {STATERESET=3'b000, STATEBEGIN=3'b001, STATEREQ=3'b010, STATEWAIT=3'b011,
-          STATERESP=3'b100, STATERESPEND=3'b101, STATEREADY=3'b111} state, next_state;
+    enum {STATERESET=4'b0000, STATEBEGIN=4'b0001, STATEREQ=4'b0010, STATEWAIT=4'b0011,
+          STATERESP=4'b0100, STATERESPEND=4'b0101, STATEFINAL=4'b0111, STATEREADY=4'b1000} state, next_state;
     always_comb begin
         assign ncounter = counter + 1;
         case(state)
@@ -47,6 +47,8 @@ module addr_to_data
 		    next_state = STATERESPEND;
                 end
             STATERESPEND:
+                next_state= STATEFINAL;
+            STATEFINAL:
                 next_state= STATEREADY;
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
@@ -90,11 +92,25 @@ module addr_to_data
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
                 assign main_bus_reqtag = 0;
-                assign main_bus_respack = 1;
+                if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
+	            assign main_bus_respack = 1;
+                end else begin
+	            assign main_bus_respack = 0;
+                end
                 assign main_bus_req = 0; 
                 assign ready = 0;
             end
             STATERESPEND:
+            begin
+                assign bus_busy = 1;
+                assign main_bus_reqcyc = 0;
+                assign main_bus_reqtag = 0;
+                assign main_bus_respack = 1;
+                assign abtr_reqcyc = 0;
+                assign main_bus_req = 0; 
+                assign ready = 0;
+            end
+            STATEFINAL:
             begin
                 assign bus_busy = 1;
                 assign main_bus_reqcyc = 0;
@@ -179,7 +195,7 @@ module addr_to_data
 `ifdef ADD2DATAEXTRA
                     $display("AD State ready");
 `endif
-                    counter <= counter;
+                    counter <= 0;
                 end
             endcase
         end

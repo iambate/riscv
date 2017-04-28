@@ -148,6 +148,7 @@ module D_Set_Associative_Cache
 			assign canWrite=CACHE_MISS;
 			assign data_available=CACHE_MISS;
 			assign inval_signal=1;
+			assign bus_respack=1;
 		end
 		else if(enable) begin
 			assign index = addr[STARTING_INDEX+14:STARTING_INDEX+6];

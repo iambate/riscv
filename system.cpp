@@ -135,7 +135,7 @@ void System::tick(int clk) {
     }
 
     dramsim->update();    
-    if (!tx_queue.empty() && top->bus_respack) tx_queue.pop_front();
+    if (!tx_queue.empty() && top->bus_respack) { cout << "poping queue" << endl; tx_queue.pop_front(); }
     if (!tx_queue.empty()) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
