@@ -134,8 +134,8 @@ module addr_to_data
                 begin
                     //main_bus_req[63:0] <= addr[63:6] << 6;
 `ifdef ADD2DATA
-//                    $display("AD State req, going to wait");
-//                    $display("AD State req, req: %d", main_bus_req);
+                    $display("AD State req, going to wait");
+                    $display("AD State req, req: %d", main_bus_req);
 `endif
                 end
                 STATEWAIT:

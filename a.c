@@ -1,4 +1,4 @@
-#include <unistd.h>
+//#include <unistd.h>
 int main() {
 	int a[5], b[5], c[5];
 	for(int i=0;i<5;i++) {
@@ -9,6 +9,6 @@ int main() {
 		c[i] = a[i] + b[i];
 	}
 //	printf("%d", c[i]);
-	write(1, "Sagar", 5);
+//	write(1, "Sagar", 5);
 	return 0;
 }

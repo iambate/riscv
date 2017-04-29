@@ -55,7 +55,7 @@ module RegisterFile
     //$display("\nNew cycle");
     if(reset) begin
       Registers[0] <= 0;
-      Registers[1] <= 0; //TODO: Figureout the correct value
+      Registers[1] <= 0; 
       Registers[2] <= in_stackptr;
       Registers[3] <= 0;
       Registers[4] <= 0;
