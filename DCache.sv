@@ -144,12 +144,10 @@ module D_Set_Associative_Cache
 		assign CSet=0;
 		assign canWrite=0;
 		assign data_available=0;
-		assign bus_respack=0;
 		assign WSet=0;
 		assign RSet=0;
 		assign read_data=0;
 		assign flush_before_replacement=0;
-		assign bus_respack=0;
 		if(bus_resptag=='haaaa) begin
 			assign bus_respack=0;
 		end
