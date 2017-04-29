@@ -1,4 +1,4 @@
-//`define ALUDEBUGEX
+`define ALUDEBUGEXTRA
 `define ALUDEBUG
 //module type will have as input: inst name, type,inst
 module execute_instruction
@@ -218,6 +218,12 @@ endfunction
       assign n_value1 = in_rs1_value;
     end
 
+    if(in_rs1_regno == 0) begin
+      assign n_value1=0;
+    end
+    if(in_rs2_regno == 0) begin
+      assign n_value2=0;
+    end
     // For rs2
     if ((in_rs2_regno == in_alu_rd_regno) && in_mm_mm_load_bool) begin
       if (stall_cycs == 1) begin

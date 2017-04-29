@@ -343,7 +343,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			out_opcode_name<=0;
 			out_rs2_value<=0;
 			out_update_rd_bool<=0;
-		end else if(in_enable & out_ready) begin
+		end else if(in_enable && out_ready) begin
 `ifdef MMDEBUGEXTRA
 			$display("MM out ready %d", out_ready);
 			$display("MM cache ready read %d", cache_ready_READ);
