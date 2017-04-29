@@ -137,6 +137,22 @@ module D_Set_Associative_Cache
 
 	always_comb begin
                 assign inval_signal=0;
+		assign tag=0;
+		assign index=0;
+		assign block_offset=0;
+		assign starting_addr_of_block=0;
+		assign CSet=0;
+		assign canWrite=0;
+		assign data_available=0;
+		assign bus_respack=0;
+		assign WSet=0;
+		assign RSet=0;
+		assign read_data=0;
+		assign flush_before_replacement=0;
+		assign bus_respack=0;
+		if(bus_resptag==4'haaaa) begin
+			assign bus_respack=0;
+		end
 		if(bus_resptag==INVAL_RESPTAG) begin
 			assign index = bus_resp[STARTING_INDEX+14:STARTING_INDEX+6];
                 	assign tag = bus_resp[63:STARTING_INDEX+15];
