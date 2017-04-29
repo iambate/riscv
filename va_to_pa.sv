@@ -50,13 +50,13 @@ module va_to_pa
                     next_state = STATERESP;
                 end else begin
                     if (level < 4) begin
-                        next_state = STATEREQ;
+                        next_state = STATERESPEND;
                     end else begin
                         next_state = STATERESPEND;
                     end
                 end
             STATERESPEND:
-                next_state = STATEREADY;
+                next_state = (level < 4)? STATERESP : STATEREADY ;
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
         endcase
@@ -94,7 +94,6 @@ module va_to_pa
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 0;
                 assign main_bus_reqtag = `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8;
                 assign main_bus_req = request_addr[63:6] << 6;
             end
@@ -103,7 +102,6 @@ module va_to_pa
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
-                assign main_bus_respack = 0;
                 assign main_bus_reqtag = 0;
                 assign main_bus_req = 0;
             end
@@ -112,7 +110,9 @@ module va_to_pa
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
-                assign main_bus_respack = 1;
+                if(main_bus_reqtag == `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8) begin
+                    assign main_bus_respack = 1;
+                end
                 assign main_bus_reqtag = 0;
                 assign main_bus_req = 0;
             end
@@ -121,9 +121,11 @@ module va_to_pa
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
-                assign main_bus_respack = 0;
                 assign main_bus_reqtag = 0;
                 assign main_bus_req = 0;
+                if(main_bus_reqtag == `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8) begin
+                    assign main_bus_respack = 1;
+                end
             end
             STATEREADY:
             begin

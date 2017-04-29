@@ -67,7 +67,6 @@ module store_data
             begin
                 assign bus_busy = 1;
                 assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 0;
                 assign main_bus_req[63:0] = (addr[63:6] << 6);
                 assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
                 assign abtr_reqcyc = 0;
@@ -77,7 +76,6 @@ module store_data
             begin
                 assign bus_busy = 1;
                 assign main_bus_reqcyc = 1;
-                assign main_bus_respack = 1;
                 assign main_bus_reqtag = `SYSBUS_WRITE<<12|`SYSBUS_MEMORY<<8;
                 assign abtr_reqcyc = 0;
                 assign ready = 0;
