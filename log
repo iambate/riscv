@@ -1,43 +1,3 @@
-verilator -Wall -Wno-LITENDIAN -Wno-lint -O3 --trace --no-skip-identical --cc top_orig.sv \
---top-module top --exe main.cpp fake-os.cpp system.cpp /shared/cse502/DRAMSim2/libdramsim.so \
--CFLAGS -I/shared/cse502 -CFLAGS -std=c++11 -CFLAGS -g3 \
--LDFLAGS -Wl,-rpath=/shared/cse502/DRAMSim2 \
--LDFLAGS -lncurses -LDFLAGS -lelf -LDFLAGS -lrt
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-make -j5 -C obj_dir/ -f Vtop.mk CXX="ccache g++"
-make[1]: Entering directory '/home/schshah/wp1/obj_dir'
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o fake-os.o ../fake-os.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o main.o ../main.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o system.o ../system.cpp
-/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop.cpp Vtop___024unit.cpp > Vtop__ALLcls.cpp
-/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop__Dpi.cpp Vtop__Trace.cpp Vtop__Syms.cpp Vtop__Trace__Slow.cpp > Vtop__ALLsup.cpp
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLcls.o Vtop__ALLcls.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLsup.o Vtop__ALLsup.cpp
-      Archiving Vtop__ALL.a ...
-ar r Vtop__ALL.a Vtop__ALLcls.o Vtop__ALLsup.o
-ranlib Vtop__ALL.a
-g++    fake-os.o main.o system.o verilated.o verilated_dpi.o verilated_vcd_c.o Vtop__ALL.a   -Wl,-rpath=/shared/cse502/DRAMSim2 -lelf -lncurses -lrt /shared/cse502/DRAMSim2/libdramsim.so  -o Vtop -lm -lstdc++  2>&1 | c++filt
-make[1]: Leaving directory '/home/schshah/wp1/obj_dir'
 cd obj_dir/ && env HAVETLB=n ./Vtop /home/schshah/wp1/a.o
 Read 204 bytes at 0
 == Loading device model file '../dramsim2/DDR2_micron_16M_8b_x8_sg3E.ini' == 
@@ -1712,7 +1672,7 @@ ALU mm_load Bool 0
 ALU given val1                    0
 ALU given val2                    0
 ALU alu_result                    0
-ALU actual val1                   20
+ALU actual val1                    0
 ALU actual val2                   20
 ALU opcode             
 ALU rd_regno  0
@@ -7723,7 +7683,7 @@ ALU mm_load Bool 0
 ALU given val1                    0
 ALU given val2                    0
 ALU alu_result                    0
-ALU actual val1                   96
+ALU actual val1                    0
 ALU actual val2                   96
 ALU opcode             
 ALU rd_regno  0
