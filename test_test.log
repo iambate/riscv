@@ -1,10 +1,20 @@
-cd obj_dir/ && env HAVETLB=n ./Vtop /home/schshah/wp1/test_test.o
-Read 52 bytes at 0
+cd obj_dir/ && env HAVETLB=n ./Vtop /home/schshah/wp1/test.o
+Read 60 bytes at 0
+== Loading device model file '../dramsim2/DDR2_micron_16M_8b_x8_sg3E.ini' == 
+== Loading system model file '../dramsim2/system.ini' == 
+===== MemorySystem 0 =====
+CH. 0 TOTAL_STORAGE : 1024MB | 1 Ranks | 8 Devices per rank
 ===== Printing arguments of the program...
+== argc: 1
+== argv[0]: Calling syscall 1/home/schshah/wp1/test.o => 24
+
+==========================================
 Enabling waves...
 VP state resetted
 VP Virt Addr to:   0
 FETCH old_pc resetted to 18446744073709551612
+writing vis file to ../dramsim2/results/dram_result/DDR2_micron_16M_8b_x8_sg3E/1GB.1Ch.1R.scheme2.open_page.32TQ.32CQ.RtB.pRank.vis
+DRAMSim2 Clock Frequency =333333333Hz, CPU Clock Frequency=2000000000Hz
 VP state resetted
 VP Virt Addr to:   0
 FETCH old_pc resetted to 18446744073709551612
@@ -211,12 +221,18 @@ responding data a0079302010413 on tag 1100
 ================== New Cycle ====================
 AD State resp, going to ready
 AD data: 00a0079302010413
-item on top of queue resp:73fef42623 tag:1100
-responding data 73fef42623 on tag 1100
+item on top of queue resp:893fef42623 tag:1100
+responding data 893fef42623 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 AD State resp, going to ready
-AD data: 00000073fef42623
+AD data: 00000893fef42623
+item on top of queue resp:7303f00893 tag:1100
+responding data 7303f00893 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000007303f00893
 item on top of queue resp:fef42423fec42783 tag:1100
 responding data fef42423fec42783 on tag 1100
 ================== New Cycle ====================
@@ -241,12 +257,6 @@ responding data 8067 on tag 1100
 ================== New Cycle ====================
 AD State resp, going to ready
 AD data: 0000000000008067
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-AD State resp, going to ready
-AD data: 0000000000000000
 ================== New Cycle ====================
 ================== New Cycle ====================
 ================== New Cycle ====================
@@ -1094,7 +1104,7 @@ WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
 
-FETCH :instruction bits 00000073
+FETCH :instruction bits 00000893
 FETCH :this pc                   20
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result           1069547520
@@ -1130,18 +1140,18 @@ DECODE rs1 val                    0
 DECODE rs2 val                    0
 DECODE rs1 name zero
 DECODE rs2 name zero
-DECODE rd name zero
+DECODE rd name   s7
 DECODE rs1 regno  0
 DECODE rs2 regno  0
-DECODE rd regno  0
+DECODE rd regno 17
 DECODE imm value           0
-DECODE opcode name        scall
+DECODE opcode name         addi
 WB opcode name         addi
 WB wbdata:           1069547520
 WB rd regno:  8
 WB ready: 1
 
-FETCH :instruction bits fec42783
+FETCH :instruction bits 03f00893
 FETCH :this pc                   24
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result                   10
@@ -1163,15 +1173,15 @@ ALU mm rd update 1
 ALU mm rd regno 15
 ALU wb rd update 1
 ALU wb rd regno  8
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                    0
 ALU given val2                    0
 ALU alu_result                    0
 ALU actual val1                    0
 ALU actual val2                    0
-ALU opcode        scall
-ALU rd_regno  0
+ALU opcode         addi
+ALU rd_regno 17
 DCACHE: new cycle-flag val2 
 DCACHE :read signal rcvd for addr           1069547496
 DCACHE :write data          42949672960
@@ -1185,22 +1195,22 @@ DCACHE :write -State1 010
 DCACHE :write -State2 101
 DCACHE :write -index 111111111
 DECODE pc 000000000000001c
-DECODE rs1 val           1069547520
+DECODE rs1 val                    0
 DECODE rs2 val                    0
-DECODE rs1 name   s0
-DECODE rs2 name   a2
-DECODE rd name   a5
-DECODE rs1 regno  8
-DECODE rs2 regno 12
-DECODE rd regno 15
-DECODE imm value         -20
-DECODE opcode name           lw
+DECODE rs1 name zero
+DECODE rs2 name   t6
+DECODE rd name   s7
+DECODE rs1 regno  0
+DECODE rs2 regno 31
+DECODE rd regno 17
+DECODE imm value          63
+DECODE opcode name         addi
 WB opcode name         addi
 WB wbdata:                   10
 WB rd regno: 15
 WB ready: 1
 
-FETCH :instruction bits fef42423
+FETCH :instruction bits 00000073
 FETCH :this pc                   28
 MM stage done :          sw mm_load_bool 0
 MM stage done :          sw alu result           1069547500
@@ -1215,13 +1225,108 @@ ALU stall_cycs                    0
 ALU branch bool 0
 ALU pc                   28
 ALU alu mm load bool 0
-ALU alu rd update 0
-ALU alu reg no  0
+ALU alu rd update 1
+ALU alu reg no 17
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno 12
 ALU wb rd update 1
 ALU wb rd regno 15
+ALU rd_update_bool 1
+ALU mm_load Bool 0
+ALU given val1                    0
+ALU given val2                    0
+ALU alu_result                   63
+ALU actual val1                    0
+ALU actual val2                    0
+ALU opcode         addi
+ALU rd_regno 17
+DECODE pc 0000000000000020
+DECODE rs1 val                    0
+DECODE rs2 val                    0
+DECODE rs1 name zero
+DECODE rs2 name zero
+DECODE rd name zero
+DECODE rs1 regno  0
+DECODE rs2 regno  0
+DECODE rd regno  0
+DECODE imm value           0
+DECODE opcode name        scall
+WB opcode name           sw
+WB do_pending_write sw phy_addr:           1069547496 rs2_value:                   10
+WB wbdata:           0
+WB rd regno:           0
+WB ready: 0
+
+FETCH :instruction bits fec42783
+FETCH :this pc                   32
+MM stage done :        addi mm_load_bool 0
+MM stage done :        addi alu result                    0
+MM stage done :        addi rd regno 17
+MM stage done :        addi rs2 value                    0
+MM stage done :        addi update bool 1
+MM stage done :        addi branch taken 0
+MM stage done :        addi mdata           0
+================== New Cycle ====================
+================== New Cycle ====================
+ALU stall_cycs                    0
+ALU branch bool 0
+ALU pc                   32
+ALU alu mm load bool 0
+ALU alu rd update 1
+ALU alu reg no 17
+ALU mm mm load bool 0
+ALU mm rd update 1
+ALU mm rd regno 17
+ALU wb rd update 0
+ALU wb rd regno  0
+ALU rd_update_bool 0
+ALU mm_load Bool 0
+ALU given val1                    0
+ALU given val2                    0
+ALU alu_result                    0
+ALU actual val1                    0
+ALU actual val2                    0
+ALU opcode        scall
+ALU rd_regno  0
+DECODE pc 0000000000000024
+DECODE rs1 val           1069547520
+DECODE rs2 val                    0
+DECODE rs1 name   s0
+DECODE rs2 name   a2
+DECODE rd name   a5
+DECODE rs1 regno  8
+DECODE rs2 regno 12
+DECODE rd regno 15
+DECODE imm value         -20
+DECODE opcode name           lw
+WB opcode name         addi
+WB wbdata:                    0
+WB rd regno: 17
+WB ready: 1
+
+FETCH :instruction bits fef42423
+FETCH :this pc                   36
+MM stage done :        addi mm_load_bool 0
+MM stage done :        addi alu result                   63
+MM stage done :        addi rd regno 17
+MM stage done :        addi rs2 value                    0
+MM stage done :        addi update bool 1
+MM stage done :        addi branch taken 0
+MM stage done :        addi mdata           0
+================== New Cycle ====================
+================== New Cycle ====================
+ALU stall_cycs                    0
+ALU branch bool 0
+ALU pc                   36
+ALU alu mm load bool 0
+ALU alu rd update 0
+ALU alu reg no  0
+ALU mm mm load bool 0
+ALU mm rd update 1
+ALU mm rd regno 17
+ALU wb rd update 1
+ALU wb rd regno 17
 ALU rd_update_bool 0
 ALU mm_load Bool 1
 ALU given val1           1069547520
@@ -1231,7 +1336,7 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
-DECODE pc 0000000000000020
+DECODE pc 0000000000000028
 DECODE rs1 val           1069547520
 DECODE rs2 val                   10
 DECODE rs1 name   s0
@@ -1242,14 +1347,13 @@ DECODE rs2 regno 15
 DECODE rd regno  8
 DECODE imm value         -24
 DECODE opcode name           sw
-WB opcode name           sw
-WB do_pending_write sw phy_addr:           1069547496 rs2_value:                   10
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         addi
+WB wbdata:                   63
+WB rd regno: 17
+WB ready: 1
 
 FETCH :instruction bits 00000793
-FETCH :this pc                   32
+FETCH :this pc                   40
 MM stage done :       scall mm_load_bool 0
 MM stage done :       scall alu result                    0
 MM stage done :       scall rd regno  0
@@ -1268,11 +1372,136 @@ DCACHE :signal 1 FLUSHING_NOT_NEEDED Requesting block at                    0 fo
 DECODE flushed due to syscall_flush signal
 WB opcode name        scall
 WB scall, do_ecall called
+Calling syscall 63 => 0
+Invalidating 0 on argument 0/L
+Invalidating 1 on argument 0/i
+Invalidating 2 on argument 0/n
+Invalidating 3 on argument 0/u
+Invalidating 4 on argument 0/x
+Invalidating 5 on argument 0/ 
+Invalidating 6 on argument 0/ 
+Invalidating 8 on argument 0/ 
+Invalidating 9 on argument 0/ 
+Invalidating 10 on argument 0/ 
+Invalidating 11 on argument 0/ 
+Invalidating 12 on argument 0/ 
+Invalidating 13 on argument 0/ 
+Invalidating 14 on argument 0/ 
+Invalidating 16 on argument 0/ 
+Invalidating 17 on argument 0/ 
+Invalidating 18 on argument 0/ 
+Invalidating 19 on argument 0/ 
+Invalidating 20 on argument 0/ 
+Invalidating 21 on argument 0/ 
+Invalidating 24 on argument 0/ 
+Invalidating 25 on argument 0/ 
+Invalidating 26 on argument 0/ 
+Invalidating 27 on argument 0/ 
+Invalidating 28 on argument 0/ 
+Invalidating 32 on argument 0/ 
+Invalidating 33 on argument 0/ 
+Invalidating 34 on argument 0/ 
+Invalidating 35 on argument 0/ 
+Invalidating 36 on argument 0/ 
+Invalidating 37 on argument 0/ 
+Invalidating 38 on argument 0/ 
+Invalidating 39 on argument 0/ 
+Invalidating 40 on argument 0/ 
+Invalidating 41 on argument 0/ 
+Invalidating 44 on argument 0/ 
+Invalidating 45 on argument 0/ 
+Invalidating 46 on argument 0/ 
+Invalidating 48 on argument 0/ 
+Invalidating 49 on argument 0/ 
+Invalidating 50 on argument 0/ 
+Invalidating 51 on argument 0/ 
+Invalidating 52 on argument 0/ 
+Invalidating 53 on argument 0/ 
+Invalidating 54 on argument 0/ 
+Invalidating 55 on argument 0/ 
+Invalidating 56 on argument 0/ 
+Invalidating 57 on argument 0/ 
+Invalidating 65 on argument 0/s
+Invalidating 66 on argument 0/c
+Invalidating 67 on argument 0/h
+Invalidating 68 on argument 0/s
+Invalidating 69 on argument 0/h
+Invalidating 70 on argument 0/a
+Invalidating 71 on argument 0/h
+Invalidating 130 on argument 0/2
+Invalidating 131 on argument 0/.
+Invalidating 132 on argument 0/6
+Invalidating 133 on argument 0/.
+Invalidating 134 on argument 0/3
+Invalidating 135 on argument 0/2
+Invalidating 136 on argument 0/-
+Invalidating 137 on argument 0/0
+Invalidating 138 on argument 0/4
+Invalidating 139 on argument 0/2
+Invalidating 140 on argument 0/s
+Invalidating 141 on argument 0/t
+Invalidating 142 on argument 0/a
+Invalidating 143 on argument 0/b
+Invalidating 144 on argument 0/1
+Invalidating 145 on argument 0/2
+Invalidating 146 on argument 0/0
+Invalidating 147 on argument 0/.
+Invalidating 148 on argument 0/1
+Invalidating 149 on argument 0/6
+Invalidating 195 on argument 0/#
+Invalidating 196 on argument 0/1
+Invalidating 197 on argument 0/ 
+Invalidating 198 on argument 0/S
+Invalidating 199 on argument 0/M
+Invalidating 200 on argument 0/P
+Invalidating 201 on argument 0/ 
+Invalidating 202 on argument 0/T
+Invalidating 203 on argument 0/u
+Invalidating 204 on argument 0/e
+Invalidating 205 on argument 0/ 
+Invalidating 206 on argument 0/D
+Invalidating 207 on argument 0/e
+Invalidating 208 on argument 0/c
+Invalidating 209 on argument 0/ 
+Invalidating 210 on argument 0/1
+Invalidating 211 on argument 0/3
+Invalidating 212 on argument 0/ 
+Invalidating 213 on argument 0/2
+Invalidating 214 on argument 0/0
+Invalidating 215 on argument 0/:
+Invalidating 216 on argument 0/5
+Invalidating 217 on argument 0/8
+Invalidating 218 on argument 0/:
+Invalidating 219 on argument 0/2
+Invalidating 220 on argument 0/8
+Invalidating 221 on argument 0/ 
+Invalidating 222 on argument 0/M
+Invalidating 223 on argument 0/S
+Invalidating 224 on argument 0/K
+Invalidating 225 on argument 0/ 
+Invalidating 226 on argument 0/2
+Invalidating 227 on argument 0/0
+Invalidating 228 on argument 0/1
+Invalidating 229 on argument 0/6
+Invalidating 260 on argument 0/x
+Invalidating 261 on argument 0/8
+Invalidating 262 on argument 0/6
+Invalidating 263 on argument 0/_
+Invalidating 264 on argument 0/6
+Invalidating 265 on argument 0/4
+Invalidating 325 on argument 0/(
+Invalidating 326 on argument 0/n
+Invalidating 327 on argument 0/o
+Invalidating 328 on argument 0/n
+Invalidating 329 on argument 0/e
+Invalidating 330 on argument 0/)
+====== pushing 0 into invalidation queue with tag 2048========
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
 FETCH flushed due to syscall flush signal
 MM Flush due to syscall signal
+responding data 0 on tag 800
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -1295,6 +1524,7 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode             
 ALU rd_regno  0
+DCACHE :Invalidation signal received for addr                    0
 DECODE pc 0000000000000000
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -1312,7 +1542,7 @@ WB rd regno: 10
 WB ready: 1
 
 FETCH :instruction bits fec42783
-FETCH :this pc                   24
+FETCH :this pc                   32
 MM stage done :             mm_load_bool 0
 MM stage done :             alu result                    0
 MM stage done :             rd regno  0
@@ -1342,7 +1572,7 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode      unknown
 ALU rd_regno  0
-DECODE pc 000000000000001c
+DECODE pc 0000000000000024
 DECODE rs1 val           1069547520
 DECODE rs2 val                    0
 DECODE rs1 name   s0
@@ -1361,7 +1591,7 @@ AD State req, going to wait
 AD State req, req:                    0
 
 FETCH :instruction bits fef42423
-FETCH :this pc                   28
+FETCH :this pc                   36
 MM stage done :             mm_load_bool 0
 MM stage done :             alu result                    0
 MM stage done :             rd regno  0
@@ -1373,7 +1603,7 @@ MM stage done :             mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   28
+ALU pc                   36
 ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
@@ -1391,7 +1621,7 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
-DECODE pc 0000000000000020
+DECODE pc 0000000000000028
 DECODE rs1 val           1069547520
 DECODE rs2 val                   10
 DECODE rs1 name   s0
@@ -1408,7 +1638,7 @@ WB rd regno:           0
 WB ready: 0
 
 FETCH :instruction bits 00000793
-FETCH :this pc                   32
+FETCH :this pc                   40
 MM stage done :     unknown mm_load_bool 0
 MM stage done :     unknown alu result                    0
 MM stage done :     unknown rd regno  0
@@ -1842,7 +2072,31 @@ DCACHE: new cycle-flag val1
 DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
-responding data 813c23fe010113 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :signal 1, waiting for data to be read for addr           1069547496
+
+================== New Cycle ====================
+================== New Cycle ====================
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :signal 1, waiting for data to be read for addr           1069547496
+
+================== New Cycle ====================
+================== New Cycle ====================
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :signal 1, waiting for data to be read for addr           1069547496
+
+================== New Cycle ====================
+================== New Cycle ====================
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :signal 1, waiting for data to be read for addr           1069547496
+
+responding data 78756e694c on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1850,9 +2104,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 00813c23fe010113
-item on top of queue resp:a0079302010413 tag:1100
-responding data a0079302010413 on tag 1100
+AD data: 00000078756e694c
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1860,9 +2114,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 00a0079302010413
-item on top of queue resp:73fef42623 tag:1100
-responding data 73fef42623 on tag 1100
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1870,9 +2124,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 00000073fef42623
-item on top of queue resp:fef42423fec42783 tag:1100
-responding data fef42423fec42783 on tag 1100
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1880,9 +2134,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: fef42423fec42783
-item on top of queue resp:7851300000793 tag:1100
-responding data 7851300000793 on tag 1100
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1890,9 +2144,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 0007851300000793
-item on top of queue resp:201011301813403 tag:1100
-responding data 201011301813403 on tag 1100
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1900,9 +2154,9 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 0201011301813403
-item on top of queue resp:8067 tag:1100
-responding data 8067 on tag 1100
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 DCACHE: new cycle-flag val1 
@@ -1910,7 +2164,7 @@ DCACHE :read signal rcvd for addr           1069547496
 DCACHE :signal 1, waiting for data to be read for addr           1069547496
 
 AD State resp, going to ready
-AD data: 0000000000008067
+AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
 ================== New Cycle ====================
@@ -1938,14 +2192,14 @@ DCACHE: read-phy_addr                    0
 DCACHE: read-start block addr           1069547456
 DCACHE: read-addr           1069547496 tag           32639
 
-DCACHE: read-data arrived 0000000000000000000000000000806702010113018134030007851300000793fef42423fec4278300000073fef4262300a007930201041300813c23fe010113
+DCACHE: read-data arrived 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000078756e694c
 
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall due to ALU->MM dependency
 ALU stall_cycs                    1
 ALU branch bool 0
-ALU pc                   32
+ALU pc                   40
 ALU alu mm load bool 1
 ALU alu rd update 0
 ALU alu reg no 15
@@ -1960,7 +2214,7 @@ ALU given val1           1069547520
 ALU given val2                   10
 DCACHE: new cycle-flag val1 
 DCACHE :read signal rcvd for addr           1069547496
-DCACHE :read data   144397844193817603
+DCACHE :read data                    0
 DCACHE :read -cache hit
 DCACHE :read -addr           1069547496
 DCACHE :read -starting addr of block                    0
@@ -1980,12 +2234,12 @@ MM stage done :          lw rd regno 15
 MM stage done :          lw rs2 value                    0
 MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
-MM stage done :          lw mdata    33620243
+MM stage done :          lw mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   32
+ALU pc                   40
 ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
@@ -2000,10 +2254,10 @@ ALU given val1           1069547520
 ALU given val2                   10
 ALU alu_result           1069547496
 ALU actual val1           1069547520
-ALU actual val2             33620243
+ALU actual val2                    0
 ALU opcode           sw
 ALU rd_regno  8
-DECODE pc 0000000000000024
+DECODE pc 000000000000002c
 DECODE rs1 val                    0
 DECODE rs2 val                    0
 DECODE rs1 name zero
@@ -2015,12 +2269,12 @@ DECODE rd regno 15
 DECODE imm value           0
 DECODE opcode name         addi
 WB opcode name           lw
-WB wbdata:             33620243
+WB wbdata:                    0
 WB rd regno: 15
 WB ready: 1
 
 FETCH :instruction bits 00078513
-FETCH :this pc                   36
+FETCH :this pc                   44
 MM stage done :             mm_load_bool 0
 MM stage done :             alu result                    0
 MM stage done :             rd regno  0
@@ -2032,7 +2286,7 @@ MM stage done :             mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   36
+ALU pc                   44
 ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  8
@@ -2052,7 +2306,7 @@ ALU opcode         addi
 ALU rd_regno 15
 DCACHE: new cycle-flag val2 
 DCACHE :read signal rcvd for addr           1069547496
-DCACHE :write data          42983293203
+DCACHE :write data          42949672960
 DCACHE :write -cache hit
 DCACHE :write -addr           1069547496
 DCACHE :write -starting addr of block                    0
@@ -2062,8 +2316,8 @@ DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
 DCACHE :write -State1 010
 DCACHE :write -State2 100
 DCACHE :write -index 111111111
-DECODE pc 0000000000000028
-DECODE rs1 val             33620243
+DECODE pc 0000000000000030
+DECODE rs1 val                    0
 DECODE rs2 val                    0
 DECODE rs1 name   a5
 DECODE rs2 name zero
@@ -2079,11 +2333,11 @@ WB rd regno:           0
 WB ready: 0
 
 FETCH :instruction bits 01813403
-FETCH :this pc                   40
+FETCH :this pc                   48
 MM stage done :          sw mm_load_bool 0
 MM stage done :          sw alu result           1069547496
 MM stage done :          sw rd regno  8
-MM stage done :          sw rs2 value             33620243
+MM stage done :          sw rs2 value                    0
 MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
@@ -2091,7 +2345,7 @@ MM stage done :          sw mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   40
+ALU pc                   48
 ALU alu mm load bool 0
 ALU alu rd update 1
 ALU alu reg no 15
@@ -2102,14 +2356,14 @@ ALU wb rd update 0
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
-ALU given val1             33620243
+ALU given val1                    0
 ALU given val2                    0
 ALU alu_result                    0
 ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 10
-DECODE pc 000000000000002c
+DECODE pc 0000000000000034
 DECODE rs1 val           1069547488
 DECODE rs2 val                    0
 DECODE rs1 name   sp
@@ -2121,13 +2375,13 @@ DECODE rd regno  8
 DECODE imm value          24
 DECODE opcode name           ld
 WB opcode name           sw
-WB do_pending_write sw phy_addr:           1069547496 rs2_value:             33620243
+WB do_pending_write sw phy_addr:           1069547496 rs2_value:                    0
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
 
 FETCH :instruction bits 02010113
-FETCH :this pc                   44
+FETCH :this pc                   52
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result                    0
 MM stage done :        addi rd regno 15
@@ -2139,7 +2393,7 @@ MM stage done :        addi mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   44
+ALU pc                   52
 ALU alu mm load bool 0
 ALU alu rd update 1
 ALU alu reg no 10
@@ -2157,7 +2411,7 @@ ALU actual val1           1069547488
 ALU actual val2                    0
 ALU opcode           ld
 ALU rd_regno  8
-DECODE pc 0000000000000030
+DECODE pc 0000000000000038
 DECODE rs1 val           1069547488
 DECODE rs2 val                    0
 DECODE rs1 name   sp
@@ -2174,7 +2428,7 @@ WB rd regno: 15
 WB ready: 1
 
 FETCH :instruction bits 00008067
-FETCH :this pc                   48
+FETCH :this pc                   56
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result                    0
 MM stage done :        addi rd regno 10
@@ -2186,7 +2440,7 @@ MM stage done :        addi mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   48
+ALU pc                   56
 ALU alu mm load bool 1
 ALU alu rd update 0
 ALU alu reg no  8
@@ -2216,7 +2470,7 @@ DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
 DCACHE :read -State1 010
 DCACHE :read -State2 101
 DCACHE :read -index 111111111
-DECODE pc 0000000000000034
+DECODE pc 000000000000003c
 DECODE rs1 val                    0
 DECODE rs2 val                    0
 DECODE rs1 name   ra
@@ -2233,7 +2487,7 @@ WB rd regno: 10
 WB ready: 1
 
 FETCH :instruction bits 00000000
-FETCH :this pc                   52
+FETCH :this pc                   60
 MM stage done :          ld mm_load_bool 1
 MM stage done :          ld alu result           1069547512
 MM stage done :          ld rd regno  8
@@ -2243,9 +2497,222 @@ MM stage done :          ld branch taken 0
 MM stage done :          ld mdata                    0
 ================== New Cycle ====================
 ================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+AD State req, going to wait
+AD State req, req:                   64
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+responding data 6861687368637300 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 6861687368637300
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+item on top of queue resp:0 tag:1100
+responding data 0 on tag 1100
+================== New Cycle ====================
+================== New Cycle ====================
+AD State resp, going to ready
+AD data: 0000000000000000
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
+================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   52
+ALU pc                   60
 ALU alu mm load bool 0
 ALU alu rd update 1
 ALU alu reg no  2
@@ -2263,7 +2730,7 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode          ret
 ALU rd_regno  0
-DECODE pc 0000000000000038
+DECODE pc 0000000000000040
 DECODE rs1 val                    0
 DECODE rs2 val                    0
 DECODE rs1 name zero
@@ -2279,8 +2746,8 @@ WB wbdata:                    0
 WB rd regno:  8
 WB ready: 1
 
-FETCH :instruction bits 00000000
-FETCH :this pc                   56
+FETCH :instruction bits 68637300
+FETCH :this pc                   64
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result           1069547520
 MM stage done :        addi rd regno  2
@@ -2292,7 +2759,7 @@ MM stage done :        addi mdata           0
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 0
-ALU pc                   56
+ALU pc                   64
 ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
@@ -2310,15 +2777,15 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode      unknown
 ALU rd_regno  0
-DECODE pc 000000000000003c
+DECODE pc 0000000000000044
 DECODE rs1 val                    0
 DECODE rs2 val                    0
-DECODE rs1 name zero
-DECODE rs2 name zero
-DECODE rd name zero
-DECODE rs1 regno  0
-DECODE rs2 regno  0
-DECODE rd regno  0
+DECODE rs1 name   t1
+DECODE rs2 name   t1
+DECODE rd name   t1
+DECODE rs1 regno  6
+DECODE rs2 regno  6
+DECODE rd regno  6
 DECODE imm value           0
 DECODE opcode name      unknown
 WB opcode name         addi
@@ -2326,8 +2793,8 @@ WB wbdata:           1069547520
 WB rd regno:  2
 WB ready: 1
 
-FETCH :instruction bits 00000000
-FETCH :this pc                   60
+FETCH :instruction bits 68616873
+FETCH :this pc                   68
 MM stage done :         ret mm_load_bool 0
 MM stage done :         ret alu result                    0
 MM stage done :         ret rd regno  0
@@ -2354,7 +2821,7 @@ Register 13:	0
 Register 14:	0
 Register 15:	0
 Register 16:	0
-Register 17:	0
+Register 17:	63
 Register 18:	0
 Register 19:	0
 Register 20:	0
@@ -2370,3 +2837,48 @@ Register 29:	0
 Register 30:	0
 Register 31:	0
 - RegisterFile.sv:101: Verilog $finish
+ALU stall_cycs                    0
+ALU branch bool 0
+ALU pc                   68
+ALU alu mm load bool 0
+ALU alu rd update 0
+ALU alu reg no  0
+ALU mm mm load bool 0
+ALU mm rd update 0
+ALU mm rd regno  0
+ALU wb rd update 1
+ALU wb rd regno  2
+ALU rd_update_bool 0
+ALU mm_load Bool 0
+ALU given val1                    0
+ALU given val2                    0
+ALU alu_result                    0
+ALU actual val1                    0
+ALU actual val2                    0
+ALU opcode      unknown
+ALU rd_regno  6
+DECODE pc 0000000000000048
+DECODE rs1 val           1069547520
+DECODE rs2 val                    0
+DECODE rs1 name   sp
+DECODE rs2 name   t1
+DECODE rd name   a6
+DECODE rs1 regno  2
+DECODE rs2 regno  6
+DECODE rd regno 16
+DECODE imm value           0
+DECODE opcode name      unknown
+WB opcode name          ret
+WB wbdata:           0
+WB rd regno:           0
+WB ready: 0
+
+FETCH :instruction bits 00000000
+FETCH :this pc                   72
+MM stage done :     unknown mm_load_bool 0
+MM stage done :     unknown alu result                    0
+MM stage done :     unknown rd regno  0
+MM stage done :     unknown rs2 value                    0
+MM stage done :     unknown update bool 0
+MM stage done :     unknown branch taken 0
+MM stage done :     unknown mdata           0
