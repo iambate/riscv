@@ -1,3 +1,22 @@
+verilator -Wall -Wno-LITENDIAN -Wno-lint -O3 --trace --no-skip-identical --cc top_orig.sv \
+--top-module top --exe main.cpp fake-os.cpp system.cpp /shared/cse502/DRAMSim2/libdramsim.so \
+-CFLAGS -I/shared/cse502 -CFLAGS -std=c++11 -CFLAGS -g3 \
+-LDFLAGS -Wl,-rpath=/shared/cse502/DRAMSim2 \
+-LDFLAGS -lncurses -LDFLAGS -lelf -LDFLAGS -lrt
+make -j5 -C obj_dir/ -f Vtop.mk CXX="ccache g++"
+make[1]: Entering directory '/home/schshah/wp1/obj_dir'
+ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o fake-os.o ../fake-os.cpp
+ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o main.o ../main.cpp
+ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o system.o ../system.cpp
+/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop.cpp Vtop___024unit.cpp > Vtop__ALLcls.cpp
+/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop__Dpi.cpp Vtop__Trace.cpp Vtop__Syms.cpp Vtop__Trace__Slow.cpp > Vtop__ALLsup.cpp
+ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLcls.o Vtop__ALLcls.cpp
+ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLsup.o Vtop__ALLsup.cpp
+      Archiving Vtop__ALL.a ...
+ar r Vtop__ALL.a Vtop__ALLcls.o Vtop__ALLsup.o
+ranlib Vtop__ALL.a
+g++    fake-os.o main.o system.o verilated.o verilated_dpi.o verilated_vcd_c.o Vtop__ALL.a   -Wl,-rpath=/shared/cse502/DRAMSim2 -lelf -lncurses -lrt /shared/cse502/DRAMSim2/libdramsim.so  -o Vtop -lm -lstdc++  2>&1 | c++filt
+make[1]: Leaving directory '/home/schshah/wp1/obj_dir'
 cd obj_dir/ && env HAVETLB=n ./Vtop /home/schshah/wp1/a.o
 Read 204 bytes at 0
 Enabling waves...
@@ -206,37 +225,389 @@ MM stage done :        addi rs2 value                    0
 MM stage done :        addi update bool 1
 MM stage done :        addi branch taken 0
 MM stage done :        addi mdata           0
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE: signal 2 cache miss
+DCACHE :signal 2 FLUSHING_NOT_NEEDED Requesting block at           1069547456 for miss at           1069547512:
+ 
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
 AD State resp, going to ready
 AD data: 0000000000000000
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :signal 2, waiting for data to be read for addr           1069547512
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE:write- signal 2
+DCACHE:write- data is ready 1 0
+
+DCACHE:write-phy_addr           1069547456
+DCACHE:write- start block addr           1069547456
+DCACHE:write- addr           1069547512 tag               0
+
+DCACHE:write- data arrived 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
 ALU stall_cycs                    0
 ALU branch bool 0
 ALU pc                   12
@@ -257,6 +628,18 @@ ALU actual val1           1069547424
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno  8
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :write data                    0
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547512
+DCACHE :write -starting addr of block           1069547456
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 100
+DCACHE :write -index 111111111
 DECODE pc 0000000000000010
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -341,6 +724,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode          jal
 ALU rd_regno  0
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data                    0
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547456
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000018
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -511,6 +906,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547456
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -673,6 +1080,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547456
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -869,6 +1288,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547472
+DCACHE :write data                    0
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547472
+DCACHE :write -starting addr of block           1069547456
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000030
 DECODE rs1 val                    0
 DECODE rs2 val           1069547424
@@ -892,6 +1323,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547456
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -1110,37 +1553,397 @@ MM stage done :        addi rs2 value                    0
 MM stage done :        addi update bool 1
 MM stage done :        addi branch taken 0
 MM stage done :        addi mdata           0
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE: signal 2 cache miss
+DCACHE :signal 2 FLUSHING_NOT_NEEDED Requesting block at           1069547392 for miss at           1069547448:
+ 
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
 item on top of queue resp:0 tag:1100
 responding data 0 on tag 1100
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
 AD State resp, going to ready
 AD data: 0000000000000000
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :signal 2, waiting for data to be read for addr           1069547448
+
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE:write- signal 2
+DCACHE:write- data is ready 1 0
+
+DCACHE:write-phy_addr           1069547392
+DCACHE:write- start block addr           1069547392
+DCACHE:write- addr           1069547448 tag               0
+
+DCACHE:write- data arrived 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
 ALU stall_cycs                    0
 ALU branch bool 0
 ALU pc                   68
@@ -1161,6 +1964,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :write data                    1
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547448
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 100
+DCACHE :write -index 111111110
 DECODE pc 0000000000000048
 DECODE rs1 val           1069547504
 DECODE rs2 val                    0
@@ -1184,6 +1999,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -1296,6 +2123,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data           4294967297
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000054
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -1338,6 +2177,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           4294967296
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    1
 DECODE rs2 val                    1
@@ -1500,6 +2351,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           4294967296
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -1696,6 +2559,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547472
+DCACHE :write data                    1
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547472
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000030
 DECODE rs1 val                    4
 DECODE rs2 val           1069547424
@@ -1719,6 +2594,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           4294967296
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -1957,6 +2844,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :write data           4294967297
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547448
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 0000000000000048
 DECODE rs1 val           1069547508
 DECODE rs2 val                    0
@@ -1980,6 +2879,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           4294967296
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -2092,6 +3003,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data           8589934593
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000054
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -2134,6 +3057,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           8589934592
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    2
 DECODE rs2 val                    1
@@ -2296,6 +3231,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           8589934592
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -2492,6 +3439,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547480
+DCACHE :write data           8589934592
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547480
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000030
 DECODE rs1 val                    8
 DECODE rs2 val           1069547424
@@ -2515,6 +3474,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           8589934592
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -2753,6 +3724,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547456
+DCACHE :write data           8589934593
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547456
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000048
 DECODE rs1 val           1069547512
 DECODE rs2 val                    0
@@ -2776,6 +3759,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data           8589934592
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -2888,6 +3883,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data          12884901889
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000054
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -2930,6 +3937,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          12884901888
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    3
 DECODE rs2 val                    1
@@ -3092,6 +4111,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          12884901888
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -3288,6 +4319,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547480
+DCACHE :write data                    1
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547480
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000030
 DECODE rs1 val                   12
 DECODE rs2 val           1069547424
@@ -3311,6 +4354,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          12884901888
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -3549,6 +4604,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547456
+DCACHE :write data           4294967297
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547456
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000048
 DECODE rs1 val           1069547516
 DECODE rs2 val                    0
@@ -3572,6 +4639,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          12884901888
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -3684,6 +4763,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data          17179869185
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000054
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -3726,6 +4817,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          17179869184
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    4
 DECODE rs2 val                    1
@@ -3888,6 +4991,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          17179869184
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -4084,6 +5199,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547488
+DCACHE :write data          17179869184
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547488
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000030
 DECODE rs1 val                   16
 DECODE rs2 val           1069547424
@@ -4107,6 +5234,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          17179869184
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -4345,6 +5484,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547464
+DCACHE :write data          17179869185
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547464
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000048
 DECODE rs1 val           1069547520
 DECODE rs2 val                    0
@@ -4368,6 +5519,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          17179869184
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547500
@@ -4480,6 +5643,18 @@ ALU actual val1           1069547520
 ALU actual val2                    0
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data          21474836481
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000054
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -4522,6 +5697,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000058
 DECODE rs1 val                    5
 DECODE rs2 val                    1
@@ -4648,6 +5835,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode          jal
 ALU rd_regno  0
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data          21474836480
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 0000000000000064
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -4818,6 +6017,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    4
 DECODE rs2 val                    5
@@ -4980,6 +6191,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -5176,6 +6399,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547472
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547472
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 000000000000007c
 DECODE rs1 val                    0
 DECODE rs2 val           1069547424
@@ -5199,6 +6434,18 @@ MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
 MM stage done :          lw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           lw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -5395,6 +6642,18 @@ ALU actual val1                    0
 ALU actual val2           1069547504
 ALU opcode         addw
 ALU rd_regno 14
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :read data           4294967297
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547448
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 510
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111110
 DECODE pc 0000000000000090
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -5460,6 +6719,18 @@ MM stage done :        addw update bool 1
 MM stage done :        addw branch taken 0
 MM stage done :        addw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name         addw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -5656,6 +6927,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547424
+DCACHE :write data          22544383984
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547424
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 00000000000000a8
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -5679,6 +6962,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836480
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -5791,6 +7086,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data          21474836481
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 00000000000000b4
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -5833,6 +7140,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836481
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    1
 DECODE rs2 val           1069547504
@@ -5995,6 +7314,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836481
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -6191,6 +7522,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547472
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547472
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 000000000000007c
 DECODE rs1 val                    4
 DECODE rs2 val           1069547424
@@ -6214,6 +7557,18 @@ MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
 MM stage done :          lw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836481
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           lw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -6410,6 +7765,18 @@ ALU actual val1                    0
 ALU actual val2           1069547508
 ALU opcode         addw
 ALU rd_regno 14
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547448
+DCACHE :read data           4294967297
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547448
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 510
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111110
 DECODE pc 0000000000000090
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -6475,6 +7842,18 @@ MM stage done :        addw update bool 1
 MM stage done :        addw branch taken 0
 MM stage done :        addw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836481
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name         addw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -6671,6 +8050,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547424
+DCACHE :write data  4593671568378298369
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547424
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 00000000000000a8
 DECODE rs1 val                    4
 DECODE rs2 val                    0
@@ -6694,6 +8085,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836481
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -6806,6 +8209,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data  4593671568378298370
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 00000000000000b4
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -6848,6 +8263,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836482
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    2
 DECODE rs2 val           1069547508
@@ -7010,6 +8437,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836482
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -7206,6 +8645,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547480
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547480
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 000000000000007c
 DECODE rs1 val                    8
 DECODE rs2 val           1069547424
@@ -7229,6 +8680,18 @@ MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
 MM stage done :          lw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836482
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           lw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -7425,6 +8888,18 @@ ALU actual val1                    0
 ALU actual val2           1069547512
 ALU opcode         addw
 ALU rd_regno 14
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547456
+DCACHE :read data           4294967297
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547456
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000090
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -7490,6 +8965,18 @@ MM stage done :        addw update bool 1
 MM stage done :        addw branch taken 0
 MM stage done :        addw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836482
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name         addw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -7686,6 +9173,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547432
+DCACHE :write data  4593671569447845880
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547432
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 00000000000000a8
 DECODE rs1 val                    8
 DECODE rs2 val                    0
@@ -7709,6 +9208,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836482
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -7821,6 +9332,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data  4593671568378298371
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 00000000000000b4
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -7863,6 +9386,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836483
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    3
 DECODE rs2 val           1069547512
@@ -8025,6 +9560,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836483
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -8221,6 +9768,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547480
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547480
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 000000000000007c
 DECODE rs1 val                   12
 DECODE rs2 val           1069547424
@@ -8244,6 +9803,18 @@ MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
 MM stage done :          lw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836483
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           lw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -8440,6 +10011,18 @@ ALU actual val1                    0
 ALU actual val2           1069547516
 ALU opcode         addw
 ALU rd_regno 14
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547456
+DCACHE :read data           4294967297
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547456
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000090
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -8505,6 +10088,18 @@ MM stage done :        addw update bool 1
 MM stage done :        addw branch taken 0
 MM stage done :        addw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836483
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name         addw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -8701,6 +10296,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547432
+DCACHE :write data  4593671602738036739
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547432
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 00000000000000a8
 DECODE rs1 val                   12
 DECODE rs2 val                    0
@@ -8724,6 +10331,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836483
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -8836,6 +10455,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data  4593671602738036740
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 00000000000000b4
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -8878,6 +10509,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836484
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    4
 DECODE rs2 val           1069547516
@@ -9040,6 +10683,18 @@ MM stage done :             update bool 0
 MM stage done :             branch taken 0
 MM stage done :             mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836484
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name             
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -9236,6 +10891,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547488
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547488
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 000000000000007c
 DECODE rs1 val                   16
 DECODE rs2 val           1069547424
@@ -9259,6 +10926,18 @@ MM stage done :          lw update bool 0
 MM stage done :          lw branch taken 0
 MM stage done :          lw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836484
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           lw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -9455,6 +11134,18 @@ ALU actual val1                    0
 ALU actual val2           1069547520
 ALU opcode         addw
 ALU rd_regno 14
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547464
+DCACHE :read data                    1
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547464
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 0000000000000090
 DECODE rs1 val           1069547520
 DECODE rs2 val           1069547520
@@ -9520,6 +11211,18 @@ MM stage done :        addw update bool 1
 MM stage done :        addw branch taken 0
 MM stage done :        addw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836484
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name         addw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -9716,6 +11419,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 15
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547440
+DCACHE :write data  4593671603807584256
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547440
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 510
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111110
 DECODE pc 00000000000000a8
 DECODE rs1 val                   16
 DECODE rs2 val                    0
@@ -9739,6 +11454,18 @@ MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836484
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 WB opcode name           sw
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547496
@@ -9851,6 +11578,18 @@ ALU actual val1           1069547520
 ALU actual val2           1069547520
 ALU opcode           lw
 ALU rd_regno 14
+DCACHE: new cycle-flag val2 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :write data  4593671602738036741
+DCACHE :write -cache hit
+DCACHE :write -addr           1069547496
+DCACHE :write -starting addr of block           1069547392
+DCACHE :write -index 511
+DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
+DCACHE :write -State1 010
+DCACHE :write -State2 101
+DCACHE :write -index 111111111
 DECODE pc 00000000000000b4
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -9893,6 +11632,18 @@ ALU actual val1                    0
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno 15
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547496
+DCACHE :read data          21474836485
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547496
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000b8
 DECODE rs1 val                    5
 DECODE rs2 val           1069547520
@@ -10031,6 +11782,18 @@ MM stage done :         bge update bool 0
 MM stage done :         bge branch taken 0
 MM stage done :         bge mdata           0
 ALU stall due to ALU->MM dependency
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547440
+DCACHE :read data           1069547520
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547440
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 510
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111110
 WB opcode name          bge
 MM stage done :          lw mm_load_bool 1
 MM stage done :          lw alu result           1069547440
@@ -10143,6 +11906,18 @@ ALU actual val1           1069547424
 ALU actual val2                    0
 ALU opcode         addi
 ALU rd_regno  2
+DCACHE: new cycle-flag val1 
+DCACHE :read signal rcvd for addr           1069547512
+DCACHE :read data                    0
+DCACHE :read -cache hit
+DCACHE :read -addr           1069547512
+DCACHE :read -starting addr of block           1069547392
+DCACHE :read -index 511
+DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
+DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
+DCACHE :read -State1 010
+DCACHE :read -State2 101
+DCACHE :read -index 111111111
 DECODE pc 00000000000000cc
 DECODE rs1 val                    0
 DECODE rs2 val                    0
