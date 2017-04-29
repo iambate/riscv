@@ -1,0 +1,10 @@
+ARCH=riscv64-unknown-elf-
+CC=$(ARCH)gcc
+STRIP=$(ARCH)strip
+
+
+.PHONY: all clean
+
+all: a.c
+	$(CC) -c -o a.o a.c
+	$(STRIP) a.o
