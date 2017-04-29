@@ -150,7 +150,7 @@ module D_Set_Associative_Cache
 		assign read_data=0;
 		assign flush_before_replacement=0;
 		assign bus_respack=0;
-		if(bus_resptag==4'haaaa) begin
+		if(bus_resptag=='haaaa) begin
 			assign bus_respack=0;
 		end
 		if(bus_resptag==INVAL_RESPTAG) begin
