@@ -233,12 +233,12 @@ responding data 7303f00893 on tag 1100
 ================== New Cycle ====================
 AD State resp, going to ready
 AD data: 0000007303f00893
-item on top of queue resp:fef42423fec42783 tag:1100
-responding data fef42423fec42783 on tag 1100
+item on top of queue resp:fef42423fec43783 tag:1100
+responding data fef42423fec43783 on tag 1100
 ================== New Cycle ====================
 ================== New Cycle ====================
 AD State resp, going to ready
-AD data: fef42423fec42783
+AD data: fef42423fec43783
 item on top of queue resp:7851300000793 tag:1100
 responding data 7851300000793 on tag 1100
 ================== New Cycle ====================
@@ -1258,7 +1258,7 @@ WB do_pending_write sw phy_addr:           1069547500 rs2_value:                
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
-FETCH :instruction bits fec42783
+FETCH :instruction bits fec43783
 FETCH :this pc                   32
 MM stage done :        addi mm_load_bool 0
 MM stage done :        addi alu result                    0
@@ -1300,7 +1300,7 @@ DECODE rs1 regno  8
 DECODE rs2 regno 12
 DECODE rd regno 15
 DECODE imm value         -20
-DECODE opcode name           lw
+DECODE opcode name           ld
 WB opcode name         addi
 WB wbdata:                    0
 WB rd regno: 17
@@ -1335,7 +1335,7 @@ ALU given imm 18446744073709551596
 ALU alu_result           1069547500
 ALU actual val1           1069547520
 ALU actual val2                    0
-ALU opcode           lw
+ALU opcode           ld
 ALU rd_regno 15
 DECODE pc 0000000000000028
 DECODE rs1 val           1069547520
@@ -1541,7 +1541,7 @@ WB opcode name
 WB wbdata:                    0
 WB rd regno: 10
 WB ready: 1
-FETCH :instruction bits fec42783
+FETCH :instruction bits fec43783
 FETCH :this pc                   32
 MM stage done :             mm_load_bool 0
 MM stage done :             alu result                    0
@@ -1583,7 +1583,7 @@ DECODE rs1 regno  8
 DECODE rs2 regno 12
 DECODE rd regno 15
 DECODE imm value         -20
-DECODE opcode name           lw
+DECODE opcode name           ld
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -1620,7 +1620,7 @@ ALU given imm 18446744073709551596
 ALU alu_result           1069547500
 ALU actual val1           1069547520
 ALU actual val2                    0
-ALU opcode           lw
+ALU opcode           ld
 ALU rd_regno 15
 DECODE pc 0000000000000028
 DECODE rs1 val           1069547520
@@ -2229,13 +2229,13 @@ WB opcode name      unknown
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
-MM stage done :          lw mm_load_bool 1
-MM stage done :          lw alu result           1069547500
-MM stage done :          lw rd regno 15
-MM stage done :          lw rs2 value                    0
-MM stage done :          lw update bool 0
-MM stage done :          lw branch taken 0
-MM stage done :          lw mdata           0
+MM stage done :          ld mm_load_bool 1
+MM stage done :          ld alu result           1069547500
+MM stage done :          ld rd regno 15
+MM stage done :          ld rs2 value                    0
+MM stage done :          ld update bool 0
+MM stage done :          ld branch taken 0
+MM stage done :          ld mdata                    0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -2270,7 +2270,7 @@ DECODE rs2 regno  0
 DECODE rd regno 15
 DECODE imm value           0
 DECODE opcode name         addi
-WB opcode name           lw
+WB opcode name           ld
 WB wbdata:                    0
 WB rd regno: 15
 WB ready: 1
