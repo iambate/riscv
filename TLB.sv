@@ -123,7 +123,11 @@ module Trans_Lookaside_Buff
 		end
 `else
 		assign p_addr=v_addr;
-		assign addr_available=CACHE_HIT;
+		if(rd_signal) begin
+			assign addr_available=CACHE_HIT;
+		end else begin
+			assign addr_available=CACHE_MISS;
+		end
 `endif
 	end
 	always_ff @(posedge clk) begin

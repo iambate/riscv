@@ -91,6 +91,7 @@ module D_Set_Associative_Cache
 	logic addr_data_enable;
 	logic addr_data_ready;
 	logic inval_signal;
+	logic valid_set;
 	//TODO: store_data_enable,store_data_at_addr,phy_addr,
 	//store_data_ready,addr_data_ready,data,flush_data,addr_data_enable,
 	//CHECK:~ sign works?if im setting cache miss addr data and store dtaa should not work
@@ -148,17 +149,20 @@ module D_Set_Associative_Cache
 		assign RSet=0;
 		assign read_data=0;
 		assign flush_before_replacement=0;
+		assign valid_set=0;
 		if(bus_resptag=='haaaa) begin
 			assign bus_respack=0;
 		end
-		if(bus_resptag==INVAL_RESPTAG) begin
+		if(bus_resptag==INVAL_RESPTAG) begin 
 			assign index = bus_resp[STARTING_INDEX+14:STARTING_INDEX+6];
                 	assign tag = bus_resp[63:STARTING_INDEX+15];
 			if(Tag[SET1][index]==tag) begin
 				assign CSet= SET1;
+				assign valid_set=1;
 			end
 			else if (Tag[SET2][index]==tag) begin
 				assign CSet =SET2;
+				assign valid_set=1;
 			end
 			assign canWrite=CACHE_MISS;
 			assign data_available=CACHE_MISS;
@@ -272,7 +276,13 @@ module D_Set_Associative_Cache
 `ifdef CACHEDEBUGXTRA
 				$display("DCACHE :Invalidation signal received for addr %d",bus_resp);
 `endif
-				State[CSet][index][VALID_BIT]<=0;
+				if(valid_set) begin
+					$display("DCACHE :Invalidation signal invalidating index %d", index);
+					$display("DCACHE :Invalidation signal invalidating set %d", CSet);
+					State[CSet][index][VALID_BIT]<=0;
+				end else begin
+					$display("DCACHE: Invalidation signal addr %d not present in CACHE", bus_resp);
+				end
 			end
 			else if(enable) begin
 	`ifdef CACHEDEBUGXTRA   
@@ -423,6 +433,7 @@ module D_Set_Associative_Cache
                                                 $display("DCACHE :write -State1 %b",State[SET1][index]);
                                                 $display("DCACHE :write -State2 %b",State[SET2][index]);
 						$display("DCACHE :write -index %b",index);
+						$display("DCACHE :write -data %h",Data[WSet][index][block_offset/(SIZE/8)]);
 `endif			
 						if(write_data_byte0_bool) begin
 						  Data[WSet][index][block_offset/(SIZE/8)][BYTE_SIZE-1+BYTE_SIZE*0:BYTE_SIZE*0] <= write_data[BYTE_SIZE-1+BYTE_SIZE*0:BYTE_SIZE*0];

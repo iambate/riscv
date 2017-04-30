@@ -1041,6 +1041,7 @@ DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
 DCACHE :write -State1 010
 DCACHE :write -State2 100
 DCACHE :write -index 111111111
+DCACHE :write -data 0000000000000000
 DECODE pc 0000000000000010
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -1195,6 +1196,7 @@ DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
 DCACHE :write -State1 010
 DCACHE :write -State2 101
 DCACHE :write -index 111111111
+DCACHE :write -data 0000000000000000
 DECODE pc 000000000000001c
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -1364,11 +1366,6 @@ MM stage done :       scall mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU flushed due to syscall_flush
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr                    0
-DCACHE: signal 1 cache miss
-DCACHE :signal 1 FLUSHING_NOT_NEEDED Requesting block at                    0 for miss at                    0:
- 
 DECODE flushed due to syscall_flush signal
 WB opcode name        scall
 WB scall, do_ecall called
@@ -1526,6 +1523,8 @@ ALU actual val2                    0
 ALU opcode             
 ALU rd_regno  0
 DCACHE :Invalidation signal received for addr                    0
+DCACHE :Invalidation signal invalidating index   0
+DCACHE :Invalidation signal invalidating set 0
 DECODE pc 0000000000000000
 DECODE rs1 val                    0
 DECODE rs2 val                    0
@@ -1588,8 +1587,6 @@ WB opcode name
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
-AD State req, going to wait
-AD State req, req:                    0
 FETCH :instruction bits fef42423
 FETCH :this pc                   36
 MM stage done :             mm_load_bool 0
@@ -1648,554 +1645,6 @@ MM stage done :     unknown branch taken 0
 MM stage done :     unknown mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-responding data 78756e694c on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 00000078756e694c
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-item on top of queue resp:0 tag:1100
-responding data 0 on tag 1100
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-AD State resp, going to ready
-AD data: 0000000000000000
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE :signal 1, waiting for data to be read for addr           1069547496
-
-================== New Cycle ====================
-================== New Cycle ====================
-DCACHE: new cycle-flag val1 
-DCACHE :read signal rcvd for addr           1069547496
-DCACHE: read-signal 1
-DCACHE: read-data is ready 1 0
-
-DCACHE: read-phy_addr                    0
-DCACHE: read-start block addr           1069547456
-DCACHE: read-addr           1069547496 tag           32639
-
-DCACHE: read-data arrived 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000078756e694c
-
-================== New Cycle ====================
-================== New Cycle ====================
 ALU stall due to ALU->MM dependency
 ALU stall_cycs                    1
 ALU branch bool 0
@@ -2215,15 +1664,15 @@ ALU given val2                   10
 ALU given imm 18446744073709551592
 DCACHE: new cycle-flag val1 
 DCACHE :read signal rcvd for addr           1069547496
-DCACHE :read data                    0
+DCACHE :read data          42949672960
 DCACHE :read -cache hit
 DCACHE :read -addr           1069547496
-DCACHE :read -starting addr of block                    0
+DCACHE :read -starting addr of block           1069547456
 DCACHE :read -index 511
 DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
 DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
 DCACHE :read -State1 010
-DCACHE :read -State2 100
+DCACHE :read -State2 101
 DCACHE :read -index 111111111
 WB opcode name      unknown
 WB wbdata:           0
@@ -2235,7 +1684,7 @@ MM stage done :          ld rd regno 15
 MM stage done :          ld rs2 value                    0
 MM stage done :          ld update bool 0
 MM stage done :          ld branch taken 0
-MM stage done :          ld mdata                    0
+MM stage done :          ld mdata          42949672960
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -2256,7 +1705,7 @@ ALU given val2                   10
 ALU given imm 18446744073709551592
 ALU alu_result           1069547496
 ALU actual val1           1069547520
-ALU actual val2                    0
+ALU actual val2          42949672960
 ALU opcode           sw
 ALU rd_regno  8
 DECODE pc 000000000000002c
@@ -2271,7 +1720,7 @@ DECODE rd regno 15
 DECODE imm value           0
 DECODE opcode name         addi
 WB opcode name           ld
-WB wbdata:                    0
+WB wbdata:          42949672960
 WB rd regno: 15
 WB ready: 1
 FETCH :instruction bits 00078513
@@ -2308,18 +1757,19 @@ ALU opcode         addi
 ALU rd_regno 15
 DCACHE: new cycle-flag val2 
 DCACHE :read signal rcvd for addr           1069547496
-DCACHE :write data          42949672960
+DCACHE :write data                    0
 DCACHE :write -cache hit
 DCACHE :write -addr           1069547496
-DCACHE :write -starting addr of block                    0
+DCACHE :write -starting addr of block           1069547456
 DCACHE :write -index 511
 DCACHE :write -Tag1 0000000000000000000000000000000000000000000000000
 DCACHE :write -Tag1 0000000000000000000000000000000000111111101111111
 DCACHE :write -State1 010
-DCACHE :write -State2 100
+DCACHE :write -State2 101
 DCACHE :write -index 111111111
+DCACHE :write -data 0000000a00000000
 DECODE pc 0000000000000030
-DECODE rs1 val                    0
+DECODE rs1 val          42949672960
 DECODE rs2 val                    0
 DECODE rs1 name   a5
 DECODE rs2 name zero
@@ -2338,7 +1788,7 @@ FETCH :this pc                   48
 MM stage done :          sw mm_load_bool 0
 MM stage done :          sw alu result           1069547496
 MM stage done :          sw rd regno  8
-MM stage done :          sw rs2 value                    0
+MM stage done :          sw rs2 value          42949672960
 MM stage done :          sw update bool 0
 MM stage done :          sw branch taken 0
 MM stage done :          sw mdata           0
@@ -2357,7 +1807,7 @@ ALU wb rd update 0
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
-ALU given val1                    0
+ALU given val1          42949672960
 ALU given val2                    0
 ALU given imm                    0
 ALU alu_result                    0
@@ -2377,7 +1827,7 @@ DECODE rd regno  8
 DECODE imm value          24
 DECODE opcode name           ld
 WB opcode name           sw
-WB do_pending_write sw phy_addr:           1069547496 rs2_value:                    0
+WB do_pending_write sw phy_addr:           1069547496 rs2_value:          42949672960
 WB wbdata:           0
 WB rd regno:           0
 WB ready: 0
@@ -2465,7 +1915,7 @@ DCACHE :read signal rcvd for addr           1069547512
 DCACHE :read data                    0
 DCACHE :read -cache hit
 DCACHE :read -addr           1069547512
-DCACHE :read -starting addr of block                    0
+DCACHE :read -starting addr of block           1069547456
 DCACHE :read -index 511
 DCACHE :read -Tag1 0000000000000000000000000000000000000000000000000
 DCACHE :read -Tag2 0000000000000000000000000000000000111111101111111
@@ -2504,16 +1954,6 @@ MM stage done :          ld mdata                    0
 ================== New Cycle ====================
 AD State req, going to wait
 AD State req, req:                   64
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
-================== New Cycle ====================
 ================== New Cycle ====================
 ================== New Cycle ====================
 ================== New Cycle ====================

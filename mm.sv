@@ -178,6 +178,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 		assign write_data_byte5_bool=0;
 		assign write_data_byte6_bool=0;
 		assign write_data_byte7_bool=0;
+		assign write_data=0;
 		assign cache_enable=0;
 		assign cache_signal=0;
 		if(tlb_ready==2) begin
