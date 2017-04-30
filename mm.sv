@@ -359,7 +359,7 @@ when flush signal is high cache wont read or write but it will still invalidate
 			$display("MM stage done :%s update bool %d",  in_opcode_name,in_update_rd_bool);
 			$display("MM stage done :%s branch taken %d",  in_opcode_name,in_branch_taken_bool);
 `endif
-			out_phy_addr <= p_addr;
+			out_phy_addr <= (p_addr[REGISTER_WIDTH-1:12]<<12) + in_alu_result[11:0];
 			out_mm_load_bool <= in_mm_load_bool;
 			out_pcplus1plusoffs<=in_pcplus1plusoffs;
 			out_alu_result<=in_alu_result;

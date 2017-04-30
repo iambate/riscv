@@ -82,22 +82,22 @@ module writeback
 `ifdef WBDEBUG
         $display("WB do_pending_write sd phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
 `endif
-        do_pending_write(in_phy_addr, in_rs2_value, 64);
+        do_pending_write(in_phy_addr, in_rs2_value, 8);
       end if(in_opcode_name == "sw" && in_enable) begin
 `ifdef WBDEBUG
         $display("WB do_pending_write sw phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
 `endif
-        do_pending_write(in_phy_addr, in_rs2_value, 32);
+        do_pending_write(in_phy_addr, in_rs2_value, 4);
       end if(in_opcode_name == "sh" && in_enable) begin
 `ifdef WBDEBUG
         $display("WB do_pending_write sh phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
 `endif
-        do_pending_write(in_phy_addr, in_rs2_value, 16);
+        do_pending_write(in_phy_addr, in_rs2_value, 2);
       end if(in_opcode_name == "sb" && in_enable) begin
 `ifdef WBDEBUG
         $display("WB do_pending_write sb phy_addr: %d rs2_value: %d", in_phy_addr, in_rs2_value);
 `endif
-        do_pending_write(in_phy_addr, in_rs2_value, 8);
+        do_pending_write(in_phy_addr, in_rs2_value, 1);
       end
       if(in_opcode_name == "scall" && in_enable) begin
 `ifdef WBDEBUG

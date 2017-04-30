@@ -54,18 +54,14 @@ input isW
 	logic [REGISTER_WIDTH-1:0] tmp_result;
 	if(isW) begin
 		if(isAdd)
-			tmp_result[31:0] = num1[31:0] + num2[31:0];
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) + $signed(num2[31:0]);
 		else
-			tmp_result[31:0] = num1[31:0] - num2[31:0];
-		if(tmp_result[31])
-			tmp_result[REGISTER_WIDTH-1:32] = -1;
-		else
-			tmp_result[REGISTER_WIDTH-1:32] = 0;
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) - $signed(num2[31:0]);
 	end else begin
 		if(isAdd)
-			tmp_result = num1 + num2;
+			tmp_result = $signed(num1) + $signed(num2);
 		else
-			tmp_result = num1 - num2;
+			tmp_result = $signed(num1) - $signed(num2);
 	end
 	add_sub = tmp_result;
 endfunction
@@ -102,13 +98,9 @@ input isH
 		mul = tmp_result[123:64];
 	end else begin
 		if(isW) begin
-			tmp_result[31:0] = num1[31:0] * num2[31:0];
-			if(tmp_result[31])
-				tmp_result[REGISTER_WIDTH-1:32] = -1;
-			else
-				tmp_result[REGISTER_WIDTH-1:32] = 0;
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) * $signed(num2[31:0]);
 		end else begin
-			tmp_result = num1 * num2;
+			tmp_result = $signed(num1) * $signed(num2);
 		end
 		mul = tmp_result[REGISTER_WIDTH-1:0];
 	end
@@ -129,13 +121,9 @@ input isU
 		tmp_num2 = num2;
 		if(isW) begin
 			if(isDiv)
-				tmp_result[31:0] = tmp_num1[31:0] / tmp_num2[31:0];
+				tmp_result[REGISTER_WIDTH-1:0] = tmp_num1[31:0] / tmp_num2[31:0];
 			else
-				tmp_result[31:0] = tmp_num1[31:0] % tmp_num2[31:0];
-			if(tmp_result[31])
-				tmp_result[REGISTER_WIDTH-1:32] = -1;
-			else
-				tmp_result[REGISTER_WIDTH-1:32] = 0;
+				tmp_result[REGISTER_WIDTH-1:0] = tmp_num1[31:0] % tmp_num2[31:0];
 		end else begin
 			if(isDiv)
 				tmp_result = tmp_num1 / tmp_num2;
@@ -710,6 +698,7 @@ endfunction
         $display("ALU mm_load Bool %d", n_mm_load_bool);
         $display("ALU given val1 %d", in_rs1_value);
         $display("ALU given val2 %d", in_rs2_value);
+        $display("ALU given imm %d", in_imm_value);
 `endif
 `ifdef ALUDEBUG
         $display("ALU alu_result %d", n_alu_result);
@@ -748,6 +737,7 @@ endfunction
         $display("ALU mm_load Bool %d", n_mm_load_bool);
         $display("ALU given val1 %d", in_rs1_value);
         $display("ALU given val2 %d", in_rs2_value);
+        $display("ALU given imm %d", in_imm_value);
 `endif
         stall_cycs <= n_stall_cycs;
         out_alu_result <= 0;

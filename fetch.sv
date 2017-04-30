@@ -160,7 +160,7 @@ module fetch
 	old_pc<=pc;
     end else if(cache_ready==2 & in_enable) begin
 `ifdef FETCHDEBUG
-	$display("\nFETCH :instruction bits %x", cache_instruction_bits);
+	$display("FETCH :instruction bits %x", cache_instruction_bits);
 	$display("FETCH :this pc %d", pc);
 `endif
 	out_instruction_bits <= cache_instruction_bits;
