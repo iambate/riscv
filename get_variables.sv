@@ -29,6 +29,7 @@ module get_variables
   get_reg_name for_rs1(.reg_name(rs1), .reg_number(instruction[19:15]));
   get_reg_name for_rs2(.reg_name(rs2), .reg_number(instruction[24:20]));
   always_comb begin
+    assign imm = 0;
     assign rd_number = instruction[11:7];
     assign rs1_number = instruction[19:15];
     assign rs2_number = instruction[24:20];
