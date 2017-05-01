@@ -76,13 +76,11 @@ module process_instruction
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bltu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`BGEU:
 	begin
             assign instruction_type=`SB_TYPE;
 	    assign instruction_name="bgeu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`SB:
 	begin

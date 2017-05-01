@@ -1,43 +1,3 @@
-verilator -Wall -Wno-LITENDIAN -Wno-lint -O3 --trace --no-skip-identical --cc top_orig.sv \
---top-module top --exe main.cpp fake-os.cpp system.cpp /shared/cse502/DRAMSim2/libdramsim.so \
--CFLAGS -I/shared/cse502 -CFLAGS -std=c++11 -CFLAGS -g3 \
--LDFLAGS -Wl,-rpath=/shared/cse502/DRAMSim2 \
--LDFLAGS -lncurses -LDFLAGS -lelf -LDFLAGS -lrt
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-make -j5 -C obj_dir/ -f Vtop.mk CXX="ccache g++"
-make[1]: Entering directory '/home/schshah/wp1/obj_dir'
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o fake-os.o ../fake-os.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o main.o ../main.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o system.o ../system.cpp
-/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop.cpp Vtop___024unit.cpp > Vtop__ALLcls.cpp
-/usr/bin/perl /shared/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtop__Dpi.cpp Vtop__Trace.cpp Vtop__Syms.cpp Vtop__Trace__Slow.cpp > Vtop__ALLsup.cpp
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LANG = "en_US.UTF-8"
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale ("C").
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLcls.o Vtop__ALLcls.cpp
-ccache g++  -I.  -MMD -I/shared/share/verilator/include -I/shared/share/verilator/include/vltstd -DVL_PRINTF=printf -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TRACE=1 -Wno-char-subscripts -Wno-sign-compare -Wno-uninitialized -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable     -I/shared/cse502 -g3 -std=c++11   -c -o Vtop__ALLsup.o Vtop__ALLsup.cpp
-      Archiving Vtop__ALL.a ...
-ar r Vtop__ALL.a Vtop__ALLcls.o Vtop__ALLsup.o
-ranlib Vtop__ALL.a
-g++    fake-os.o main.o system.o verilated.o verilated_dpi.o verilated_vcd_c.o Vtop__ALL.a   -Wl,-rpath=/shared/cse502/DRAMSim2 -lelf -lncurses -lrt /shared/cse502/DRAMSim2/libdramsim.so  -o Vtop -lm -lstdc++  2>&1 | c++filt
-make[1]: Leaving directory '/home/schshah/wp1/obj_dir'
 cd obj_dir/ && env HAVETLB=n ./Vtop /shared/cse502/tests/project/prog1
 Loading ELF header #0. offset: 0 filesize: 534803 memsize: 534803 vaddr: 10000 paddr: 10000 align: 4096
 Read 534803 bytes at 10000
@@ -796,7 +756,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -823,15 +783,15 @@ ALU mm rd update 1
 ALU mm rd regno  3
 ALU wb rd update 0
 ALU wb rd regno  0
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                66396
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result                66456
 ALU actual val1                66396
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 000000000001039c
 DECODE rs1 val                    0
@@ -867,13 +827,13 @@ WB rd regno:  3
 WB ready: 1
 FETCH :instruction bits 00050793
 FETCH :this pc                66396
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result                66456
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -883,7 +843,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno  3
@@ -908,10 +868,10 @@ DECODE rs2 regno  0
 DECODE rd regno 15
 DECODE imm value           0
 DECODE opcode name         addi
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:                66456
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 00000517
 FETCH :this pc                66400
 MM stage done :             mm_load_bool 0
@@ -932,7 +892,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
@@ -25886,7 +25846,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name           ld
 WB wbdata:                    0
 WB rd regno: 26
@@ -25913,15 +25873,15 @@ ALU mm rd update 0
 ALU mm rd regno 27
 ALU wb rd update 1
 ALU wb rd regno 26
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                66808
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               170180
 ALU actual val1                66808
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 00000000000298c8
 DECODE rs1 val           1069547600
@@ -25957,13 +25917,13 @@ WB rd regno:  2
 WB ready: 1
 FETCH :instruction bits 000977b7
 FETCH :this pc                66808
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               170180
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -25973,7 +25933,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno  2
@@ -25998,10 +25958,10 @@ DECODE rs2 regno  0
 DECODE rd regno 15
 DECODE imm value      618496
 DECODE opcode name          lui
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               170180
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 0d07b703
 FETCH :this pc                66812
 MM stage done :             mm_load_bool 0
@@ -26225,7 +26185,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
@@ -29734,7 +29694,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name         addi
 WB wbdata:                   63
 WB rd regno: 17
@@ -29988,7 +29948,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -30015,15 +29975,15 @@ ALU mm rd update 0
 ALU mm rd regno  0
 ALU wb rd update 0
 ALU wb rd regno  0
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1               173224
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               310424
 ALU actual val1               173224
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 000000000004bc9c
 DECODE rs1 val                    0
@@ -30059,13 +30019,13 @@ WB rd regno:           0
 WB ready: 0
 FETCH :instruction bits 0ca10693
 FETCH :this pc               173224
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               310424
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -30075,7 +30035,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 0
 ALU wb rd regno  0
@@ -30100,10 +30060,10 @@ DECODE rs2 regno 10
 DECODE rd regno 13
 DECODE imm value         202
 DECODE opcode name         addi
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               310424
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 0a051e63
 FETCH :this pc               173228
 MM stage done :             mm_load_bool 0
@@ -30124,7 +30084,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
@@ -34163,6 +34123,7 @@ ALU given imm                  255
 ALU alu_result                  253
 ALU actual val1 18446744073709551613
 ALU actual val2               618496
+/***START HERE**/
 ALU opcode         andi
 ALU rd_regno 15
 DECODE pc 000000000002a510
@@ -35122,7 +35083,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name           ld
 WB wbdata:                68352
 WB rd regno:  8
@@ -35149,15 +35110,15 @@ ALU mm rd update 0
 ALU mm rd regno  9
 ALU wb rd update 1
 ALU wb rd regno  8
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                67180
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               173372
 ALU actual val1                67180
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 000000000002a540
 DECODE rs1 val                    0
@@ -35193,13 +35154,13 @@ WB rd regno:  2
 WB ready: 1
 FETCH :instruction bits 0e054663
 FETCH :this pc                67180
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               173372
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -35209,7 +35170,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno  2
@@ -35234,10 +35195,10 @@ DECODE rs2 regno  0
 DECODE rd regno 12
 DECODE imm value         236
 DECODE opcode name          blt
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               173372
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 000977b7
 FETCH :this pc                67184
 MM stage done :             mm_load_bool 0
@@ -35258,7 +35219,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 0
 ALU mm_load Bool 0
@@ -40271,6 +40232,7 @@ ALU rd_update_bool 0
 ALU mm_load Bool 0
 ALU given val1                65600
 ALU given val2                65880
+/****SUSPECT*** imediate value incorrect */
 ALU given imm                 8180
 ALU alu_result                    0
 ALU actual val1                65656
@@ -42922,7 +42884,6 @@ ALU mm_load Bool 0
 ALU given val1               475696
 ALU given val2                    0
 ALU given imm                  734
-/*CHECK*/
 ALU alu_result 18446744071914656478
 ALU actual val1 18446744071914655744
 ALU actual val2                    0
@@ -44972,7 +44933,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name          lui
 WB wbdata:             16711680
 WB rd regno: 14
@@ -44999,15 +44960,15 @@ ALU mm rd update 1
 ALU mm rd regno 10
 ALU wb rd update 1
 ALU wb rd regno 14
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                76092
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               439620
 ALU actual val1                76092
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 000000000006b548
 DECODE rs1 val                    0
@@ -45043,13 +45004,13 @@ WB rd regno: 10
 WB ready: 1
 FETCH :instruction bits 02051993
 FETCH :this pc                76092
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               439620
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -45059,7 +45020,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno 10
@@ -45084,10 +45045,10 @@ DECODE rs2 regno  0
 DECODE rd regno 19
 DECODE imm value           0
 DECODE opcode name      unknown
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               439620
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 00090513
 FETCH :this pc                76096
 MM stage done :             mm_load_bool 0
@@ -45108,7 +45069,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 0
 ALU mm_load Bool 0
@@ -45899,7 +45860,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name          lui
 WB wbdata:             16711680
 WB rd regno: 14
@@ -45926,15 +45887,15 @@ ALU mm rd update 1
 ALU mm rd regno 10
 ALU wb rd update 1
 ALU wb rd regno 14
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                76108
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               439620
 ALU actual val1                76108
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 000000000006b548
 DECODE rs1 val                    0
@@ -45970,13 +45931,13 @@ WB rd regno: 10
 WB ready: 1
 FETCH :instruction bits 013c09b3
 FETCH :this pc                76108
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               439620
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -45986,7 +45947,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno 10
@@ -46011,10 +45972,10 @@ DECODE rs2 regno 19
 DECODE rd regno 19
 DECODE imm value           0
 DECODE opcode name          add
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               439620
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 00050913
 FETCH :this pc                76112
 MM stage done :             mm_load_bool 0
@@ -46035,7 +45996,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
@@ -50621,7 +50582,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -50648,15 +50609,15 @@ ALU mm rd update 0
 ALU mm rd regno  1
 ALU wb rd update 0
 ALU wb rd regno  0
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                76800
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               144384
 ALU actual val1                76800
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 0000000000023404
 DECODE rs1 val                    0
@@ -50692,13 +50653,13 @@ WB rd regno:  2
 WB ready: 1
 FETCH :instruction bits 080a8463
 FETCH :this pc                76800
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               144384
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -50708,7 +50669,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno  2
@@ -50733,10 +50694,10 @@ DECODE rs2 regno  0
 DECODE rd regno  8
 DECODE imm value         136
 DECODE opcode name          beq
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               144384
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 000b0593
 FETCH :this pc                76804
 MM stage done :             mm_load_bool 0
@@ -50757,7 +50718,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 0
 ALU mm_load Bool 0
@@ -51334,7 +51295,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name         addi
 WB wbdata:                   11
 WB rd regno: 17
@@ -51486,7 +51447,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -51513,15 +51474,15 @@ ALU mm rd update 0
 ALU mm rd regno  0
 ALU wb rd update 0
 ALU wb rd regno  0
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                76816
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               163408
 ALU actual val1                76816
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 0000000000027e54
 DECODE rs1 val                    0
@@ -51557,13 +51518,13 @@ WB rd regno:           0
 WB ready: 0
 FETCH :instruction bits 000b8513
 FETCH :this pc                76816
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               163408
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -51573,7 +51534,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 0
 ALU wb rd regno  0
@@ -51598,10 +51559,10 @@ DECODE rs2 regno  0
 DECODE rd regno 10
 DECODE imm value           0
 DECODE opcode name         addi
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               163408
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 75c100ef
 FETCH :this pc                76820
 MM stage done :             mm_load_bool 0
@@ -51622,7 +51583,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 1
 ALU mm_load Bool 0
@@ -52216,7 +52177,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name             
 WB wbdata:           0
 WB rd regno:           0
@@ -52243,15 +52204,15 @@ ALU mm rd update 0
 ALU mm rd regno  1
 ALU wb rd update 0
 ALU wb rd regno  0
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1                76824
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result               144384
 ALU actual val1                76824
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 0000000000023404
 DECODE rs1 val                    0
@@ -52287,13 +52248,13 @@ WB rd regno:  2
 WB ready: 1
 FETCH :instruction bits 004d2783
 FETCH :this pc                76824
-MM stage done :         ret mm_load_bool 0
-MM stage done :         ret alu result                    0
-MM stage done :         ret rd regno  0
-MM stage done :         ret rs2 value                    0
-MM stage done :         ret update bool 0
-MM stage done :         ret branch taken 1
-MM stage done :         ret mdata           0
+MM stage done :        jalr mm_load_bool 0
+MM stage done :        jalr alu result               144384
+MM stage done :        jalr rd regno  0
+MM stage done :        jalr rs2 value                    0
+MM stage done :        jalr update bool 1
+MM stage done :        jalr branch taken 1
+MM stage done :        jalr mdata           0
 ================== New Cycle ====================
 ================== New Cycle ====================
 ALU stall_cycs                    0
@@ -52303,7 +52264,7 @@ ALU alu mm load bool 0
 ALU alu rd update 0
 ALU alu reg no  0
 ALU mm mm load bool 0
-ALU mm rd update 0
+ALU mm rd update 1
 ALU mm rd regno  0
 ALU wb rd update 1
 ALU wb rd regno  2
@@ -52328,10 +52289,10 @@ DECODE rs2 regno  4
 DECODE rd regno 15
 DECODE imm value           4
 DECODE opcode name           lw
-WB opcode name          ret
-WB wbdata:           0
-WB rd regno:           0
-WB ready: 0
+WB opcode name         jalr
+WB wbdata:               144384
+WB rd regno:  0
+WB ready: 1
 FETCH :instruction bits 000db823
 FETCH :this pc                76828
 MM stage done :             mm_load_bool 0
@@ -52352,7 +52313,7 @@ ALU alu reg no  0
 ALU mm mm load bool 0
 ALU mm rd update 0
 ALU mm rd regno  0
-ALU wb rd update 0
+ALU wb rd update 1
 ALU wb rd regno  0
 ALU rd_update_bool 0
 ALU mm_load Bool 1
@@ -56003,7 +55964,7 @@ DECODE rs1 regno  1
 DECODE rs2 regno  0
 DECODE rd regno  0
 DECODE imm value           0
-DECODE opcode name          ret
+DECODE opcode name         jalr
 WB opcode name           ld
 WB wbdata: 10300211888425121827
 WB rd regno: 26
@@ -56021,7 +55982,7 @@ MM stage done :          ld mdata     2662707908573075
 ================== New Cycle ====================
 ALU stall_cycs                    0
 ALU branch bool 1
-ALU pc      141179886044467
+ALU pc      141179886044466
 ALU alu mm load bool 0
 ALU alu rd update 1
 ALU alu reg no  2
@@ -56030,15 +55991,15 @@ ALU mm rd update 0
 ALU mm rd regno 27
 ALU wb rd update 1
 ALU wb rd regno 26
-ALU rd_update_bool 0
+ALU rd_update_bool 1
 ALU mm_load Bool 0
 ALU given val1      141179886044467
 ALU given val2                    0
 ALU given imm                    0
-ALU alu_result                    0
+ALU alu_result                75536
 ALU actual val1      141179886044467
 ALU actual val2                    0
-ALU opcode          ret
+ALU opcode         jalr
 ALU rd_regno  0
 DECODE pc 0000000000012714
 DECODE rs1 val    65169924637001491
