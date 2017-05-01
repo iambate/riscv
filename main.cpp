@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	System sys(&top, RAM_SIZE, ramelf, argc-1, argv+1, 500);
 
 	// (argc, argv) sanity check
-	cout << "===== Printing arguments of the program..." << endl;
+	cerr << "===== Printing arguments of the program..." << endl;
 	for (int j = 0; j <= argc-1; j++) {
 		unsigned long guest_addr = top.stackptr + j * sizeof(uint64_t);
 		uint64_t val = *(uint64_t *)(sys.ram_virt + guest_addr);
@@ -84,7 +84,6 @@ int main(int argc, char* argv[]) {
 	if (SHOWCONSOLE?(atoi(SHOWCONSOLE)!=0):0) sys.console();
 
 	while (sys.ticks/sys.ps_per_clock < 2000*GIGA && !Verilated::gotFinish()) {
-		cout << "================== New Cycle ===================="<<endl;
 		TICK();
 	}
 

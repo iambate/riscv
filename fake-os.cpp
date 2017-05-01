@@ -73,7 +73,8 @@ extern "C" {
                     return;
                 default:
                     cerr << "Unsupported arch-specific syscall " << a0 << endl;
-                    assert(0);
+                    Verilated::gotFinish(true);
+                    return;
             }
 
         case __NR_rt_sigpending: // a0
@@ -354,7 +355,8 @@ extern "C" {
         case __NR_preadv:
         case __NR_pwritev:
             cerr << "Unsupported syscall " << std::dec << a7 << endl;
-            assert(0);
+            Verilated::gotFinish(true);
+            return;
 
         default:
             if (ECALL_DEBUG) cerr << "Default syscall " << std::dec << a7 << endl;
@@ -374,7 +376,12 @@ extern "C" {
             for(int i = 0; i < a2; ++i)
                 iov[i].iov_base = (char*)iov[i].iov_base + (long long)System::sys->ram_virt;
 
+        int old_errno = errno;
         *a0ret = syscall(a7, a0, a1, a2, a3, a4, a5, a6);
+        if (old_errno != errno) {
+            if (ECALL_DEBUG) cerr << "Changing errno to " << std::dec << errno << endl;
+            System::sys->set_errno(errno);
+        }
 
         if (a7 == __NR_writev)
             for(int i = 0; i < a2; ++i)
@@ -395,4 +402,3 @@ extern "C" {
     }
 
 }
-

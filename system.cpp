@@ -27,16 +27,10 @@ enum {
     IRQ    = 0b1110
 };
 
-#ifndef be32toh
-#define be32toh(x)      ((u_int32_t)ntohl((u_int32_t)(x)))
-#endif
-
-static __inline__ u_int64_t cse502_be64toh(u_int64_t __x) { return (((u_int64_t)be32toh(__x & (u_int64_t)0xFFFFFFFFULL)) << 32) | ((u_int64_t)be32toh((__x & (u_int64_t)0xFFFFFFFF00000000ULL) >> 32)); }
-
 System* System::sys;
 
 System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, char* argv[], int ps_per_clock)
-    : top(top), ps_per_clock(ps_per_clock), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0), ticks(0), ecall_brk(0)
+    : top(top), ps_per_clock(ps_per_clock), ramsize(ramsize), max_elf_addr(0), show_console(false), interrupts(0), rx_count(0), ticks(0), ecall_brk(0), errno_addr(NULL)
 {
     sys = this;
 
@@ -135,17 +129,12 @@ void System::tick(int clk) {
     }
 
     dramsim->update();    
-    if (!tx_queue.empty() && top->bus_respack) {
-	tx_queue.pop_front();
-	if(!tx_queue.empty()) {
-		cout << "item on top of queue resp:"<<tx_queue.begin()->first << " tag:"<<tx_queue.begin()->second <<endl;
-	}
-    }
+    if (!tx_queue.empty() && top->bus_respack) tx_queue.pop_front();
     if (!tx_queue.empty()) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        cout << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        //cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -166,7 +155,7 @@ void System::tick(int clk) {
                     if ((xfer_addr - 0xb8000) < 80*25*2) {
                         int screenpos = xfer_addr - 0xb8000;
                         for(int shift = 0; shift < 8; shift += 2) {
-                            int val = (cse502_be64toh(top->bus_req) >> (8*shift)) & 0xffff;
+                            int val = (top->bus_req >> (8*shift)) & 0xffff;
                             //cerr << "val=" << std::hex << val << endl;
                             attron(val & ~0xff);
                             mvaddch(screenpos / 160, screenpos % 160 + shift/2, val & 0xff);
@@ -190,10 +179,9 @@ void System::tick(int clk) {
         switch(cmd) {
         case MEMORY:
             xfer_addr = top->bus_req & ~0x3fULL;
-            //assert(!(xfer_addr & 7));
             if (xfer_addr > (ramsize - 64)) {
                 cerr << "Invalid 64-byte access, address " << std::hex << xfer_addr << " is beyond end of memory at " << ramsize << endl;
-                assert(0);
+                Verilated::gotFinish(true);
             } else if (addr_to_tag.find(xfer_addr)!=addr_to_tag.end()) {
                 cerr << "Access for " << std::hex << xfer_addr << " already outstanding. Ignoring..." << endl;
             } else {
@@ -212,7 +200,8 @@ void System::tick(int clk) {
             break;
 
         default:
-            assert(0);
+            cerr << "Unknown command" << std::hex << cmd << endl;
+            Verilated::gotFinish(true);
         };
     } else {
         top->bus_reqack = 0;
@@ -233,9 +222,15 @@ void System::dram_write_complete(unsigned id, uint64_t address, uint64_t clock_c
     do_finish_write(address, 64);
 }
 
+void System::set_errno(const int new_errno) {
+    if (errno_addr) {
+        *errno_addr = new_errno;
+        invalidate((char*)errno_addr - ram);
+    }
+}
+
 void System::invalidate(const uint64_t phy_addr) {
-    cerr<< "====== pushing "<<phy_addr<< " into invalidation queue with tag " << std::dec <<(INVAL<<8)<<"========"<<endl;
-    System::sys->tx_queue.push_front(make_pair(phy_addr, INVAL << 8));
+    tx_queue.push_front(make_pair(phy_addr, INVAL << 8));
 }
 
 uint64_t System::get_phys_page() {
@@ -247,7 +242,7 @@ uint64_t System::get_phys_page() {
     return page_no;
 }
 
-#define VM_DEBUG 1
+#define VM_DEBUG 0
 
 uint64_t System::get_pte(uint64_t base_addr, int vpn, bool isleaf, bool& allocated) {
     uint64_t addr = base_addr + vpn*8;
@@ -367,8 +362,12 @@ uint64_t System::load_elf(const char* filename) {
                     max_elf_addr = (phdr.p_vaddr + phdr.p_memsz);
                 break;
             }
-            case PT_NOTE:
             case PT_TLS:
+                errno_addr = (int*)(ram + phdr.p_vaddr + 0x20 /* errno, grep ".*TLS.* errno$" */);
+                cout << "Setting errno_addr to " << std::hex << errno_addr << " (TLS at " << phdr.p_vaddr << "+0x20)" << endl;
+                break;
+            case PT_DYNAMIC:
+            case PT_NOTE:
             case PT_GNU_STACK:
             case PT_GNU_RELRO:
                 // do nothing

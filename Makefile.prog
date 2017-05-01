@@ -1,0 +1,9 @@
+ARCH=riscv64-unknown-linux-gnu-
+#$(CC) $(CFLAGS) --static -O3 -Wno-implicit-int -o a.o testone.c
+CC=$(ARCH)gcc
+CFLAGS=-march=rv64im
+
+.PHONY: all clean
+
+all: 
+	$(CC) $(CFLAGS) --static -O3 -o a.o testtwo.c
