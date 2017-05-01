@@ -279,7 +279,7 @@ endfunction
 	assign n_pc = in_pcplus1 -4 + in_imm_value;
       end
     end
-    "bgue":
+    "bgeu":
     begin
       if($unsigned(n_value1) >= $unsigned(n_value2)) begin
         assign n_branch_taken_bool = 1;
