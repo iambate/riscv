@@ -1,4 +1,4 @@
-`define CACHEDEBUGXTRA
+//`define CACHEDEBUGXTRA
 module D_Set_Associative_Cache
 #(
 	BUS_DATA_WIDTH = 64,
@@ -277,11 +277,15 @@ module D_Set_Associative_Cache
 				$display("DCACHE :Invalidation signal received for addr %d",bus_resp);
 `endif
 				if(valid_set) begin
+`ifdef CACHEDEBUGXTRA
 					$display("DCACHE :Invalidation signal invalidating index %d", index);
 					$display("DCACHE :Invalidation signal invalidating set %d", CSet);
+`endif
 					State[CSet][index][VALID_BIT]<=0;
 				end else begin
+`ifdef CACHEDEBUGXTRA
 					$display("DCACHE: Invalidation signal addr %d not present in CACHE", bus_resp);
+`endif
 				end
 			end
 			else if(enable) begin

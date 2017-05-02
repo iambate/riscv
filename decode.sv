@@ -1,5 +1,5 @@
 `include "RegisterFile.sv"
-`define DECODE_DEBUG
+//`define DECODE_DEBUG
 module decode
 #(
   ADDRESS_WIDTH = 64,
@@ -98,7 +98,9 @@ module decode
   end
   always_ff @(posedge clk) begin
     if(in_syscall_flush) begin
+`ifdef DECODE_DEBUG
       $display("DECODE flushed due to syscall_flush signal");
+`endif
       out_pcplus1 <= 0;
       out_rs1_value <= 0;
       out_rs2_value <= 0;
@@ -110,7 +112,9 @@ module decode
     end else if(in_decode_enable) begin
       if(in_branch_taken_bool) begin
         // If branch taken then flush and send nop instruction
+`ifdef DECODE_DEBUG
         $display("DECODE flushed due to branch taken");
+`endif
         out_pcplus1 <= 0;
         out_rs1_value <= 0;
         out_rs2_value <= 0;

@@ -1,5 +1,5 @@
 `include "DCache.sv"
-`define MMDEBUG
+//`define MMDEBUG
 module mm
 #(
   BUS_DATA_WIDTH = 64,
@@ -336,7 +336,9 @@ when flush signal is high cache wont read or write but it will still invalidate
 
 	always_ff @(posedge clk) begin
 		if(reset || in_syscall_flush) begin
+`ifdef MMDEBUG
 			$display("MM Flush due to syscall signal");	
+`endif
 			out_mm_load_bool<=0;
 			out_pcplus1plusoffs<=0;
 			out_alu_result<=0;

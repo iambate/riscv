@@ -133,16 +133,20 @@ module store_data
                 STATEADDRREQ:
                 begin
                     //main_bus_req[63:0] <= addr[63:6] << 6;
+`ifdef WDDEBUG
                     $display("WD State addr req");
+`endif
                     counter <= 0;
                 end
                 STATEREQ:
                 begin
-                    $display("WD State req, going to ready counter: %d", counter);
                     counter <= ncounter;
+`ifdef WDDEBUG
+                    $display("WD State req, going to ready counter: %d", counter);
                     $display("WD data: %d", main_bus_req[63:0]);
                     $display("WD resp: %d", main_bus_resp[63:0]);
                     $display("WD reqack: %d", main_bus_reqack);
+`endif
                 end
                 STATEREADY:
                 begin

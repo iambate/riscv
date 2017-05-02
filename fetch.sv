@@ -1,4 +1,4 @@
-`define FETCHDEBUG
+//`define FETCHDEBUG
 //`define FETCHDEBUGEXT
 `include "Cache.sv"
 `include "TLB.sv"
