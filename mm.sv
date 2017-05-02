@@ -425,49 +425,49 @@ when flush signal is high cache wont read or write but it will still invalidate
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[7:0]);
 `endif
-						out_mdata<=cache_data[7:0];
+						out_mdata<=$unsigned(cache_data[7:0]);
 				end
 				else if(in_alu_result[2:0]==1) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[15:8]);
 `endif
-						out_mdata<=cache_data[15:8];
+						out_mdata<=$unsigned(cache_data[15:8]);
 				end
 				else if(in_alu_result[2:0]==2) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[23:16]);
 `endif
-						out_mdata<=cache_data[23:16];
+						out_mdata<=$unsigned(cache_data[23:16]);
 				end
 				else if(in_alu_result[2:0]==3) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:24]);
 `endif
-						out_mdata<=cache_data[31:24];
+						out_mdata<=$unsigned(cache_data[31:24]);
 				end
 				else if(in_alu_result[2:0]==4) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[39:32]);
 `endif
-						out_mdata<=cache_data[39:32];
+						out_mdata<=$unsigned(cache_data[39:32]);
 				end
 				else if(in_alu_result[2:0]==5) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[47:40]);
 `endif
-						out_mdata<=cache_data[47:40];
+						out_mdata<=$unsigned(cache_data[47:40]);
 				end
 				else if(in_alu_result[2:0]==6) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[55:48]);
 `endif
-						out_mdata<=cache_data[55:48];
+						out_mdata<=$unsigned(cache_data[55:48]);
 				end
 				else if(in_alu_result[2:0]==7) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:56]);
 `endif
-						out_mdata<=cache_data[63:56];
+						out_mdata<=$unsigned(cache_data[63:56]);
 				end
 			end // end of case lbu
 			"lh":begin
@@ -501,25 +501,25 @@ when flush signal is high cache wont read or write but it will still invalidate
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[15:0]);
 `endif
-						out_mdata<=cache_data[15:0];
+						out_mdata<=$unsigned(cache_data[15:0]);
 				end
 				else if(in_alu_result[2:0]==2) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:16]);
 `endif
-						out_mdata<=cache_data[31:16];
+						out_mdata<=$unsigned(cache_data[31:16]);
 				end
 				else if(in_alu_result[2:0]==4) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[47:32]);
 `endif
-						out_mdata<=cache_data[47:32];
+						out_mdata<=$unsigned(cache_data[47:32]);
 				end
 				else if(in_alu_result[2:0]==6) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:48]);
 `endif
-						out_mdata<=cache_data[63:48];
+						out_mdata<=$unsigned(cache_data[63:48]);
 				end
 			end //end of case lhu
 			"lw":begin
@@ -541,20 +541,20 @@ when flush signal is high cache wont read or write but it will still invalidate
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[31:0]);
 `endif
-					 out_mdata<=cache_data[31:0];
+					 out_mdata<=$unsigned(cache_data[31:0]);
 				end
 				else if(in_alu_result[2:0]==4) begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data[63:32]);
 `endif
-						out_mdata<=cache_data[63:32];
+						out_mdata<=$unsigned(cache_data[63:32]);
 				end
 			end
 			"ld":begin
 `ifdef MMDEBUG
 					$display("MM stage done :%s mdata %d", in_opcode_name,cache_data);
 `endif
-				out_mdata<=$signed(cache_data);
+				out_mdata<=cache_data;
             end
 			default:begin
 `ifdef MMDEBUG

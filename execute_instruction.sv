@@ -54,14 +54,14 @@ input isW
 	logic [REGISTER_WIDTH-1:0] tmp_result;
 	if(isW) begin
 		if(isAdd)
-			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) + $signed(num2[31:0]);
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0] + num2[31:0]);
 		else
-			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) - $signed(num2[31:0]);
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0] - num2[31:0]);
 	end else begin
 		if(isAdd)
-			tmp_result = $signed(num1) + $signed(num2);
+			tmp_result = num1 + num2;
 		else
-			tmp_result = $signed(num1) - $signed(num2);
+			tmp_result = num1 - num2;
 	end
 	add_sub = tmp_result;
 endfunction
@@ -98,9 +98,9 @@ input isH
 		mul = tmp_result[123:64];
 	end else begin
 		if(isW) begin
-			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0]) * $signed(num2[31:0]);
+			tmp_result[REGISTER_WIDTH-1:0] = $signed(num1[31:0] * num2[31:0]);
 		end else begin
-			tmp_result = $signed(num1) * $signed(num2);
+			tmp_result = num1 * num2;
 		end
 		mul = tmp_result[REGISTER_WIDTH-1:0];
 	end
@@ -121,9 +121,9 @@ input isU
 		tmp_num2 = num2;
 		if(isW) begin
 			if(isDiv)
-				tmp_result[REGISTER_WIDTH-1:0] = tmp_num1[31:0] / tmp_num2[31:0];
+				tmp_result = $signed(tmp_num1[31:0] / tmp_num2[31:0]);
 			else
-				tmp_result[REGISTER_WIDTH-1:0] = tmp_num1[31:0] % tmp_num2[31:0];
+				tmp_result = $signed(tmp_num1[31:0] % tmp_num2[31:0]);
 		end else begin
 			if(isDiv)
 				tmp_result = tmp_num1 / tmp_num2;

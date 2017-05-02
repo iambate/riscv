@@ -239,7 +239,6 @@ module process_instruction
 	    assign instruction_name="lbu";
             assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`LHU:
 	begin
@@ -247,7 +246,6 @@ module process_instruction
 	    assign instruction_name="lhu";
             assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-	    assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 /*
 	`MOV:
@@ -295,7 +293,6 @@ module process_instruction
 	    assign instruction_name="lwu";
             assign tmp_flag[`IS_LOAD_INDEX] = 1;
 	    assign tmp_flag[`IS_BRACKET_INDEX]=1;
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`LD:
 	begin
@@ -446,13 +443,11 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="mulhsu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`MULHU:
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="mulhu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`DIV:
 	begin
@@ -463,7 +458,6 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="divu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`REM :
 	begin
@@ -474,7 +468,6 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="remu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	default:
         begin
