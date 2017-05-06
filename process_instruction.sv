@@ -140,7 +140,6 @@ module process_instruction
 	begin
             assign instruction_type=`R_TYPE;
 	    assign instruction_name="sltu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
         end
 	`XOR:
 	begin
@@ -270,7 +269,8 @@ module process_instruction
 	begin
             assign instruction_type=`I_TYPE;
 	    assign instruction_name="sltiu";
-            assign tmp_flag[`IS_SIGNED_INDEX]=0;
+            // Immediate is first signed extended and then unsigned comparison is done
+            assign tmp_flag[`IS_SIGNED_INDEX]=1;
         end
 	`XORI:
 	begin

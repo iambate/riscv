@@ -699,6 +699,7 @@ endfunction
         $display("ALU given val1 %d", in_rs1_value);
         $display("ALU given val2 %d", in_rs2_value);
         $display("ALU given imm %d", in_imm_value);
+        $display("ALU this instruction %h", in_pcplus1 - 4);
 `endif
 `ifdef ALUDEBUG
         $display("ALU alu_result %d", n_alu_result);

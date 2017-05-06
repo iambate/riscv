@@ -1,11 +1,11 @@
 .PHONY: all run clean submit
 
 #RUNELF=/shared/cse502/tests/wp2/prog1.o
-RUNELF=/shared/cse502/tests/project/prog2
+RUNELF=/shared/cse502/tests/project/prog1 10 12
 #RUNELF=/home/gsaha/riscv/tests/b.o
 #RUNELF=/home/schshah/wp1/a.o
 #RUNELF=/shared/cse502/tests/wp1/prog1.o
-TRACE?=--trace
+TRACE?=
 HAVETLB=n
 
 VFILES=$(wildcard *.sv)
