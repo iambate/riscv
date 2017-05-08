@@ -5,6 +5,6 @@ STRIP=$(ARCH)strip
 
 .PHONY: all clean
 
-all: testone.c
-	$(CC) -c -o a.o testone.c
+all: test.c
+	$(CC) -c -o a.o test.c
 	$(STRIP) a.o

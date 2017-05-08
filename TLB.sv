@@ -1,5 +1,5 @@
-//`define TLBDEBUG
-//`define ENABLE_TLB
+`define TLBDEBUG
+`define ENABLE_TLB
 module Trans_Lookaside_Buff
 #(
 	BUS_DATA_WIDTH = 64,

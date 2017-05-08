@@ -1,4 +1,4 @@
-//`define WBDEBUG
+`define WBDEBUG
 module writeback
 #(
   ADDRESS_WIDTH = 64,

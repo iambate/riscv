@@ -147,6 +147,7 @@ void System::tick(int clk) {
             switch(cmd) {
             case MEMORY:
                 *((uint64_t*)(&ram[xfer_addr + (8-rx_count)*8])) = top->bus_req;
+		cout << "Writing to address" << std::dec << xfer_addr + (8-rx_count)*8 << "with data " << top->bus_req << endl;
                 break;
             case MMIO:
                 assert(xfer_addr < ramsize);

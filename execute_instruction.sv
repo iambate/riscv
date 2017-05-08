@@ -1,5 +1,5 @@
-//`define ALUDEBUGEXTRA
-//`define ALUDEBUG
+`define ALUDEBUGEXTRA
+`define ALUDEBUG
 //module type will have as input: inst name, type,inst
 module execute_instruction
 #(
@@ -401,7 +401,8 @@ endfunction
       assign n_branch_taken_bool = 1;
       assign n_update_rd_bool = 1;
       assign tmp = n_value1 + in_imm_value;
-      assign n_pc = tmp[REGISTER_WIDTH-1:1] << 1;
+      assign tmp[0] = 0;
+      assign n_pc = tmp[REGISTER_WIDTH-1:0];
     end
     "lb":
     begin
