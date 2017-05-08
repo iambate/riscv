@@ -56,7 +56,7 @@ module va_to_pa
                     end
                 end
             STATERESPEND:
-                next_state = (level < 4)? STATERESP : STATEREADY ;
+                next_state = (level < 4)? STATEREQ : STATEREADY ;
             STATEREADY:
                 next_state = enable? STATEBEGIN : STATEREADY;
         endcase
@@ -110,7 +110,7 @@ module va_to_pa
                 assign bus_busy = 1;
                 assign abtr_reqcyc = 0;
                 assign main_bus_reqcyc = 0;
-                if(main_bus_reqtag == `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8) begin
+                if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
                     assign main_bus_respack = 1;
                 end
                 assign main_bus_reqtag = 0;
@@ -123,7 +123,7 @@ module va_to_pa
                 assign main_bus_reqcyc = 0;
                 assign main_bus_reqtag = 0;
                 assign main_bus_req = 0;
-                if(main_bus_reqtag == `SYSBUS_READ<<12|`SYSBUS_MEMORY<<8) begin
+                if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
                     assign main_bus_respack = 1;
                 end
             end
@@ -183,6 +183,8 @@ module va_to_pa
                     if(main_bus_resptag == (`SYSBUS_READ<<12|`SYSBUS_MEMORY<<8)) begin
 `ifdef VAPADEBUG
                       $display("VP State resp, going to ready, request_counter: %d", request_counter);
+                      $display("VP State resp, counter: %d", ncounter);
+                      $display("VP State resp, level: %d", level);
 `endif
                       level <= level;
                       counter <= ncounter;
