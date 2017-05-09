@@ -50,16 +50,16 @@ module Trans_Lookaside_Buff
 );
 	logic [1:0] ff_addr_available;
 	logic [SIZE-1:0] ff_p_addr;
-	logic [SIZE-1:0] Data[2][512][64/(SIZE/8)];
-	logic [48-STARTING_INDEX:0] Tag[2][512];
+	logic [SIZE-1:0] Data[2][512];
+	logic [SIZE-1:0] Tag[2][512];
 	logic [2:0] State[2][512];
-	logic [48-STARTING_INDEX:0] tag;
+	logic [63:0] tag;
 	logic [8:0] index;
 	logic [5:0] block_offset_index;
 	logic [1:0] RSet;
         logic [1:0] ff_RSet;
 	logic Wait_fr_mem_read;
-	logic [511:0] data;
+	logic [SIZE-1:0] data;
 	logic va_pa_enable;
 	logic va_pa_ready;
 
@@ -79,16 +79,15 @@ module Trans_Lookaside_Buff
             .main_bus_reqtag(bus_reqtag),
 	    .bus_busy(va_pa_bus_busy),
             .virt_addr(v_addr),//direct input in case of miss
-            .phy_addr_array(data),//64 bytes data to put in tlb
+            .phy_addr(data),//64 bytes data to put in tlb
             .ready(va_pa_ready)
                        );
 
 	always_comb begin
 `ifdef ENABLE_TLB
         	if(rd_signal) begin
-			assign index = v_addr[STARTING_INDEX+11:STARTING_INDEX+3];
-			assign tag = v_addr[63:STARTING_INDEX+15];
-			assign block_offset_index = v_addr[STARTING_INDEX+2:STARTING_INDEX];
+			assign index = v_addr[STARTING_INDEX+8:STARTING_INDEX];
+			assign tag = v_addr[63:STARTING_INDEX+9];
 			if(Wait_fr_mem_read == SET_WAIT) begin
 				assign RSet=ff_RSet;
 				assign p_addr=ff_p_addr;
@@ -96,12 +95,12 @@ module Trans_Lookaside_Buff
 			end
 			else if((Tag[SET1][index] == tag) && State[SET1][index]&VALID) begin
 				assign RSet=SET1;
-				assign p_addr = (Data[RSet][index][block_offset_index][63:10] << 12)+v_addr[11:0];
+				assign p_addr = (Data[RSet][index][63:10] << 12)+v_addr[11:0];
 				assign addr_available = CACHE_HIT;
 			end
 			else if((Tag[SET2][index] == tag) && State[SET2][index]&VALID) begin
 				assign RSet=SET2;
-				assign p_addr = (Data[RSet][index][block_offset_index][63:10] <<12)+v_addr[11:0];
+				assign p_addr = (Data[RSet][index][63:10] <<12)+v_addr[11:0];
 				assign addr_available = CACHE_HIT;
 			end
 			else begin//pick least recently used set to be replaced
@@ -142,9 +141,9 @@ module Trans_Lookaside_Buff
 `endif
 				if(addr_available == CACHE_HIT) begin//not a miss
 `ifdef TLBDEBUG
-					$display("TLB :cache hit, returning v addr %d p addr %d \n",v_addr,p_addr);
-					$display("TLB :cache hit, index %d \n",index);
-					$display("TLB :cache hit, block_offset_index %d \n",block_offset_index);
+					$display("TLB :cache hit, returning v addr %d p addr %d",v_addr,p_addr);
+					$display("TLB :cache hit, index %d",index);
+					$display("TLB :cache hit, tag %d",tag);
 `endif
 					Wait_fr_mem_read <= UNSET_WAIT;
 					State[RSet][index][LRU_BIT]<= 0;
@@ -166,21 +165,14 @@ module Trans_Lookaside_Buff
 						$display("TLB : data arrived %x",data);
 `endif
 						Wait_fr_mem_read <= UNSET_WAIT;
-						Data[RSet][index][0] <= data[(SIZE*0)+(SIZE-1):(SIZE*0)];
-						Data[RSet][index][1] <= data[(SIZE*1)+(SIZE-1):(SIZE*1)];
-						Data[RSet][index][2] <= data[(SIZE*2)+(SIZE-1):(SIZE*2)];
-						Data[RSet][index][3] <= data[(SIZE*3)+(SIZE-1):(SIZE*3)];
-						Data[RSet][index][4] <= data[(SIZE*4)+(SIZE-1):(SIZE*4)];
-						Data[RSet][index][5] <= data[(SIZE*5)+(SIZE-1):(SIZE*5)];
-						Data[RSet][index][6] <= data[(SIZE*6)+(SIZE-1):(SIZE*6)];
-						Data[RSet][index][7] <= data[(SIZE*7)+(SIZE-1):(SIZE*7)];
+						Data[RSet][index] <= data;
 						Tag[RSet][index] <= tag;
 						State[RSet][index][VALID_BIT] <= 1;
 						State[RSet][index][LRU_BIT] <= 0;
 						State[~RSet][index][LRU_BIT] <= 1;
 					end
 					else begin
-`ifdef TLBDEBUG
+`ifdef TLBDEBUGEXTRA
 						$display("TLB :Waiting for va to pa to fetch block at %d",v_addr);
 `endif
 						va_pa_enable <= 0;

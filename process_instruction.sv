@@ -196,6 +196,7 @@ module process_instruction
             assign instruction_type=`UJ_TYPE;
 	    assign instruction_name="jal";
         end
+/*
 	`RET:
 	begin
             assign instruction_type=`I_TYPE;
@@ -203,6 +204,7 @@ module process_instruction
 	    assign tmp_flag[`IS_DIFF_INDEX]=1;
             assign tmp_flag[3:0]='b0000;
         end
+*/
 	`JALR:
 	begin
             assign instruction_type=`I_TYPE;

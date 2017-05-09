@@ -134,7 +134,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        cout << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        cout << "responding data " << std::dec << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -285,6 +285,7 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
         void* new_virt = ram_virt + (virt_addr & ~(PAGE_SIZE-1));
         assert(mmap(new_virt, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, ram_fd, pt_base_addr) == new_virt);
     }
+    cerr << "SYS Virtual address " << std::dec << virt_addr << " Physical address " << std::dec << (pt_base_addr | phy_offset) << endl;
     assert((pt_base_addr | phy_offset) < ramsize);
     return (pt_base_addr | phy_offset);
 }
