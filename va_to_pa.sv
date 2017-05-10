@@ -1,5 +1,5 @@
-`define VAPADEBUG
-`define VAPADEBUGEXTRA
+//`define VAPADEBUG
+//`define VAPADEBUGEXTRA
 module va_to_pa
 #(
     BUS_DATA_WIDTH = 64,
@@ -195,7 +195,7 @@ module va_to_pa
 `endif
                             if(main_bus_resp[0]==0) begin
                                 $display("VP not a valid page table entry");
-                                $finish;
+                                //$finish;
                             end
                             request_addr <= (main_bus_resp[63:10] << 12) + pt_no[11:0];
                             phy_addr <= main_bus_resp;

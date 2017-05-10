@@ -134,7 +134,7 @@ void System::tick(int clk) {
         top->bus_respcyc = 1;
         top->bus_resp = tx_queue.begin()->first;
         top->bus_resptag = tx_queue.begin()->second;
-        cout << "responding data " << std::dec << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
+        //cerr << "responding data " << top->bus_resp << " on tag " << std::hex << top->bus_resptag << endl;
     } else {
         top->bus_respcyc = 0;
         top->bus_resp = 0xaaaaaaaaaaaaaaaaULL;
@@ -147,7 +147,6 @@ void System::tick(int clk) {
             switch(cmd) {
             case MEMORY:
                 *((uint64_t*)(&ram[xfer_addr + (8-rx_count)*8])) = top->bus_req;
-		cout << "Writing to address" << std::dec << xfer_addr + (8-rx_count)*8 << "with data " << top->bus_req << endl;
                 break;
             case MMIO:
                 assert(xfer_addr < ramsize);
@@ -292,7 +291,7 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
 
 void System::load_segment(const int fd, const size_t memsz, const size_t filesz, uint64_t virt_addr) {
     if (VM_DEBUG) cout << "Read " << std::dec << filesz << " bytes at " << std::hex << virt_addr << endl;
-    for(size_t i = 0; i < memsz; ++i) virt_to_phy((virt_addr + i) & ~(PAGE_SIZE-1)); // prefault
+    for(size_t i = 0; i < memsz; ++i) virt_to_phy(virt_addr + i); // prefault
     assert(filesz == read(fd, &ram_virt[virt_addr], filesz));
 }
 
