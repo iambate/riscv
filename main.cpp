@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 	if (SHOWCONSOLE?(atoi(SHOWCONSOLE)!=0):0) sys.console();
 
 	while (sys.ticks/sys.ps_per_clock < 2000*GIGA && !Verilated::gotFinish()) {
-		cout << "NEW CYCLE-----------------------------------" <<endl;
+		//cout << "NEW CYCLE-----------------------------------" <<endl;
 		TICK();
 	}
 

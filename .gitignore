@@ -3,3 +3,4 @@ obj_dir/
 decode_old.sv
 trace.vcd
 tests/*.o
+logs/

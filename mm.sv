@@ -1,5 +1,5 @@
 `include "DCache.sv"
-`define MMDEBUG
+//`define MMDEBUG
 module mm
 #(
   BUS_DATA_WIDTH = 64,

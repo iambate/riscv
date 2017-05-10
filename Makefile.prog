@@ -6,4 +6,4 @@ CFLAGS=-march=rv64im
 .PHONY: all clean
 
 all: 
-	$(CC) $(CFLAGS) --static -O3 -o a.o test.c
+	$(CC) $(CFLAGS) --static -O3 -Wno-implicit-int -o a.o test.c

@@ -65,7 +65,7 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
             dst++;
         } while(*(src++));
     }
-
+    virt_to_phy(0);
     // load the program image
     if (ramelf) top->entry = load_elf(ramelf);
 
@@ -284,7 +284,7 @@ uint64_t System::virt_to_phy(const uint64_t virt_addr) {
         void* new_virt = ram_virt + (virt_addr & ~(PAGE_SIZE-1));
         assert(mmap(new_virt, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, ram_fd, pt_base_addr) == new_virt);
     }
-    cerr << "SYS Virtual address " << std::dec << virt_addr << " Physical address " << std::dec << (pt_base_addr | phy_offset) << endl;
+    //cerr << "SYS Virtual address " << std::dec << virt_addr << " Physical address " << std::dec << (pt_base_addr | phy_offset) << endl;
     assert((pt_base_addr | phy_offset) < ramsize);
     return (pt_base_addr | phy_offset);
 }

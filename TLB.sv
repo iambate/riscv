@@ -1,4 +1,4 @@
-`define TLBDEBUG
+//`define TLBDEBUG
 `define ENABLE_TLB
 module Trans_Lookaside_Buff
 #(
