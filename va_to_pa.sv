@@ -194,7 +194,7 @@ module va_to_pa
                             $display("VP request addr: %d", (main_bus_resp[63:10] << 12) + pt_no[11:0]);
 `endif
                             if(main_bus_resp[0]==0) begin
-                                $display("VP not a valid page table entry");
+                                //$display("VP not a valid page table entry");
                                 //$finish;
                             end
                             request_addr <= (main_bus_resp[63:10] << 12) + pt_no[11:0];

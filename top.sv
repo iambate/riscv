@@ -19,9 +19,7 @@ module top
   // 64-bit address of the program entry point
   input  [63:0] entry,
   input  [63:0] stackptr,
-  input  [63:0] satp,
-  
-
+  input  [63:0] satp,  
   // interface to connect to the bus
   output bus_reqcyc,
   output bus_respack,
@@ -39,22 +37,24 @@ module top
   logic [8:0] counter;
   logic [8:0] ncounter;
   logic [63:0] phy_addr;
-  logic [64*8-1:0] phy_addr_array;
-  logic va_pa_abtr_grant;
-  logic va_pa_abtr_reqcyc;
-  logic va_pa_bus_busy;
-  logic va_pa_enable;
-  logic va_pa_ready;
-  logic addr_data_abtr_grant;
-  logic addr_data_abtr_reqcyc;
-  logic addr_data_bus_busy;
-  logic addr_data_enable;
-  logic addr_data_ready;
-  logic store_data_abtr_grant;
-  logic store_data_abtr_reqcyc;
-  logic store_data_bus_busy;
-  logic store_data_enable;
-  logic store_data_ready;
+  logic fetch_va_pa_abtr_grant;
+  logic fetch_va_pa_abtr_reqcyc;
+  logic fetch_va_pa_bus_busy;
+  logic fetch_addr_data_abtr_grant;
+  logic fetch_addr_data_abtr_reqcyc;
+  logic fetch_addr_data_bus_busy;
+  logic fetch_store_data_abtr_grant;
+  logic fetch_store_data_abtr_reqcyc;
+  logic fetch_store_data_bus_busy;
+  logic mm_va_pa_abtr_grant;
+  logic mm_va_pa_abtr_reqcyc;
+  logic mm_va_pa_bus_busy;
+  logic mm_addr_data_abtr_grant;
+  logic mm_addr_data_abtr_reqcyc;
+  logic mm_addr_data_bus_busy;
+  logic mm_store_data_abtr_grant;
+  logic mm_store_data_abtr_reqcyc;
+  logic mm_store_data_bus_busy;
   logic [BUS_DATA_WIDTH*8-1:0] data;
   logic [INSTRUCTION_WIDTH-1:0] fetch_instruction_bits;
   logic [ADDRESS_WIDTH-1:0] fetch_pc;
@@ -88,101 +88,84 @@ module top
   logic display_regs;
   logic mm_update_rd_bool;
   logic mm_mm_load_bool;
+  logic mm_branch_taken_bool;
   logic [REGISTER_WIDTH-1:0] mm_mdata;
   logic [REGISTER_WIDTH-1:0] mm_alu_result;
+  logic [REGISTER_WIDTH-1:0] mm_rs2_value;
+  logic [REGISTER_WIDTH-1:0] mm_phy_addr;
   logic [REGISTERNO_WIDTH-1:0] mm_rd_regno;
   logic mm_ready;
   logic [INSTRUCTION_NAME_WIDTH-1:0] mm_opcode_name;
+  logic wb_update_rd_bool;
   logic wb_ready;
+  logic wb_syscall_flush;
+  logic [63:0] mm_pcplus1plusoffset;
   logic [REGISTER_WIDTH-1:0] wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] wb_rd_regno;
   logic [REGISTER_WIDTH-1:0] going2wb_wbdata;
   logic [REGISTERNO_WIDTH-1:0] going2wb_rd_regno;
-  logic [REGISTER_WIDTH-1:0] vapacounter;
-  logic [REGISTER_WIDTH-1:0] vapacountercase;
-
-  enum {STATERESET=4'b0000, STATEVAPABEGIN=4'b0001, STATEVAPAWAIT=4'b0010,
-        STATEADBEGIN=4'b0100, STATEADWAIT=4'b0101, STATEWDBEGIN=4'b0110, STATEWDWAIT=4'b0111, STATEEXEC=4'b1000} state, next_state;
 
   bus_controller bc    (.clk(clk),
-            .bus_reqcyc1(va_pa_abtr_reqcyc),
-            .bus_grant1(va_pa_abtr_grant),
-            .bus_reqcyc2(addr_data_abtr_reqcyc),
-            .bus_grant2(addr_data_abtr_grant),
-            .bus_reqcyc3(store_data_abtr_reqcyc),
-            .bus_grant3(store_data_abtr_grant),
-            .bus_busy(va_pa_bus_busy|addr_data_bus_busy|store_data_bus_busy)
-               );
-//TODO:add bus_busy as op to respective modules
-  va_to_pa va_to_pa1   (.clk(clk),
-            .reset(reset),
-            .ptbr(satp),
-            .enable(va_pa_enable),
-            .abtr_grant(va_pa_abtr_grant),
-            .abtr_reqcyc(va_pa_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_resptag(bus_resptag),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .virt_addr(old_pc),
-            .bus_busy(va_pa_bus_busy),
-            .phy_addr_array(phy_addr_array),
-            .ready(va_pa_ready)
+                        .bus_reqcyc1(fetch_va_pa_abtr_reqcyc),
+                        .bus_grant1(fetch_va_pa_abtr_grant),
+                        .bus_reqcyc2(fetch_addr_data_abtr_reqcyc),
+                        .bus_grant2(fetch_addr_data_abtr_grant),
+                        .bus_reqcyc3(fetch_store_data_abtr_reqcyc),
+                        .bus_grant3(fetch_store_data_abtr_grant),
+                        .bus_reqcyc4(mm_va_pa_abtr_reqcyc),
+                        .bus_grant4(mm_va_pa_abtr_grant),
+                        .bus_reqcyc5(mm_addr_data_abtr_reqcyc),
+                        .bus_grant5(mm_addr_data_abtr_grant),
+                        .bus_reqcyc6(mm_store_data_abtr_reqcyc),
+                        .bus_grant6(mm_store_data_abtr_grant),
+                        .bus_busy(fetch_va_pa_bus_busy|fetch_addr_data_bus_busy|fetch_store_data_bus_busy |
+                                  mm_va_pa_bus_busy|mm_addr_data_bus_busy|mm_store_data_bus_busy
+                                 )
                        );
+  fetch fetch_stage(    .clk(clk),
+                        .reset(reset),
+                        .entry(entry),
+                        .in_branch_taken_bool(alu_branch_taken_bool),
+                        .ptbr(satp),
+                        .in_target(alu_pcplus1plusoffs),
+                        .in_enable(mm_ready & alu_ready),
+                        .out_pcplus1(fetch_pc),
+                        .out_instruction_bits(fetch_instruction_bits),
+                        .out_ready(fetch_ready),
+                        .out_bus_reqcyc(bus_reqcyc),
+                        .out_bus_respack(bus_respack),
+                        .out_bus_req(bus_req),
+                        .out_bus_reqtag(bus_reqtag),
+                        .in_bus_respcyc(bus_respcyc),
+                        .in_bus_reqack(bus_reqack),
+                        .in_bus_resp(bus_resp),
+                        .in_bus_resptag(bus_resptag),
+                        .in_addr_data_abtr_grant(fetch_addr_data_abtr_grant),
+                        .out_addr_data_abtr_reqcyc(fetch_addr_data_abtr_reqcyc),
+                        .in_store_data_abtr_grant(fetch_store_data_abtr_grant),
+                        .out_store_data_abtr_reqcyc(fetch_store_data_abtr_reqcyc),
+                        .out_store_data_bus_busy(fetch_store_data_bus_busy),
+                        .out_addr_data_bus_busy(fetch_addr_data_bus_busy),
+                        .in_va_pa_abtr_grant(fetch_va_pa_abtr_grant),
+                        .out_va_pa_abtr_reqcyc(fetch_va_pa_abtr_reqcyc),
+                        .out_va_pa_bus_busy(fetch_va_pa_bus_busy),
+			.in_syscall_flush(wb_syscall_flush),
+			.in_sys_call_addrplus1(mm_pcplus1plusoffset));
 
-  addr_to_data addr_data(
-            .clk(clk),
-            .reset(reset),
-            .enable(addr_data_enable),
-            .abtr_grant(addr_data_abtr_grant),
-            .abtr_reqcyc(addr_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_resptag(bus_resptag),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqtag(bus_reqtag),
-            .bus_busy(addr_data_bus_busy),
-            .addr(phy_addr),
-            .data(data),
-            .ready(addr_data_ready)
-                       );
-
-  store_data store_data_0(
-            .clk(clk),
-            .reset(reset),
-            .enable(store_data_enable),
-            .abtr_grant(store_data_abtr_grant),
-            .abtr_reqcyc(store_data_abtr_reqcyc),
-            .main_bus_respcyc(bus_respcyc),
-            .main_bus_resptag(bus_resptag),
-            .main_bus_respack(bus_respack),
-            .main_bus_resp(bus_resp),
-            .main_bus_req(bus_req),
-            .main_bus_reqcyc(bus_reqcyc),
-            .main_bus_reqack(bus_reqack),
-            .main_bus_reqtag(bus_reqtag),
-            .bus_busy(store_data_bus_busy),
-            .addr(phy_addr),
-            .data(data),
-            .ready(store_data_ready)
-                       );
 
   decode decode0 (.clk(clk),
                   .reset(reset),
                   // alu_ready is for stall against alu->mm data hazard
                   .in_decode_enable(fetch_ready & mm_ready & alu_ready),
+                  .in_stackptr(stackptr),
                   .in_pcplus1(fetch_pc),
                   .in_instruction_bits(fetch_instruction_bits),
                   .in_wb_rd_value(going2wb_wbdata),
                   .in_wb_rd_regno(going2wb_rd_regno),
-                  .in_wb_enable(wb_ready),
+                  .in_wb_enable(wb_ready & fetch_ready & mm_ready),
                   .in_branch_taken_bool(alu_branch_taken_bool),
                   .in_display_regs(display_regs),
+                  .in_syscall_flush(wb_syscall_flush),
                   .out_pcplus1(decode_pcplus1),
                   .out_rs1_value(decode_rs1_value),
                   .out_rs2_value(decode_rs2_value),
@@ -191,6 +174,14 @@ module top
                   .out_rs2_regno(decode_rs2_regno),
                   .out_rd_regno(decode_rd_regno),
                   .out_opcode_name(decode_opcode_name),
+                  .out_a0(decode_a0),
+                  .out_a1(decode_a1),
+                  .out_a2(decode_a2),
+                  .out_a3(decode_a3),
+                  .out_a4(decode_a4),
+                  .out_a5(decode_a5),
+                  .out_a6(decode_a6),
+                  .out_a7(decode_a7),
                   .out_ready(decode_ready)
                   );
 
@@ -214,6 +205,10 @@ module top
                           .in_branch_taken_bool(alu_branch_taken_bool),
                           .in_mm_mm_load_bool(mm_mm_load_bool),
                           .in_alu_mm_load_bool(alu_mm_load_bool),
+                          .in_alu_update_rd_bool(alu_update_rd_bool),
+                          .in_mm_update_rd_bool(mm_update_rd_bool),
+                          .in_wb_update_rd_bool(wb_update_rd_bool),
+                          .in_syscall_flush(wb_syscall_flush),
                           .out_alu_result(alu_alu_result),
                           .out_rs2_value(alu_rs2_value),
                           .out_rd_regno(alu_rd_regno),
@@ -227,18 +222,44 @@ module top
 
   mm mm0 (.clk(clk),
           .in_enable(fetch_ready),
+          .ptbr(satp),
           .in_alu_result(alu_alu_result),
           .in_rs2_value(alu_rs2_value),
           .in_rd_regno(alu_rd_regno),
           .in_mm_load_bool(alu_mm_load_bool),
+          .in_branch_taken_bool(alu_branch_taken_bool),
           .in_update_rd_bool(alu_update_rd_bool),
           .in_opcode_name(alu_opcode_name),
           .out_update_rd_bool(mm_update_rd_bool),
+          .in_syscall_flush(wb_syscall_flush),
           .out_mm_load_bool(mm_mm_load_bool),
+          .out_branch_taken_bool(mm_branch_taken_bool),
+          .in_pcplus1plusoffs(alu_pcplus1plusoffs),
+          .out_pcplus1plusoffs(mm_pcplus1plusoffset),
           .out_mdata(mm_mdata),
+          .out_rs2_value(mm_rs2_value),
+          .out_phy_addr(mm_phy_addr),
           .out_alu_result(mm_alu_result),
           .out_rd_regno(mm_rd_regno),
-          .out_ready(mm_ready)
+          .out_opcode_name(mm_opcode_name),
+          .out_ready(mm_ready),
+          .out_bus_reqcyc(bus_reqcyc),
+          .out_bus_respack(bus_respack),
+          .out_bus_req(bus_req),
+          .out_bus_reqtag(bus_reqtag),
+          .in_bus_respcyc(bus_respcyc),
+          .in_bus_reqack(bus_reqack),
+          .in_bus_resp(bus_resp),
+          .in_bus_resptag(bus_resptag),
+          .in_addr_data_abtr_grant(mm_addr_data_abtr_grant),
+          .out_addr_data_abtr_reqcyc(mm_addr_data_abtr_reqcyc),
+          .in_store_data_abtr_grant(mm_store_data_abtr_grant),
+          .out_store_data_abtr_reqcyc(mm_store_data_abtr_reqcyc),
+          .out_store_data_bus_busy(mm_store_data_bus_busy),
+          .out_addr_data_bus_busy(mm_addr_data_bus_busy),
+          .in_va_pa_abtr_grant(mm_va_pa_abtr_grant),
+          .out_va_pa_abtr_reqcyc(mm_va_pa_abtr_reqcyc),
+          .out_va_pa_bus_busy(mm_va_pa_bus_busy)
           );
 
   writeback wb0(.clk(clk),
@@ -246,273 +267,40 @@ module top
                 .in_enable(fetch_ready & mm_ready),
                 .in_alu_result(mm_alu_result),
                 .in_mdata(mm_mdata),
+                .in_rs2_value(mm_rs2_value),
+                .in_phy_addr(mm_phy_addr),
                 .in_rd_regno(mm_rd_regno),
                 .in_mm_load_bool(mm_mm_load_bool),
                 .in_update_rd_bool(mm_update_rd_bool),
+                .in_branch_taken_bool(mm_branch_taken_bool),
+                .in_opcode_name(mm_opcode_name),
+                .out_update_rd_bool(wb_update_rd_bool),
                 .out_ready(wb_ready),
                 .out_wbdata(wb_wbdata),
                 .out_rd_regno(wb_rd_regno),
                 .out2wb_wbdata(going2wb_wbdata),
-                .out2wb_rd_regno(going2wb_rd_regno)
+                .out2wb_rd_regno(going2wb_rd_regno),
+                .in_a0(decode_a0),
+                .in_a1(decode_a1),
+                .in_a2(decode_a2),
+                .in_a3(decode_a3),
+                .in_a4(decode_a4),
+                .in_a5(decode_a5),
+                .in_a6(decode_a6),
+                .in_a7(decode_a7),
+                .out_syscall_flush(wb_syscall_flush),
+                .out_display_regs(display_regs)
                 );
-    always_comb begin
-        assign npc = pc + 64;
-        case(state)
-        STATERESET:
-        begin
-            assign next_state = STATEVAPABEGIN;
-        end
-        STATEVAPABEGIN:
-        begin
-            assign next_state = STATEVAPAWAIT;
-        end
-        STATEVAPAWAIT:
-        begin
-            assign next_state = va_pa_ready? STATEADBEGIN : STATEVAPAWAIT;
-        end
-        STATEADBEGIN:
-        begin
-            assign next_state = STATEADWAIT;
-        end
-        STATEADWAIT:
-        begin
-            assign next_state = addr_data_ready? STATEEXEC : STATEADWAIT;
-        end
-        STATEWDBEGIN:
-        begin
-            assign next_state = STATEWDWAIT;
-        end
-        STATEWDWAIT:
-        begin
-            assign next_state = store_data_ready? STATEEXEC : STATEWDWAIT;
-        end
-        STATEEXEC:
-        begin
-            assign next_state = (counter==16)? STATEVAPABEGIN : STATEEXEC;
-        end
-        endcase
-        case(next_state)
-        STATERESET:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEVAPABEGIN:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEVAPAWAIT:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEADBEGIN:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEADWAIT:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEWDBEGIN:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEWDWAIT:
-        begin
-            assign fetch_ready = 0;
-        end
-        STATEEXEC:
-        begin
-            assign ncounter = counter + 1;
-            assign fetch_ready = 0;
-        end
-        endcase
-        assign vapacountercase = vapacounter >> 12;
-    end
-    always @ (posedge clk) begin
-        $display("new cycle pc : %d, vapacountercase: %d", old_pc, vapacountercase);
-        if (reset) begin
-            state <= STATERESET;
-            pc <= entry[63:12]<<12;
-            old_pc <= entry[63:12]<<12;
-        end else begin
-            if(addr_data_ready & !data && state == STATEEXEC) begin
-                display_regs <= 1;
-            end else if (addr_data_ready & !data && state == STATEVAPABEGIN) begin
-                $finish;
-            end
-            state <= next_state;
-            case(next_state)
-            STATEADBEGIN:
-            begin
-                $display("phy_addr_array %x", phy_addr_array);
-                $display("vapacounter %d", vapacounter);
-                $display("should_req: %d", (phy_addr_array[REGISTER_WIDTH*0+REGISTER_WIDTH-1:REGISTER_WIDTH*0+10]<<12) + vapacounter[11:0]);
-                counter <= 0;
-                addr_data_enable <= 1;
-                vapacounter <= vapacounter + 64;
-                case(vapacountercase)
-                0:
-                begin
-                    phy_addr <= (phy_addr_array[REGISTER_WIDTH*0+REGISTER_WIDTH-1:REGISTER_WIDTH*0+10]<<12) + vapacounter[11:0];
-                end
-                1:
-                begin
-                    phy_addr <= (phy_addr_array[REGISTER_WIDTH*1+REGISTER_WIDTH-1:REGISTER_WIDTH*1+10]<<12) + vapacounter[11:0];
-                end
-                2:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*2+REGISTER_WIDTH-1:REGISTER_WIDTH*2+10]<<12 + vapacounter[11:0];
-                end
-                3:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*3+REGISTER_WIDTH-1:REGISTER_WIDTH*3+10]<<12 + vapacounter[11:0];
-                end
-                4:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*4+REGISTER_WIDTH-1:REGISTER_WIDTH*4+10]<<12 + vapacounter[11:0];
-                end
-                5:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*5+REGISTER_WIDTH-1:REGISTER_WIDTH*5+10]<<12 + vapacounter[11:0];
-                end
-                6:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*6+REGISTER_WIDTH-1:REGISTER_WIDTH*6+10]<<12 + vapacounter[11:0];
-                end
-                7:
-                begin
-                    phy_addr <= phy_addr_array[REGISTER_WIDTH*7+REGISTER_WIDTH-1:REGISTER_WIDTH*7+10]<<12 + vapacounter[11:0];
-                end
-                endcase
-            end
-            STATEADWAIT:
-            begin
-                addr_data_enable <= 0;
-            end
-            STATEVAPABEGIN:
-            begin
-                $display("TOP virtual address: %d physical address: %x", old_pc, phy_addr_array);
-		$display("TOP PTBR: %d", satp);
-                if(vapacounter == 4096*8) begin
-			old_pc <= pc;
-			vapacounter <= 0;
-                end
-                pc <= npc;
-                va_pa_enable <= 1;
-            end
-            STATEVAPAWAIT:
-            begin
-                va_pa_enable <= 0;
-            end
-            STATEEXEC:
-            begin
-                if(alu_ready) begin
-                  counter <= ncounter;
-                  $display();
-                  case(counter)
-                  0:
-                  begin
-                    fetch_pc <= old_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*0+SIZE-1:SIZE*0];
-                    $display("TOP 0 data: %x", data[SIZE*0+SIZE-1:SIZE*0]);
-                  end
-                  1:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*1+SIZE-1:SIZE*1];
-                    $display("TOP 1 data: %x", data[SIZE*1+SIZE-1:SIZE*1]);
-                  end
-                  2:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*2+SIZE-1:SIZE*2];
-                    $display("TOP 2 data: %x", data[SIZE*2+SIZE-1:SIZE*2]);
-                  end
-                  3:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*3+SIZE-1:SIZE*3];
-                    $display("TOP 3 data: %x", data[SIZE*3+SIZE-1:SIZE*3]);
-                  end
-                  4:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*4+SIZE-1:SIZE*4];
-                    $display("TOP 4 data: %x", data[SIZE*4+SIZE-1:SIZE*4]);
-                  end
-                  5:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*5+SIZE-1:SIZE*5];
-                    $display("TOP 5 data: %x", data[SIZE*5+SIZE-1:SIZE*5]);
-                  end
-                  6:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*6+SIZE-1:SIZE*6];
-                    $display("TOP 6 data: %x", data[SIZE*6+SIZE-1:SIZE*6]);
-                  end
-                  7:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*7+SIZE-1:SIZE*7];
-                    $display("TOP 7 data: %x", data[SIZE*7+SIZE-1:SIZE*7]);
-                  end
-                  8:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*8+SIZE-1:SIZE*8];
-                    $display("TOP 8 data: %x", data[SIZE*8+SIZE-1:SIZE*8]);
-                  end
-                  9:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*9+SIZE-1:SIZE*9];
-                    $display("TOP 9 data: %x", data[SIZE*9+SIZE-1:SIZE*9]);
-                  end
-                  10:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*10+SIZE-1:SIZE*10];
-                    $display("TOP 10 data: %x", data[SIZE*10+SIZE-1:SIZE*10]);
-                  end
-                  11:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*11+SIZE-1:SIZE*11];
-                    $display("TOP 11 data: %x", data[SIZE*11+SIZE-1:SIZE*11]);
-                  end
-                  12:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*12+SIZE-1:SIZE*12];
-                    $display("TOP 12 data: %x", data[SIZE*12+SIZE-1:SIZE*12]);
-                  end
-                  13:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*13+SIZE-1:SIZE*13];
-                    $display("TOP 13 data: %x", data[SIZE*13+SIZE-1:SIZE*13]);
-                  end
-                  14:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*14+SIZE-1:SIZE*14];
-                    $display("TOP 14 data: %x", data[SIZE*14+SIZE-1:SIZE*14]);
-                  end
-                  15:
-                  begin
-                    fetch_pc <= fetch_pc + 4;
-                    fetch_instruction_bits <= data[SIZE*15+SIZE-1:SIZE*15];
-                    $display("TOP 15 data: %x", data[SIZE*15+SIZE-1:SIZE*15]);
-                  end
-                  endcase
-                end
-            end
-            endcase
-        end
-    end
-  initial begin
-    $display("Initializing top, entry point = 0x%x", entry);
-  end
+/*
+always_ff @(posedge clk) begin
+  $display("bus req", bus_req);
+  $display("bus reqcyc", bus_reqcyc);
+  $display("bus reqtag", bus_reqtag);
+  $display("bus reqack", bus_reqack);
+  $display("bus resp", bus_resp);
+  $display("bus respcyc", bus_respcyc);
+  $display("bus resptag", bus_resptag);
+  $display("bus respack", bus_respack);
+end
+*/
 endmodule
