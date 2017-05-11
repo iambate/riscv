@@ -70,7 +70,7 @@ System::System(Vtop* top, unsigned ramsize, const char* ramelf, const int argc, 
     if (ramelf) top->entry = load_elf(ramelf);
 
     ecall_brk = max_elf_addr;
-
+    for(int x = 1; x < 100; ++x) virt_to_phy(top->stackptr-PAGE_SIZE*x);
     // create the dram simulator
     dramsim = DRAMSim::getMemorySystemInstance("DDR2_micron_16M_8b_x8_sg3E.ini", "system.ini", "../dramsim2", "dram_result", ramsize / MEGA);
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<System, void, unsigned, uint64_t, uint64_t>(this, &System::dram_read_complete);

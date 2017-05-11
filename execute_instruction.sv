@@ -158,6 +158,8 @@ endfunction
   logic [REGISTER_WIDTH-1:0] tmp;
   logic [REGISTER_WIDTH-1:0] n_value1;
   logic [REGISTER_WIDTH-1:0] n_value2;
+  logic [REGISTER_WIDTH-1:0] stall_value1;
+  logic [REGISTER_WIDTH-1:0] stall_value2;
   logic [REGISTER_WIDTH-1:0] n_alu_result;
   logic [ADDRESS_WIDTH-1:0] n_pc;
   logic n_branch_taken_bool;
@@ -203,7 +205,11 @@ endfunction
     end else if ((in_rs1_regno == in_wb_rd_regno) && in_wb_update_rd_bool) begin
       assign n_value1 = in_wb_data;
     end else begin
-      assign n_value1 = in_rs1_value;
+      if (stall_cycs == 1) begin
+        assign n_value1 = stall_value1;
+      end else begin
+        assign n_value1 = in_rs1_value;
+      end
     end
 
     // For rs2
@@ -228,7 +234,11 @@ endfunction
     end else if ((in_rs2_regno == in_wb_rd_regno) && in_wb_update_rd_bool) begin
       assign n_value2 = in_wb_data;
     end else begin
-      assign n_value2 = in_rs2_value;
+      if (stall_cycs == 1) begin
+        assign n_value2 = stall_value2;
+      end else begin
+        assign n_value2 = in_rs2_value;
+      end
     end
 
     if(in_rs1_regno == 0) begin
@@ -674,6 +684,8 @@ endfunction
         $display("ALU flushed due to branch taken");
 `endif
         stall_cycs <= 0;
+        stall_value1 <= 0;
+        stall_value2 <= 0;
         out_alu_result <= 0;
         out_branch_taken_bool <= 0;
         out_pcplus1plusoffs <= 0;
@@ -710,6 +722,8 @@ endfunction
         $display("ALU rd_regno %d", in_rd_regno);
 `endif
         stall_cycs <= n_stall_cycs;
+        stall_value1 <= n_value1;
+        stall_value2 <= n_value2;
         out_alu_result <= n_alu_result;
         out_branch_taken_bool <= n_branch_taken_bool;
         out_pcplus1plusoffs <= n_pc;
@@ -722,8 +736,8 @@ endfunction
     end else if (in_enable) begin
 `ifdef ALUDEBUG
         $display("ALU stall due to ALU->MM dependency");
-//`endif
-//`ifdef ALUDEBUGEXTRA
+`endif
+`ifdef ALUDEBUGEXTRA
         $display("ALU stall_cycs %d", n_stall_cycs);
         $display("ALU branch bool %d", n_branch_taken_bool);
         $display("ALU pc %d", n_pc);
@@ -742,6 +756,8 @@ endfunction
         $display("ALU given imm %d", in_imm_value);
 `endif
         stall_cycs <= n_stall_cycs;
+        stall_value1 <= n_value1;
+        stall_value2 <= n_value2;
         out_alu_result <= 0;
         out_branch_taken_bool <= 0;
         out_pcplus1plusoffs <= 0;

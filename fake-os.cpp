@@ -38,6 +38,7 @@ extern "C" {
     void do_ecall(long long a7, long long a0, long long a1, long long a2, long long a3, long long a4, long long a5, long long a6, long long* a0ret) {
         vector<pair<long long, char[ECALL_MEMGUARD+63]> > memargs;
 
+	//cout << "SYSCALL with a7 " << a7 << " a0 " << a0  << " a1 " << a1 << " a2 " << a2 << " a3 " << a3 << endl;
         switch(a7) {
 
         case __NR_brk:
